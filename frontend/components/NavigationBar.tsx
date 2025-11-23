@@ -109,7 +109,7 @@ export default function NavigationBar({
               {user ? (
                 <div className="flex items-center gap-5 pl-5 border-l border-white/20">
                   <div className="text-right hidden xl:block">
-                    <p className="text-base font-bold text-white">{user.email}</p>
+                    <p className="text-base font-bold text-white">{user.username || user.email}</p>
                     <div className="flex justify-end">
                       <span className="inline-flex items-center px-3 py-1 rounded text-xs font-medium bg-white/10 text-sky-aqua">
                         {user.isAdmin ? "Admin" : user.teamId ? "Membre d'équipe" : "Utilisateur Libre"}

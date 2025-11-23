@@ -15,7 +15,7 @@ export class AuthController {
    */
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password, firstName, lastName, school, grade, specialty, captchaToken } = req.body;
+      const { email, password, firstName, lastName, username, affiliation, school, grade, specialty, captchaToken } = req.body;
 
       // Verify CAPTCHA if required
       if (isCaptchaRequired()) {
@@ -47,9 +47,25 @@ export class AuthController {
         return;
       }
 
+      // Check if username already exists
+      if (username) {
+        const existingUsername = await User.findOne({ where: { username } });
+        if (existingUsername) {
+          res.status(400).json({
+            success: false,
+            message: 'Ce nom d\'utilisateur est déjà pris.',
+          });
+          return;
+        }
+      }
+
       // Generate verification token
       const verificationToken = generateToken();
       const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Use affiliation as primary source, fallback to school if needed
+      const finalAffiliation = affiliation || school;
+      const finalSchool = school || affiliation;
 
       // Create user
       const user = await User.create({
@@ -57,7 +73,9 @@ export class AuthController {
         password,
         firstName,
         lastName,
-        school,
+        username,
+        affiliation: finalAffiliation,
+        school: finalSchool,
         grade,
         specialty,
         verificationToken,
@@ -214,6 +232,8 @@ export class AuthController {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            username: user.username,
+            affiliation: user.affiliation,
             isAdmin: user.isAdmin,
             emailVerified: user.emailVerified,
             teamId: user.teamId,

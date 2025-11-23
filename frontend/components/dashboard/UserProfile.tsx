@@ -5,9 +5,11 @@ interface UserProfileProps {
     firstName: string;
     lastName: string;
     email: string;
-    school: string | null;
-    grade: string | null;
-    specialty: string | null;
+    username?: string | null;
+    school?: string | null;
+    grade?: string | null;
+    specialty?: string | null;
+    affiliation?: string | null;
   };
 }
 
@@ -30,6 +32,15 @@ export default function UserProfile({ user }: UserProfileProps) {
             </p>
           </div>
 
+          {user.username && (
+            <div className="group">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
+                Nom d'utilisateur
+              </p>
+              <p className="text-white font-mono text-sm">@{user.username}</p>
+            </div>
+          )}
+
           <div className="group">
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
               Contact
@@ -40,9 +51,9 @@ export default function UserProfile({ user }: UserProfileProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="group">
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
-                Établissement
+                Affiliation / Établissement
               </p>
-              <p className="text-white">{user.school || <span className="text-gray-500 italic">Non renseigné</span>}</p>
+              <p className="text-white font-medium">{user.affiliation || user.school || <span className="text-gray-500 italic">Non renseigné</span>}</p>
             </div>
             <div className="group">
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">

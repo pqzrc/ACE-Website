@@ -69,6 +69,19 @@ export class User extends Model {
   })
   specialty!: string | null;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    unique: true,
+  })
+  username!: string | null;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  affiliation!: string | null;
+
   @ForeignKey(() => Team)
   @Column({
     type: DataType.UUID,

@@ -6,6 +6,7 @@ Site web pour gérer les inscriptions et le suivi de l'ACE 2025.
 
 ### Participants
 - Inscription avec validation email
+- Profil enrichi (Username, Affiliation)
 - Création d'équipes (3-5 personnes)
 - Code d'invitation pour rejoindre une équipe
 - Dashboard avec informations d'équipe, score et classement
@@ -55,6 +56,9 @@ cp .env.example .env
 
 # Démarrer avec Docker
 npm run dev
+
+# Appliquer les migrations de base de données (si nécessaire)
+docker compose exec backend npx sequelize-cli db:migrate
 ```
 
 ### Accès

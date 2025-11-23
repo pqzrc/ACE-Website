@@ -3,12 +3,15 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  school: string;
-  grade: string;
-  specialty: string;
-  isAdmin: boolean;
+  school?: string | null;
+  grade?: string | null;
+  specialty?: string | null;
+  username?: string | null;
+  affiliation?: string | null;
+  teamId?: string | null;
   emailVerified: boolean;
-  teamId: string | null;
+  isAdmin: boolean;
+  ctfdUserId?: number | null;
 }
 
 export interface Team {
@@ -19,6 +22,7 @@ export interface Team {
   members: TeamMember[];
   memberCount: number;
   isComplete: boolean;
+  affiliation?: string | null;
   roomNumber: number | null;
   sessionStartTime: string | null;
   currentScore: number;

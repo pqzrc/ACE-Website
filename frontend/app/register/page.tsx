@@ -19,7 +19,8 @@ export default function RegisterPage() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    school: '',
+    username: '',
+    affiliation: '',
     grade: '',
     specialty: '',
   });
@@ -52,7 +53,9 @@ export default function RegisterPage() {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        school: formData.school,
+        username: formData.username,
+        affiliation: formData.affiliation,
+        school: formData.affiliation, // Map affiliation to school for backward compatibility
         grade: formData.grade,
         specialty: formData.specialty,
         captchaToken: captchaToken || undefined,
@@ -159,6 +162,19 @@ export default function RegisterPage() {
                     iconColor="text-gray-500"
                   />
                 </div>
+                <div className="mt-6">
+                  <FormField
+                    label="Nom d'utilisateur (Pseudo)"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="CyberNinja974"
+                    required
+                    icon={User}
+                    iconColor="text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1 ml-1">Ce nom sera affiché publiquement sur le classement.</p>
+                </div>
               </FormSection>
 
               {/* Section Connexion */}
@@ -212,11 +228,11 @@ export default function RegisterPage() {
                 </p>
                 <div className="space-y-6">
                   <FormField
-                    label="Établissement"
-                    name="school"
-                    value={formData.school}
+                    label="Établissement / Affiliation"
+                    name="affiliation"
+                    value={formData.affiliation}
                     onChange={handleChange}
-                    placeholder="Lycée, Université, Entreprise..."
+                    placeholder="Lycée Bellepierre, Université, Entreprise..."
                     icon={School}
                     iconColor="text-gray-500"
                   />

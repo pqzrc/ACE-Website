@@ -77,6 +77,12 @@ export class Team extends Model {
   isComplete!: boolean;
 
   @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  affiliation!: string | null;
+
+  @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })

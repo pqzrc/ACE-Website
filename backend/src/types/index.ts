@@ -3,7 +3,14 @@ import { Request } from 'express';
 export interface UserPayload {
   id: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string | null;
+  affiliation?: string | null;
+  teamId?: string | null;
   isAdmin: boolean;
+  iat?: number;
+  exp?: number;
 }
 
 export interface AuthRequest extends Request {
