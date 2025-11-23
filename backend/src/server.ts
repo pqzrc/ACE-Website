@@ -19,9 +19,10 @@ import ctfdRoutes from './routes/ctfd.routes';
 const app = express();
 
 // Middleware
+app.set('trust proxy', 1); // Trust first proxy (Nginx)
 app.use(helmet());
 app.use(cors({
-  origin: config.nodeEnv === 'development' 
+  origin: config.nodeEnv === 'development'
     ? ['http://localhost:3000', 'http://localhost', 'http://127.0.0.1:3000']
     : config.frontendUrl,
   credentials: true,
@@ -46,7 +47,7 @@ app.use('/api/ctfd', ctfdRoutes);
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
@@ -67,16 +68,16 @@ const startServer = async () => {
   try {
     // Validate environment variables
     validateEnv();
-    
+
     // Connect to database
     await connectDatabase();
-    
+
     // Connect to Redis
     await connectRedis();
-    
+
     // Create admin user if not exists
     await createAdminUser();
-    
+
     // Start listening
     app.listen(config.port, () => {
       logger.info(`🚀 Server is running on port ${config.port}`);

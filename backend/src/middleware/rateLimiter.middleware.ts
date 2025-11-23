@@ -4,10 +4,6 @@ import type { Request } from 'express';
 /**
  * Whitelist of hostnames/services that should bypass rate limiting
  */
-const whitelist = [
-  'ace-ctf-platform-ctfd-1',
-];
-
 /**
  * Check if a request should skip rate limiting
  */
@@ -17,8 +13,8 @@ const skipWhitelisted = (req: Request): boolean => {
   // NOT the Docker internal IP, so this is safe
 
   const clientIp = req.ip ||
-                   req.socket.remoteAddress ||
-                   '';
+    req.socket.remoteAddress ||
+    '';
 
   // Only check Docker internal IPs if we're actually in a Docker environment
   // This prevents attackers from spoofing X-Forwarded-For headers in production
@@ -33,16 +29,6 @@ const skipWhitelisted = (req: Request): boolean => {
       clientIp.includes('::ffff:10.');
 
     if (isDockerInternal) {
-      return true;
-    }
-  }
-
-  // Secondary check: Trusted service header (only trust in Docker environment)
-  // This prevents external attackers from setting X-Service-Name header
-  if (isDockerEnvironment) {
-    const serviceName = req.get('x-service-name') || '';
-
-    if (serviceName && whitelist.some(service => serviceName.toLowerCase() === service.toLowerCase())) {
       return true;
     }
   }
@@ -69,9 +55,9 @@ export const authLimiter = rateLimit({
 
     // Fallback: IP address
     return req.ip ||
-           req.socket.remoteAddress ||
-           (req.get('x-forwarded-for')?.split(',')[0]?.trim()) ||
-           'unknown';
+      req.socket.remoteAddress ||
+      (req.get('x-forwarded-for')?.split(',')[0]?.trim()) ||
+      'unknown';
   },
 
   message: {

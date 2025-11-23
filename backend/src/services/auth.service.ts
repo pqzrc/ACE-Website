@@ -20,7 +20,7 @@ class AuthService {
     };
 
     // @ts-ignore - Type issue avec jsonwebtoken en mode strict
-    return jwt.sign(payload, config.jwtSecret, {
+    return jwt.sign(payload, config.jwtSecret!, {
       expiresIn: config.jwtExpiresIn,
     });
   }
@@ -30,7 +30,7 @@ class AuthService {
    */
   verifyToken(token: string): UserPayload {
     try {
-      const decoded = jwt.verify(token, config.jwtSecret) as UserPayload;
+      const decoded = jwt.verify(token, config.jwtSecret!) as UserPayload;
       return decoded;
     } catch (error) {
       throw new Error('Invalid or expired token');
@@ -47,7 +47,7 @@ class AuthService {
     };
 
     // @ts-ignore - Type issue avec jsonwebtoken en mode strict
-    return jwt.sign(payload, config.jwtSecret, {
+    return jwt.sign(payload, config.jwtSecret!, {
       expiresIn: '30d',
     });
   }

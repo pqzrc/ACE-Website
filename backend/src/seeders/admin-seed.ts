@@ -7,7 +7,7 @@ export const createAdminUser = async (): Promise<void> => {
     const existingAdmin = await User.findOne({ where: { email: config.adminEmail } });
 
     // Utiliser le hash depuis l'env si disponible, sinon générer un nouveau
-    const hashedPassword = process.env.ADMIN_HASH || await bcrypt.hash(config.adminPassword, 10);
+    const hashedPassword = process.env.ADMIN_HASH || await bcrypt.hash(config.adminPassword!, 10);
 
     if (!existingAdmin) {
       await User.create({

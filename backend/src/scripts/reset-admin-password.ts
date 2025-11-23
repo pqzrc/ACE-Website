@@ -10,6 +10,12 @@ import { config } from '../config/env';
 
 const resetAdminPassword = async () => {
   try {
+    // Validate required environment variables
+    if (!config.adminEmail || !config.adminPassword) {
+      console.error('❌ ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required');
+      process.exit(1);
+    }
+
     // Connect to database
     await connectDatabase();
 

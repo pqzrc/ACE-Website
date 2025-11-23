@@ -3,7 +3,9 @@ import { User } from '../models/User';
 import { Team } from '../models/Team';
 import { Registration } from '../models/Registration';
 
-const databaseUrl = process.env.DATABASE_URL || 'postgresql://aceuser:acepass@localhost:5432/acedb';
+import { config } from './env';
+
+const databaseUrl = config.databaseUrl!;
 
 export const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
@@ -21,7 +23,7 @@ export const connectDatabase = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
-    
+
     // Sync models in development
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
