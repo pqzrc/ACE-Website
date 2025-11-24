@@ -136,9 +136,10 @@ export default function DashboardPage() {
       }
 
       // Créer un formulaire invisible pour envoyer le token à CTFd
+      const ctfdUrl = process.env.NEXT_PUBLIC_CTFD_URL || 'http://localhost:8000';
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = 'http://localhost:8000/sso/authenticate';
+      form.action = `${ctfdUrl}/sso/authenticate`;
       form.target = '_blank'; // Ouvrir dans un nouvel onglet
       form.style.display = 'none';
 
