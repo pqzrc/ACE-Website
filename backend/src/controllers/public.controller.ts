@@ -13,17 +13,20 @@ export class PublicController {
       });
 
       // Charger les noms des salles
-      const fs = require('fs');
-      const path = require('path');
-      const roomsFile = path.join(__dirname, '../../data/rooms.json');
       let roomNames = {};
 
-      if (fs.existsSync(roomsFile)) {
-        try {
-          roomNames = JSON.parse(fs.readFileSync(roomsFile, 'utf8'));
-        } catch (e) {
-          logger.error('Error reading rooms file:', e);
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const roomsFile = path.join(__dirname, '../../data/rooms.json');
+
+        if (fs.existsSync(roomsFile)) {
+          const fileContent = fs.readFileSync(roomsFile, 'utf8');
+          roomNames = JSON.parse(fileContent);
         }
+      } catch (fileError) {
+        // Log the error but don't fail the whole request
+        logger.warn('Could not load rooms.json, using empty object:', fileError);
       }
 
       res.json({
@@ -32,6 +35,7 @@ export class PublicController {
       });
     } catch (error) {
       logger.error('Get public leaderboard error:', error);
+      logger.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la récupération du classement.'
