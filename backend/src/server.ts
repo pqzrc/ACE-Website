@@ -21,11 +21,32 @@ const app = express();
 // Middleware
 app.set('trust proxy', 1); // Trust first proxy (Nginx)
 app.use(helmet());
+
+// CORS Configuration - Allow frontend and CTFd origins
+const allowedOrigins = config.nodeEnv === 'development'
+  ? ['http://localhost:3000', 'http://localhost', 'http://127.0.0.1:3000']
+  : [
+    config.frontendUrl,
+    'https://ace.vizyondijital.fr',
+    'https://ctfd.vizyondijital.fr',
+    'https://api.vizyondijital.fr',
+  ].filter(Boolean); // Remove undefined values
+
 app.use(cors({
-  origin: config.nodeEnv === 'development'
-    ? ['http://localhost:3000', 'http://localhost', 'http://127.0.0.1:3000']
-    : config.frontendUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+      callback(null, true);
+    } else {
+      logger.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Webhook-Signature'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
