@@ -17,6 +17,5 @@ RUN npm run build
 # Expose port
 EXPOSE 5000
 
-# Start application
-CMD ["npm", "run", "dev"]
-
+# Start application in production mode
+CMD ["npm", "run", "start"]

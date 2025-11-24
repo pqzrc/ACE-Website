@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Only load .env file in development
+// In production, variables are injected by Docker via env_file
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 export const config = {
   // Server

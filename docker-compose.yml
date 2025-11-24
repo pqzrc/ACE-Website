@@ -15,14 +15,11 @@ services:
       - NEXT_PUBLIC_CTFD_URL=${NEXT_PUBLIC_CTFD_URL}
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=3000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     depends_on:
       - backend
     networks:
       - ace-network
+    restart: unless-stopped
 
   backend:
     build:
@@ -33,13 +30,8 @@ services:
     env_file:
       - .env
     environment:
-      - DOCKER_ENV=true
       - PORT=5000
       - NODE_ENV=${NODE_ENV:-production}
-
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,21 +39,23 @@ services:
         condition: service_started
     networks:
       - ace-network
+    restart: unless-stopped
 
   postgres:
     image: postgres:14-alpine
     environment:
-      - POSTGRES_DB=acedb
-      - POSTGRES_USER=aceuser
-      - POSTGRES_PASSWORD=acepass
+      - POSTGRES_DB=${POSTGRES_DB:-acedb}
+      - POSTGRES_USER=${POSTGRES_USER:-aceuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-acepass}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - ace-network
+    restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U aceuser -d acedb" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aceuser} -d ${POSTGRES_DB:-acedb}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -74,21 +68,12 @@ services:
       - redis_data:/data
     networks:
       - ace-network
-
-  mailhog:
-    image: mailhog/mailhog:latest
-    ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # Interface web
-    networks:
-      - ace-network
-    profiles:
-      - dev
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
     ports:
-      - "8080:80" # Port interne pour Apache reverse proxy
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -96,6 +81,7 @@ services:
       - backend
     networks:
       - ace-network
+    restart: unless-stopped
 
 networks:
   ace-network:
@@ -104,5 +90,3 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-
-
