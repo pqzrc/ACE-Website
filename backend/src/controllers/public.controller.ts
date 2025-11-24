@@ -38,7 +38,33 @@ export class PublicController {
       });
     }
   }
+
+  // Obtenir les noms des salles (public)
+  async getRoomNames(req: Request, res: Response): Promise<void> {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const roomsFile = path.join(__dirname, '../../data/rooms.json');
+
+      if (!fs.existsSync(roomsFile)) {
+        // Si le fichier n'existe pas, renvoyer les valeurs par défaut
+        const defaultRooms = {
+          "1": "Salle 1",
+          "2": "Salle 2",
+          "3": "Salle 3",
+          "4": "Salle 4"
+        };
+        res.json({ success: true, data: defaultRooms });
+        return;
+      }
+
+      const data = fs.readFileSync(roomsFile, 'utf8');
+      res.json({ success: true, data: JSON.parse(data) });
+    } catch (error) {
+      logger.error('Get room names error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des noms de salles.' });
+    }
+  }
 }
 
 export default new PublicController();
-

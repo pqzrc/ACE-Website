@@ -22,7 +22,7 @@ export function useTeamData() {
 
         // Fetch room names for all users
         try {
-          const roomsResponse = await api.get('/admin/rooms/names');
+          const roomsResponse = await api.get('/public/rooms');
           if (roomsResponse.data.success) {
             setRoomNames(roomsResponse.data.data);
           }
