@@ -271,6 +271,7 @@ export default function DashboardPage() {
                   userId={user.id}
                   onLeaveTeam={handleLeaveTeam}
                   leavingTeam={leavingTeam}
+                  roomNames={roomNames}
                 />
               </div>
             </div>
