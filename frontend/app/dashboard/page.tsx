@@ -21,9 +21,12 @@ import ConfirmationModal from '@/components/ui/ConfirmationModal';
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout, updateUser } = useAuth();
-  const { team, loading: teamLoading, setTeam } = useTeamData();
-  const { stats, teams: allTeams, roomNames, loading: adminLoading, updateTeam, setRoomNames } = useAdminData(user?.isAdmin ?? false);
+  const { team, roomNames: teamRoomNames, loading: teamLoading, setTeam } = useTeamData();
+  const { stats, teams: allTeams, roomNames: adminRoomNames, loading: adminLoading, updateTeam, setRoomNames } = useAdminData(user?.isAdmin ?? false);
   const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(allTeams, updateTeam);
+
+  // Merge roomNames from both sources (admin takes precedence)
+  const roomNames = user?.isAdmin ? adminRoomNames : teamRoomNames;
   const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms'>('team');
   const [leavingTeam, setLeavingTeam] = useState(false);
   const [redirectingToCTFd, setRedirectingToCTFd] = useState(false);

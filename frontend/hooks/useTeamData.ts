@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 export function useTeamData() {
   const { user, updateUser } = useAuth();
   const [team, setTeam] = useState<Team | null>(null);
+  const [roomNames, setRoomNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,6 +19,17 @@ export function useTeamData() {
     const fetchTeam = async () => {
       try {
         setError(null);
+
+        // Fetch room names for all users
+        try {
+          const roomsResponse = await api.get('/admin/rooms/names');
+          if (roomsResponse.data.success) {
+            setRoomNames(roomsResponse.data.data);
+          }
+        } catch {
+          // Ignore errors, room names are optional
+        }
+
         // First, refresh user profile to get latest teamId
         try {
           const profileResponse = await api.get('/auth/profile');
@@ -58,6 +70,6 @@ export function useTeamData() {
     fetchTeam();
   }, [user, updateUser]);
 
-  return { team, loading, error, setTeam };
+  return { team, roomNames, loading, error, setTeam };
 }
 
