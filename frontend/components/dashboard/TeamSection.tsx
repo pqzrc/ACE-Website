@@ -22,7 +22,7 @@ interface TeamSectionProps {
   userId: string;
   onLeaveTeam: () => void;
   leavingTeam: boolean;
-  roomNames?: Record<number, string>;
+  roomNames?: Record<string, string>;
 }
 
 export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, roomNames = {} }: TeamSectionProps) {
@@ -94,7 +94,7 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
             <MapPin className="w-5 h-5 text-purple-400" />
             <div>
               <p className="text-xs text-purple-300 uppercase font-bold">Salle</p>
-              <p className="text-white font-mono text-lg">{roomNames[team.roomNumber] || `Salle ${team.roomNumber}`}</p>
+              <p className="text-white font-mono text-lg">{roomNames[team.roomNumber!.toString()] || `Salle ${team.roomNumber}`}</p>
             </div>
           </div>
         )}
