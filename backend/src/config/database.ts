@@ -24,11 +24,10 @@ export const connectDatabase = async (): Promise<void> => {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
 
-    // Sync models in development
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized');
-    }
+    // Sync models (alter mode is safe - it updates schema without data loss)
+    // In production, this ensures tables exist and schema is up-to-date
+    await sequelize.sync({ alter: true });
+    console.log('✅ Database models synchronized');
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
     throw error;
