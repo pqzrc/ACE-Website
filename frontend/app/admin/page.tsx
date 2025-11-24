@@ -16,8 +16,9 @@ export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout } = useAuth();
   const { stats, teams, loading, updateTeam, setTeams } = useAdminData(user?.isAdmin ?? false);
-  const { handleExportCSV, handleAssignRoom, handleStartSession } = useAdminActions(teams, updateTeam);
+  const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(teams, updateTeam);
   const [activeTab, setActiveTab] = useState<'stats' | 'teams' | 'rooms'>('stats');
+  const [roomNames, setRoomNames] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) {
@@ -31,17 +32,6 @@ export default function AdminPage() {
       alert('Salle assignée avec succès');
     } catch (error) {
       alert('Erreur lors de l\'assignation');
-    }
-  };
-
-  const handleStartSessionWithConfirm = async (roomNumber: number) => {
-    if (!confirm(`Démarrer la session pour la salle ${roomNumber} ?`)) return;
-    try {
-      await handleStartSession(roomNumber);
-      alert(`Session démarrée pour la salle ${roomNumber}`);
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      alert(err.response?.data?.message || 'Erreur lors du démarrage');
     }
   };
 
@@ -81,15 +71,31 @@ export default function AdminPage() {
 
         {/* Rooms Tab */}
         {activeTab === 'rooms' && (
-          <AdminRoomsManagement 
-            teams={teams} 
+          <AdminRoomsManagement
+            teams={teams}
             onAssignRoom={handleAssignRoomWithAlert}
-            onStartSession={handleStartSessionWithConfirm}
+            roomNames={roomNames}
+            onUpdateRoomName={async (roomNumber, name) => {
+              await handleUpdateRoomName(roomNumber, name);
+              setRoomNames(prev => ({ ...prev, [roomNumber]: name }));
+            }}
+            onAddRoom={async () => {
+              await handleAddRoom();
+            }}
+            onDeleteRoom={async (roomNumber) => {
+              await handleDeleteRoom(roomNumber);
+              setRoomNames(prev => {
+                const newNames = { ...prev };
+                delete newNames[roomNumber];
+                return newNames;
+              });
+            }}
           />
         )}
       </main>
     </div>
   );
 }
+
 
 
