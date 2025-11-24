@@ -30,7 +30,7 @@ const allowedOrigins = config.nodeEnv === 'development'
     'https://ace.vizyondijital.fr',
     'https://ctfd.vizyondijital.fr',
     'https://api.vizyondijital.fr',
-  ].filter(Boolean); // Remove undefined values
+  ].filter((origin): origin is string => Boolean(origin)); // Remove undefined values
 
 app.use(cors({
   origin: (origin, callback) => {
