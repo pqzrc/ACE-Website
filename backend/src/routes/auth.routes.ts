@@ -12,8 +12,22 @@ const router = Router();
 const registerSchema = z.object({
   email: z.string().email('Email invalide'),
   password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-  firstName: z.string().min(2, 'Prénom requis'),
-  lastName: z.string().min(2, 'Nom requis'),
+  firstName: z
+    .string()
+    .min(2, 'Prénom requis')
+    .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
+    .refine(
+      (name) => isUsernameAppropriate(name),
+      'Le prénom contient des mots inappropriés'
+    ),
+  lastName: z
+    .string()
+    .min(2, 'Nom requis')
+    .max(50, 'Le nom ne peut pas dépasser 50 caractères')
+    .refine(
+      (name) => isUsernameAppropriate(name),
+      'Le nom contient des mots inappropriés'
+    ),
   username: z
     .string()
     .min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères')
