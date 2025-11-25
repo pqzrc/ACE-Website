@@ -1,4 +1,4 @@
-.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell db-backup deploy pull push
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell db-backup db-list-users db-list-teams db-stats deploy pull push
 
 # ACE Website - Makefile
 # Usage: make <commande>
@@ -137,6 +137,89 @@ db-count-users: ## Compter les utilisateurs
 
 db-count-teams: ## Compter les équipes
 	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_teams FROM teams;"
+
+db-list-users: ## Lister tous les utilisateurs (id, email, username, nom)
+	@echo "Liste complète des utilisateurs:"
+	@echo "================================"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT id, email, username, \"firstName\", \"lastName\", \"emailVerified\", \"isAdmin\", \"createdAt\" FROM users ORDER BY \"createdAt\" DESC;"
+
+db-list-users-simple: ## Lister les utilisateurs (format simple)
+	@echo "Utilisateurs (email | username | nom):"
+	@echo "======================================"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT email, username, CONCAT(\"firstName\", ' ', \"lastName\") as nom FROM users ORDER BY \"createdAt\" DESC;"
+
+db-list-teams: ## Lister toutes les équipes avec membres
+	@echo "Liste des équipes:"
+	@echo "=================="
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT t.id, t.name, t.\"currentScore\", t.rank, COUNT(u.id) as membres FROM teams t LEFT JOIN users u ON u.\"teamId\" = t.id GROUP BY t.id ORDER BY t.\"currentScore\" DESC;"
+
+db-search-user: ## Rechercher un utilisateur (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-search-user EMAIL=test@example.com"; \
+		exit 1; \
+	fi
+	@echo "Recherche de l'utilisateur: $(EMAIL)"
+	@echo "===================================="
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT * FROM users WHERE email ILIKE '%$(EMAIL)%';"
+
+db-user-details: ## Détails d'un utilisateur (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-user-details EMAIL=test@example.com"; \
+		exit 1; \
+	fi
+	@echo "Détails de l'utilisateur: $(EMAIL)"
+	@echo "=================================="
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT u.*, t.name as team_name FROM users u LEFT JOIN teams t ON u.\"teamId\" = t.id WHERE u.email = '$(EMAIL)';"
+
+db-stats: ## Statistiques complètes de la base
+	@echo "Statistiques de la base de données"
+	@echo "==================================="
+	@echo ""
+	@echo "Utilisateurs:"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total, COUNT(CASE WHEN \"emailVerified\" = true THEN 1 END) as verified, COUNT(CASE WHEN \"isAdmin\" = true THEN 1 END) as admins, COUNT(CASE WHEN \"teamId\" IS NOT NULL THEN 1 END) as in_teams FROM users;" -t
+	@echo ""
+	@echo "Équipes:"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_teams, AVG(member_count) as avg_members FROM (SELECT COUNT(u.id) as member_count FROM teams t LEFT JOIN users u ON u.\"teamId\" = t.id GROUP BY t.id) as team_stats;" -t
+	@echo ""
+	@echo "Inscriptions récentes (dernières 24h):"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as new_users FROM users WHERE \"createdAt\" \u003e NOW() - INTERVAL '24 hours';" -t
+
+db-delete-user: ## Supprimer un utilisateur (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-delete-user EMAIL=test@example.com"; \
+		exit 1; \
+	fi
+	@echo "ATTENTION: Suppression de l'utilisateur $(EMAIL)"
+	@read -p "Confirmer (yes/no): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "DELETE FROM users WHERE email = '$(EMAIL)';"; \
+		echo "Utilisateur supprimé"; \
+	else \
+		echo "Annulé"; \
+	fi
+
+db-make-admin: ## Rendre un utilisateur admin (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-make-admin EMAIL=admin@example.com"; \
+		exit 1; \
+	fi
+	@echo "Promotion de $(EMAIL) en admin"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "UPDATE users SET \"isAdmin\" = true WHERE email = '$(EMAIL)';"
+	@echo "Utilisateur promu admin"
+
+db-verify-email: ## Vérifier manuellement un email (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-verify-email EMAIL=test@example.com"; \
+		exit 1; \
+	fi
+	@echo "Vérification manuelle de l'email: $(EMAIL)"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "UPDATE users SET \"emailVerified\" = true, \"verificationToken\" = NULL, \"verificationTokenExpiry\" = NULL WHERE email = '$(EMAIL)';"
+	@echo "Email vérifié"
 
 # --- Nettoyage ---
 
