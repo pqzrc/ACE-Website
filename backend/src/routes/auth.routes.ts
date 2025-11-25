@@ -4,7 +4,7 @@ import authController from '../controllers/auth.controller';
 import { protect } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { authLimiter, loginLimiter } from '../middleware/rateLimiter.middleware';
-import { isUsernameAppropriate } from '../utils/profanity-filter';
+import { isUsernameAppropriate, isNameAppropriate } from '../utils/profanity-filter';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ const registerSchema = z.object({
     .min(2, 'Prénom requis')
     .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
     .refine(
-      (name) => isUsernameAppropriate(name),
+      (name) => isNameAppropriate(name),
       'Le prénom contient des mots inappropriés'
     ),
   lastName: z
@@ -25,7 +25,7 @@ const registerSchema = z.object({
     .min(2, 'Nom requis')
     .max(50, 'Le nom ne peut pas dépasser 50 caractères')
     .refine(
-      (name) => isUsernameAppropriate(name),
+      (name) => isNameAppropriate(name),
       'Le nom contient des mots inappropriés'
     ),
   username: z

@@ -278,3 +278,41 @@ export const getUsernameValidationError = (username: string): string | null => {
   }
   return null;
 };
+
+/**
+ * Vérifie si un nom/prénom contient des mots inappropriés
+ * DIFFÉRENCE avec isUsernameAppropriate: Autorise les accents (é, è, à, etc.)
+ * mais bloque toujours les caractères Unicode dangereux (cyrillique, grec, zero-width, etc.)
+ * @param name - Le nom ou prénom à vérifier
+ * @returns true si le nom est valide, false sinon
+ */
+export const isNameAppropriate = (name: string): boolean => {
+  // 0. Nettoyer les caractères Unicode dangereux
+  const cleaned = cleanUnicode(name);
+
+  // SÉCURITÉ: Bloquer les caractères non-latins (cyrillique, grec, chinois, etc.)
+  // Mais AUTORISER les accents (à, é, è, ê, ç, ñ, etc.)
+  // Regex: lettres latines de base + accents + espaces + tirets + apostrophes
+  if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(cleaned)) {
+    return false;
+  }
+
+  // 1. Vérifier avec leo-profanity
+  if (leoProfanity.check(cleaned)) {
+    return false;
+  }
+
+  // 2. Normaliser pour détecter les contournements
+  const normalized = normalize(cleaned);
+  if (leoProfanity.check(normalized)) {
+    return false;
+  }
+
+  // 3. Vérifier sans les chiffres (au cas où)
+  const withoutNumbers = cleaned.toLowerCase().replace(/[0-9]/g, '');
+  if (withoutNumbers && leoProfanity.check(withoutNumbers)) {
+    return false;
+  }
+
+  return true;
+};
