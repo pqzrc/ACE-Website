@@ -186,6 +186,22 @@ leoProfanity.add(VBW_WORDS);
 export const FORBIDDEN_WORDS = [...ACE_RESERVED_WORDS, ...VBW_WORDS];
 
 /**
+ * Nettoie les caractères Unicode dangereux (homoglyphes, zero-width, RTL)
+ * SÉCURITÉ: Bloque les bypass Unicode avancés
+ */
+const cleanUnicode = (text: string): string => {
+  return text
+    // Retire les caractères zero-width (invisibles)
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    // Retire les caractères RTL override (inversion de texte)
+    .replace(/[\u202A-\u202E]/g, '')
+    // Retire les caractères de contrôle Unicode
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+    // Normalisation NFKC (convertit les variantes Unicode en forme standard)
+    .normalize('NFKC');
+};
+
+/**
  * Normalise un texte pour détecter les contournements (leet speak, accents, caractères spéciaux)
  */
 const normalize = (text: string): string => {
@@ -219,23 +235,33 @@ const normalize = (text: string): string => {
  * Vérifie si un username contient des mots inappropriés
  * Utilise leo-profanity avec support leet-speak et multilingue
  * Filtre modéré: bloque les mots complets mais pas les sous-parties (évite faux positifs)
+ * SÉCURITÉ: Bloque les bypass Unicode, zero-width, RTL override
  * @param username - Le username à vérifier
  * @returns true si le username est valide, false sinon
  */
 export const isUsernameAppropriate = (username: string): boolean => {
+  // 0. Nettoyer les caractères Unicode dangereux
+  const cleaned = cleanUnicode(username);
+
+  // SÉCURITÉ: Bloquer les caractères non-ASCII (empêche homoglyphes cyrilliques, grecs, etc.)
+  // Autorise uniquement: a-z, A-Z, 0-9, _, -
+  if (!/^[a-zA-Z0-9_-]+$/.test(cleaned)) {
+    return false;
+  }
+
   // 1. Vérifier l'original avec leo-profanity
-  if (leoProfanity.check(username)) {
+  if (leoProfanity.check(cleaned)) {
     return false;
   }
 
   // 2. Normaliser le username pour détecter les contournements leet-speak + substitutions
-  const normalized = normalize(username);
+  const normalized = normalize(cleaned);
   if (leoProfanity.check(normalized)) {
     return false;
   }
 
   // 3. Triple vérification: retire complètement les chiffres (pour NI56GGER → NIGGER)
-  const withoutNumbers = username.toLowerCase().replace(/[0-9]/g, '');
+  const withoutNumbers = cleaned.toLowerCase().replace(/[0-9]/g, '');
   if (withoutNumbers && leoProfanity.check(withoutNumbers)) {
     return false;
   }
