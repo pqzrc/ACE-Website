@@ -11,6 +11,7 @@ import FormField from '@/components/forms/FormField';
 import FormSection from '@/components/forms/FormSection';
 import SuccessMessage from '@/components/ui/SuccessMessage';
 import HCaptcha from '@/components/HCaptcha';
+import UsernameField from '@/components/forms/UsernameField';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -163,17 +164,10 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="mt-6">
-                  <FormField
-                    label="Nom d'utilisateur (Pseudo)"
-                    name="username"
+                  <UsernameField
                     value={formData.username}
                     onChange={handleChange}
-                    placeholder="CyberNinja974"
-                    required
-                    icon={User}
-                    iconColor="text-gray-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1 ml-1">Ce nom sera affiché publiquement sur le classement.</p>
                 </div>
               </FormSection>
 
