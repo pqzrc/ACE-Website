@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affectation Équipe - Opération Data-Campus</title>
+    <!-- Import Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset & Base */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050511;
+            /* Fond principal */
+            font-family: 'Inter', sans-serif;
+            color: #f6f2f9;
+            /* Texte clair */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #050511;
+            padding-bottom: 40px;
+        }
+
+        .main-table {
+            background-color: #050511;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            padding: 40px 0 20px 0;
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        /* Card */
+        .card {
+            background-color: #0f0e4a;
+            /* Fond secondaire */
+            border-radius: 16px;
+            border: 1px solid rgba(252, 16, 202, 0.3);
+            /* Accent Rose */
+            padding: 40px;
+            margin: 0 20px;
+            box-shadow: 0 0 30px rgba(252, 16, 202, 0.1);
+            /* Glow Rose */
+            text-align: center;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(252, 16, 202, 0.5);
+            /* Glow Rose */
+        }
+
+        .accent-text {
+            color: #fc10ca;
+            /* Accent Rose */
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 25px 0;
+            color: #f6f2f9;
+        }
+
+        /* Team Badge */
+        .team-badge {
+            background-color: rgba(252, 16, 202, 0.1);
+            border: 1px solid #fc10ca;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .team-label {
+            color: #fc10ca;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .team-name {
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Button */
+        .btn-container {
+            margin: 35px 0;
+        }
+
+        .btn {
+            background-color: #fc10ca;
+            /* Accent Rose */
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(252, 16, 202, 0.4);
+            /* Glow bouton */
+            border: 1px solid #fc10ca;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #d90db0;
+            box-shadow: 0 0 30px rgba(252, 16, 202, 0.6);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .footer-link {
+            color: #09c7df;
+            /* Accent Bleu */
+            text-decoration: none;
+        }
+
+        /* Utilities */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(15, 14, 74, 0) 0%, rgba(252, 16, 202, 0.5) 50%, rgba(15, 14, 74, 0) 100%);
+            margin: 30px 0;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <table class="main-table">
+            <!-- Header -->
+            <tr>
+                <td class="header">
+                    <div class="logo-container">
+                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80"
+                            height="80" style="display: block; margin: 0 auto;">
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+                <td>
+                    <div class="card">
+                        <h1>Affectation <span class="accent-text">Confirmée</span></h1>
+
+                        <p>Agent <strong>{{firstName}}</strong>,</p>
+
+                        <p>Votre demande de transfert a été approuvée. Vous avez été affecté à une nouvelle unité
+                            d'intervention pour l'opération du 11 Décembre.</p>
+
+                        <div class="team-badge">
+                            <div class="team-label">UNITÉ D'INTERVENTION</div>
+                            <div class="team-name">{{teamName}}</div>
+                        </div>
+
+                        <p>Prenez contact avec vos coéquipiers dès maintenant pour établir votre stratégie avant le jour
+                            J.</p>
+
+                        <div class="btn-container">
+                            <a href="{{teamLink}}" class="btn">Rejoindre mon Unité</a>
+                        </div>
+
+                        <hr class="divider">
+
+                        <p style="font-size: 13px; margin-bottom: 0;">
+                            La cohésion d'équipe sera déterminante.<br>
+                            Préparez-vous ensemble.
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+                <td class="footer">
+                    <p class="footer-text">
+                        &copy; 2025 Vizyon Dijital<br>
+                        Opération Data-Campus.<br>
+                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer';
 import { config } from '../config/env';
 import { logger } from '../utils/logger';
 
+import { getVerificationEmailHtml, getWelcomeEmailHtml, getTeamJoinEmailHtml } from '../utils/email-templates';
+
 class EmailService {
   private transporter: nodemailer.Transporter;
 
@@ -30,81 +32,12 @@ class EmailService {
 
   async sendVerificationEmail(email: string, token: string, firstName: string): Promise<void> {
     const verificationUrl = `${config.frontendUrl}/verify?token=${token}`;
-    
+
     const mailOptions = {
       from: config.smtpFrom,
       to: email,
-      subject: 'Vérifiez votre email - ACE Escape Game',
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-              }
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-              }
-              .header {
-                background: linear-gradient(135deg, #1a187d 0%, #fc10ca 100%);
-                color: white;
-                padding: 30px;
-                text-align: center;
-                border-radius: 10px 10px 0 0;
-              }
-              .content {
-                background: #f6f2f9;
-                padding: 30px;
-                border-radius: 0 0 10px 10px;
-              }
-              .button {
-                display: inline-block;
-                padding: 15px 30px;
-                background: #fc10ca;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-                margin: 20px 0;
-              }
-              .footer {
-                text-align: center;
-                margin-top: 20px;
-                color: #666;
-                font-size: 12px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>ACE 2025</h1>
-                <p>Bienvenue dans l'aventure cybersécurité !</p>
-              </div>
-              <div class="content">
-                <h2>Bonjour ${firstName} ! </h2>
-                <p>Merci de vous être inscrit à l'ACE Escape Game 2025.</p>
-                <p>Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
-                <center>
-                  <a href="${verificationUrl}" class="button">Vérifier mon email</a>
-                </center>
-                <p>Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :</p>
-                <p style="word-break: break-all; color: #09c7df;">${verificationUrl}</p>
-                <p><strong>Ce lien expire dans 24 heures.</strong></p>
-                <p>Après vérification, vous pourrez créer ou rejoindre une équipe de 3 à 5 personnes.</p>
-              </div>
-              <div class="footer">
-                <p>Si vous n'avez pas créé de compte, ignorez cet email.</p>
-                <p>© 2025 ACE Escape Game - Événement Cybersécurité</p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `,
+      subject: 'URGENT : Ordre de Mobilisation - Opération Data-Campus',
+      html: getVerificationEmailHtml(firstName, verificationUrl),
     };
 
     try {
@@ -116,68 +49,46 @@ class EmailService {
     }
   }
 
-  async sendWelcomeEmail(email: string, firstName: string, teamName: string): Promise<void> {
+  async sendAccountConfirmedEmail(email: string, firstName: string, teamName: string = 'Non assigné'): Promise<void> {
+    const dashboardUrl = `${config.frontendUrl}/dashboard`;
+
     const mailOptions = {
       from: config.smtpFrom,
       to: email,
-      subject: 'Bienvenue dans votre équipe - ACE Escape Game',
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-              }
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-              }
-              .header {
-                background: linear-gradient(135deg, #1a187d 0%, #09c7df 100%);
-                color: white;
-                padding: 30px;
-                text-align: center;
-                border-radius: 10px 10px 0 0;
-              }
-              .content {
-                background: #f6f2f9;
-                padding: 30px;
-                border-radius: 0 0 10px 10px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>🎉 Équipe formée !</h1>
-              </div>
-              <div class="content">
-                <h2>Félicitations ${firstName} !</h2>
-                <p>Vous faites maintenant partie de l'équipe <strong>${teamName}</strong>.</p>
-                <p>Vous recevrez plus d'informations sur l'événement dans les prochains jours.</p>
-                <p>À bientôt pour l'ACE Escape Game ! 🚀</p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `,
+      subject: 'Accréditation Validée - Opération Data-Campus',
+      html: getWelcomeEmailHtml(firstName, teamName, dashboardUrl),
     };
 
     try {
       await this.transporter.sendMail(mailOptions);
-      logger.info(`Welcome email sent to ${email}`);
+      logger.info(`Account confirmed email sent to ${email}`);
     } catch (error) {
-      logger.error('Failed to send welcome email:', error);
+      logger.error('Failed to send account confirmed email:', error);
+      // Non-blocking error
+    }
+  }
+
+  async sendWelcomeEmail(email: string, firstName: string, teamName: string): Promise<void> {
+    const teamUrl = `${config.frontendUrl}/team`;
+
+    const mailOptions = {
+      from: config.smtpFrom,
+      to: email,
+      subject: 'Affectation Équipe Confirmée - Opération Data-Campus',
+      html: getTeamJoinEmailHtml(firstName, teamName, teamUrl),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      logger.info(`Team join email sent to ${email}`);
+    } catch (error) {
+      logger.error('Failed to send team join email:', error);
     }
   }
 
   async sendPasswordResetEmail(email: string, token: string, firstName: string): Promise<void> {
     const resetUrl = `${config.frontendUrl}/reset-password?token=${token}`;
-    
+
     const mailOptions = {
       from: config.smtpFrom,
       to: email,

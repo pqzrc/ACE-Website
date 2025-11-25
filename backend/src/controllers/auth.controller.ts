@@ -164,6 +164,11 @@ export class AuthController {
         { where: { userId: user.id } }
       );
 
+      // Send account confirmed email in background
+      emailService.sendAccountConfirmedEmail(user.email, user.firstName).catch(() => {
+        logger.warn(`Failed to send account confirmed email to ${user.email}.`);
+      });
+
       logger.info(`Email verified for user: ${user.email}`);
 
       res.json({
