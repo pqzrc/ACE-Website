@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import { User } from '../models/User';
 import { Registration, RegistrationStatus } from '../models/Registration';
 import authService from '../services/auth.service';
@@ -37,8 +38,12 @@ export class AuthController {
         }
       }
 
-      // Check if user already exists
-      const existingUser = await User.findOne({ where: { email } });
+      // Check if user already exists (case-insensitive email)
+      const existingUser = await User.findOne({
+        where: {
+          email: { [Op.iLike]: email }
+        }
+      });
       if (existingUser) {
         res.status(400).json({
           success: false,
@@ -47,9 +52,13 @@ export class AuthController {
         return;
       }
 
-      // Check if username already exists
+      // Check if username already exists (case-insensitive)
       if (username) {
-        const existingUsername = await User.findOne({ where: { username } });
+        const existingUsername = await User.findOne({
+          where: {
+            username: { [Op.iLike]: username }
+          }
+        });
         if (existingUsername) {
           res.status(400).json({
             success: false,

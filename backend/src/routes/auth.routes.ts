@@ -4,6 +4,7 @@ import authController from '../controllers/auth.controller';
 import { protect } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { authLimiter, loginLimiter } from '../middleware/rateLimiter.middleware';
+import { isUsernameAppropriate } from '../utils/profanity-filter';
 
 const router = Router();
 
@@ -13,6 +14,23 @@ const registerSchema = z.object({
   password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
   firstName: z.string().min(2, 'Prénom requis'),
   lastName: z.string().min(2, 'Nom requis'),
+  username: z
+    .string()
+    .min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères')
+    .max(20, 'Le nom d\'utilisateur ne peut pas dépasser 20 caractères')
+    .regex(
+      /^[a-zA-Z0-9_-]+$/,
+      'Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores'
+    )
+    .regex(
+      /^[a-zA-Z0-9].*[a-zA-Z0-9]$/,
+      'Le nom d\'utilisateur doit commencer et finir par une lettre ou un chiffre'
+    )
+    .refine(
+      (username) => isUsernameAppropriate(username),
+      'Ce nom d\'utilisateur contient des mots interdits'
+    ),
+  affiliation: z.string().optional(),
   // Champs optionnels pour les statistiques
   school: z.string().optional(),
   grade: z.string().optional(),
