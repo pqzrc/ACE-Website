@@ -225,7 +225,7 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
             <tr>
                 <td class="header">
                     <!-- Placeholder for Vizyon Dijital Logo -->
-                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/Logo+Vizyon+Dijital+Blanc.png" alt="Vizyon Dijital"
                         class="vizyon-logo">
                     <div class="invitation-title">URGENCE DSI</div>
                     <div class="invitation-subtitle">11 Décembre • Vérification Requise</div>
@@ -521,7 +521,7 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
             <tr>
                 <td class="header">
                     <!-- Placeholder for Vizyon Dijital Logo -->
-                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/Logo+Vizyon+Dijital+Blanc.png" alt="Vizyon Dijital"
                         class="vizyon-logo">
                     <div class="invitation-title">ACCRÉDITATION</div>
                     <div class="invitation-subtitle">11 Décembre • IUT de Martinique</div>
@@ -805,7 +805,7 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
             <tr>
                 <td class="header">
                     <!-- Placeholder for Vizyon Dijital Logo -->
-                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/Logo+Vizyon+Dijital+Blanc.png" alt="Vizyon Dijital"
                         class="vizyon-logo">
                     <div class="invitation-title">AFFECTATION</div>
                     <div class="invitation-subtitle">11 Décembre • Équipe Confirmée</div>
