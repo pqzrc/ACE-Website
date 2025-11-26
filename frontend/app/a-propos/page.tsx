@@ -184,10 +184,6 @@ export default function AProposPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-neon-rose mt-1">•</span>
-                      <span>Certificats de participation</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-neon-rose mt-1">•</span>
                       <span>Reconnaissance de vos compétences</span>
                     </li>
                   </ul>
