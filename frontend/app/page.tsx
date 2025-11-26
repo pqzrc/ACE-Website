@@ -59,11 +59,11 @@ export default function Home() {
 
             <h1 className="font-display text-5xl lg:text-7xl font-bold mb-6 leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gray-400">
-                Escape Game
+                Antilles
               </span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua text-glow">
-                Cybersécurité
+                Cyber Escape
               </span>
             </h1>
 
