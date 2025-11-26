@@ -13,7 +13,7 @@ const PartnerLogos = [
     name: "Université des Antilles"
   },
   {
-    src: "/cvec.png",
+    src: "/assets/logo/cvec.png",
     alt: "CVEC - Contribution de Vie Étudiante et de Campus",
     name: "CVEC"
   },
