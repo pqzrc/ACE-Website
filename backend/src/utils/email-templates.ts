@@ -676,3 +676,5 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
 </body>
 </html>`;
 };
+
+

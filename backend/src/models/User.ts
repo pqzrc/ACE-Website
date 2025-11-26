@@ -55,18 +55,6 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  school!: string | null;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  grade!: string | null;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
   specialty!: string | null;
 
   @Column({
@@ -80,7 +68,7 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  affiliation!: string | null;
+  composante!: string | null;
 
   @ForeignKey(() => Team)
   @Column({

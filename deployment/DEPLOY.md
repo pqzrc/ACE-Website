@@ -16,7 +16,7 @@ Connectez-vous en SSH à votre VPS et exécutez :
 
 ```bash
 sudo apt update
-sudo apt install -y apache2 docker.io docker-compose-plugin git
+sudo apt install -y apache2 docker.io docker compose-plugin git
 ```
 
 ### 2. Cloner le projet

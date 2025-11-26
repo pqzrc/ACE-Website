@@ -1,14 +1,23 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LayoutDashboard, BookOpen } from "lucide-react";
 import PixelBlast from "@/components/PixelBlast";
 import NavigationBar from "@/components/NavigationBar";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by checking for token
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
   return (
     <div className="min-h-screen bg-deep-navy relative overflow-hidden selection:bg-neon-rose selection:text-white">
-      
+
       {/* Header */}
       <NavigationBar />
 
@@ -47,7 +56,7 @@ export default function Home() {
               </span>
               <span className="text-xs font-medium text-neon-rose uppercase tracking-wider">Inscriptions ouvertes</span>
             </div>
-            
+
             <h1 className="font-display text-5xl lg:text-7xl font-bold mb-6 leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gray-400">
                 Escape Game
@@ -57,23 +66,44 @@ export default function Home() {
                 Cybersécurité
               </span>
             </h1>
-            
-           
-            
+
+            {/* Conditional Buttons based on login status */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
-              <Link
-                href="/register"
-                className="group relative px-8 py-4 bg-neon-rose hover:bg-neon-rose/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon flex items-center gap-2"
-              >
-                Rejoindre l'aventure
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/login"
-                className="px-8 py-4 bg-deep-navy/80 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-xl backdrop-blur-md transition-all"
-              >
-                J'ai déjà un compte
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="group relative px-8 py-4 bg-neon-rose hover:bg-neon-rose/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon flex items-center gap-2"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Accéder au tableau de bord
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    href="/a-propos"
+                    className="px-8 py-4 bg-deep-navy/80 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-xl backdrop-blur-md transition-all flex items-center gap-2"
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    Voir les règles
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="group relative px-8 py-4 bg-neon-rose hover:bg-neon-rose/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon flex items-center gap-2"
+                  >
+                    Rejoindre l'aventure
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="px-8 py-4 bg-deep-navy/80 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-xl backdrop-blur-md transition-all"
+                  >
+                    J'ai déjà un compte
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

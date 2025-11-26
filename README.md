@@ -91,7 +91,7 @@ ACE-website/
 │   ├── lib/           # Utilities et types
 │   └── Dockerfile
 ├── nginx/             # Configuration Nginx
-└── docker-compose.yml
+└── docker compose.yml
 ```
 
 ## API Endpoints

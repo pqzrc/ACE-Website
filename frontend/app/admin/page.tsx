@@ -15,10 +15,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout } = useAuth();
-  const { stats, teams, loading, updateTeam, setTeams } = useAdminData(user?.isAdmin ?? false);
+  const { stats, teams, roomNames, loading, updateTeam, setTeams, setRoomNames } = useAdminData(user?.isAdmin ?? false);
   const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(teams, updateTeam);
   const [activeTab, setActiveTab] = useState<'stats' | 'teams' | 'rooms'>('stats');
-  const [roomNames, setRoomNames] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) {
@@ -32,6 +31,22 @@ export default function AdminPage() {
       alert('Salle assignée avec succès');
     } catch (error) {
       alert('Erreur lors de l\'assignation');
+    }
+  };
+
+  const handleAddRoomWithUpdate = async () => {
+    try {
+      const result = await handleAddRoom();
+      if (result) {
+        // Update room names with the new room
+        setRoomNames(prev => ({
+          ...prev,
+          [result.id]: result.name
+        }));
+        alert('Salle ajoutée avec succès');
+      }
+    } catch (error) {
+      alert('Erreur lors de l\'ajout de la salle');
     }
   };
 
@@ -52,8 +67,8 @@ export default function AdminPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <AdminTabs 
-            activeTab={activeTab} 
+          <AdminTabs
+            activeTab={activeTab}
             onTabChange={(tab) => setActiveTab(tab as 'stats' | 'teams' | 'rooms')}
             showTeamTab={false}
           />
@@ -79,9 +94,7 @@ export default function AdminPage() {
               await handleUpdateRoomName(roomNumber, name);
               setRoomNames(prev => ({ ...prev, [roomNumber]: name }));
             }}
-            onAddRoom={async () => {
-              await handleAddRoom();
-            }}
+            onAddRoom={handleAddRoomWithUpdate}
             onDeleteRoom={async (roomNumber) => {
               await handleDeleteRoom(roomNumber);
               setRoomNames(prev => {

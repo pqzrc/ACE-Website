@@ -1,21 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
-import { Lock, Mail, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import PixelBlast from "@/components/PixelBlast";
 import NavigationBar from '@/components/NavigationBar';
+import PasswordField from '@/components/forms/PasswordField';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +50,20 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-neon-rose" />
+      </div>
+    );
+  }
+
+  // If user is logged in, don't render anything (redirect will happen)
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-deep-navy relative overflow-hidden">
@@ -111,20 +133,14 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">Mot de passe</label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-sky-aqua transition-colors" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full bg-deep-navy/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-sky-aqua/50 focus:ring-1 focus:ring-sky-aqua/50 transition-all"
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
+              <PasswordField
+                label="Mot de passe"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
 
               <button
                 type="submit"

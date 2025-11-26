@@ -80,7 +80,7 @@ export class Team extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  affiliation!: string | null;
+  composante!: string | null;
 
   @Column({
     type: DataType.INTEGER,

@@ -1,9 +1,10 @@
-.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell db-backup db-list-users db-list-teams db-stats deploy pull push
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell db-backup db-list-users db-list-teams db-stats deploy pull push dev dev-stop dev-logs
 
 # ACE Website - Makefile
 # Usage: make <commande>
 
 DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE_DEV = docker compose -f docker-compose.dev.yml
 
 help: ## Afficher l'aide
 	@echo ""
@@ -15,8 +16,8 @@ help: ## Afficher l'aide
 
 # --- Commandes de base ---
 
-start: ## Démarrer tous les services
-	@echo "Démarrage du site ACE..."
+start: ## Démarrer tous les services (production)
+	@echo "Démarrage du site ACE (production)..."
 	$(DOCKER_COMPOSE) up -d
 	@echo ""
 	@echo "Services démarrés:"
@@ -25,6 +26,71 @@ start: ## Démarrer tous les services
 	@echo "  MailHog:   http://localhost:8025"
 	@echo ""
 	@echo "Voir les logs: make logs"
+
+dev: ## Démarrer l'environnement de développement avec hot-reload
+	@echo "🚀 Démarrage de l'environnement de développement..."
+	@$(DOCKER_COMPOSE_DEV) up -d --build
+	@echo ""
+	@echo "✅ Services démarrés (mode développement):"
+	@echo "  🌐 Frontend:     http://localhost:3000 (hot-reload activé)"
+	@echo "  🔧 Backend API:  http://localhost:5000 (hot-reload activé)"
+	@echo "  📧 MailHog:      http://localhost:8025"
+	@echo "  🏆 Classement:   http://localhost:3000/classement"
+	@echo "  🗄️  PostgreSQL:   localhost:5433"
+	@echo "  🔴 Redis:        localhost:6379"
+	@echo ""
+	@echo "📝 Commandes utiles:"
+	@echo "  Voir les logs: make dev-logs"
+	@echo "  Arrêter:       make dev-stop"
+	@echo "  Migrations:    make dev-migrate"
+	@echo ""
+
+dev-stop: ## Arrêter l'environnement de développement
+	@echo "🛑 Arrêt de l'environnement de développement..."
+	@$(DOCKER_COMPOSE_DEV) down
+	@echo "✅ Services arrêtés"
+
+dev-logs: ## Voir les logs en mode développement
+	@$(DOCKER_COMPOSE_DEV) logs -f
+
+dev-logs-backend: ## Logs du backend (dev)
+	@$(DOCKER_COMPOSE_DEV) logs -f backend
+
+dev-logs-frontend: ## Logs du frontend (dev)
+	@$(DOCKER_COMPOSE_DEV) logs -f frontend
+
+dev-restart: dev-stop dev ## Redémarrer l'environnement de développement
+
+dev-migrate: ## Exécuter les migrations en mode dev
+	@echo "🔧 Exécution des migrations..."
+	@$(DOCKER_COMPOSE_DEV) exec backend npm run migrate
+	@echo "✅ Migrations terminées"
+
+dev-db-shell: ## Shell PostgreSQL (dev)
+	@$(DOCKER_COMPOSE_DEV) exec postgres psql -U aceuser -d acedb
+
+dev-backend-shell: ## Shell dans le conteneur backend (dev)
+	@$(DOCKER_COMPOSE_DEV) exec backend sh
+
+dev-frontend-shell: ## Shell dans le conteneur frontend (dev)
+	@$(DOCKER_COMPOSE_DEV) exec frontend sh
+
+dev-status: ## État des services (dev)
+	@$(DOCKER_COMPOSE_DEV) ps
+
+dev-leaderboard: ## Afficher le classement (dev)
+	@echo "🏆 Classement actuel (Dev):"
+	@$(DOCKER_COMPOSE_DEV) exec postgres psql -U aceuser -d acedb -c "SELECT name, \"currentScore\", rank FROM teams ORDER BY \"currentScore\" DESC LIMIT 10;"
+
+dev-clean: ## Nettoyer les volumes de dev (PERTE DE DONNÉES)
+	@echo "⚠️  ATTENTION: Suppression des données de développement"
+	@read -p "Confirmer (yes/no): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		$(DOCKER_COMPOSE_DEV) down -v; \
+		echo "✅ Nettoyage terminé"; \
+	else \
+		echo "Annulé"; \
+	fi
 
 stop: ## Arrêter tous les services
 	$(DOCKER_COMPOSE) down

@@ -16,29 +16,30 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511;
-            /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
             color: #f6f2f9;
-            /* Texte clair */
             -webkit-font-smoothing: antialiased;
         }
-
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -46,85 +47,118 @@
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a;
-            /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(252, 16, 202, 0.3);
-            /* Accent Rose */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(252, 16, 202, 0.1);
-            /* Glow Rose */
-            text-align: center;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 20px 0;
             color: #ffffff;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(252, 16, 202, 0.5);
-            /* Glow Rose */
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #fc10ca;
-            /* Accent Rose */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 20px 0;
+          
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(252, 16, 202, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #fc10ca;
+            /* Pink for team */
+            font-weight: bold;
+            margin-right: 10px;
         }
 
         /* Team Badge */
         .team-badge {
             background-color: rgba(252, 16, 202, 0.1);
-            border: 1px solid #fc10ca;
+            border: 2px solid #fc10ca;
             border-radius: 12px;
-            padding: 20px;
-            margin: 30px 0;
-            display: inline-block;
-            min-width: 200px;
+            padding: 25px;
+            margin: 30px auto;
+            display: block;
+            text-align: center;
+            max-width: 300px;
         }
-
         .team-label {
             color: #fc10ca;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 700;
         }
-
         .team-name {
             color: #ffffff;
             font-family: 'Space Grotesk', sans-serif;
             font-size: 24px;
             font-weight: 700;
+            text-transform: uppercase;
         }
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
             background-color: #fc10ca;
-            /* Accent Rose */
+            /* Pink for team */
             color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
@@ -135,33 +169,40 @@
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(252, 16, 202, 0.4);
-            /* Glow bouton */
-            border: 1px solid #fc10ca;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
             background-color: #d90db0;
-            box-shadow: 0 0 30px rgba(252, 16, 202, 0.6);
+            box-shadow: 0 0 20px rgba(252, 16, 202, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #09c7df;
-            /* Accent Bleu */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -180,54 +221,64 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80"
-                            height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="https://via.placeholder.com/150x60?text=Vizyon+Dijital" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">AFFECTATION</div>
+                    <div class="invitation-subtitle">11 Décembre • Équipe Confirmée</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <h1>Affectation <span class="accent-text">Confirmée</span></h1>
-
-                        <p>Agent <strong>{{firstName}}</strong>,</p>
-
-                        <p>Votre demande de transfert a été approuvée. Vous avez été affecté à une nouvelle unité
-                            d'intervention pour l'opération du 11 Décembre.</p>
-
-                        <div class="team-badge">
-                            <div class="team-label">UNITÉ D'INTERVENTION</div>
-                            <div class="team-name">{{teamName}}</div>
-                        </div>
-
-                        <p>Prenez contact avec vos coéquipiers dès maintenant pour établir votre stratégie avant le jour
-                            J.</p>
-
-                        <div class="btn-container">
-                            <a href="{{teamLink}}" class="btn">Rejoindre mon Unité</a>
-                        </div>
-
-                        <hr class="divider">
-
-                        <p style="font-size: 13px; margin-bottom: 0;">
-                            La cohésion d'équipe sera déterminante.<br>
-                            Préparez-vous ensemble.
-                        </p>
+                <td class="content-cell">
+                    <p style="margin-top: 30px;">Agent <strong>{{firstName}}</strong>,</p>
+                    
+                    <p>Votre demande de transfert a été <strong>approuvée</strong>. Vous avez été affecté à une nouvelle unité d'intervention pour l'<strong>Opération Data-Campus</strong> du 11 Décembre.</p>
+                    
+                    <div class="team-badge">
+                        <div class="team-label">UNITÉ D'INTERVENTION</div>
+                        <div class="team-name">{{teamName}}</div>
                     </div>
+                    
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">&gt;_</span> Prenez contact avec vos coéquipiers</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Établissez votre stratégie d'équipe</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Préparez-vous pour le jour J</li>
+                    </ul>
+                    
+                    <p>La cohésion d'équipe sera déterminante pour le succès de la mission. Coordonnez-vous dès maintenant avec votre nouvelle unité.</p>
+                    
+                    <div class="btn-container">
+                        <a href="{{teamLink}}" class="btn">&gt; REJOINDRE MON UNITÉ &lt;</a>
+                    </div>
+                    
+                    <p style="font-size: 13px; margin-bottom: 0; color: #fc10ca;">
+                        La cohésion d'équipe sera déterminante.<br>
+                        Préparez-vous ensemble.
+                    </p>
                 </td>
             </tr>
 
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>

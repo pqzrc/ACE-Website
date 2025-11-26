@@ -6,10 +6,8 @@ interface UserProfileProps {
     lastName: string;
     email: string;
     username?: string | null;
-    school?: string | null;
-    grade?: string | null;
     specialty?: string | null;
-    affiliation?: string | null;
+    composante?: string | null;
   };
 }
 
@@ -48,19 +46,11 @@ export default function UserProfile({ user }: UserProfileProps) {
             <p className="text-white font-mono text-sm truncate">{user.email}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="group">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
-                Affiliation / Établissement
-              </p>
-              <p className="text-white font-medium">{user.affiliation || user.school || <span className="text-gray-500 italic">Non renseigné</span>}</p>
-            </div>
-            <div className="group">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
-                Niveau
-              </p>
-              <p className="text-white">{user.grade || <span className="text-gray-500 italic">Non renseigné</span>}</p>
-            </div>
+          <div className="group">
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1 group-hover:text-sky-aqua transition-colors">
+              Composante (UA)
+            </p>
+            <p className="text-white font-medium">{user.composante || <span className="text-gray-500 italic">Non renseigné</span>}</p>
           </div>
 
           <div className="pt-4 border-t border-white/10">

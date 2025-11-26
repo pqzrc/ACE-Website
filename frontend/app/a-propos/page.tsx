@@ -1,37 +1,248 @@
 'use client';
 
 import NavigationBar from '@/components/NavigationBar';
+import { useAuth } from '@/context/AuthContext';
+import { Calendar, Trophy, Users, Shield, BookOpen, Sparkles, LayoutDashboard } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AProposPage() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-deep-navy relative overflow-hidden">
       <NavigationBar />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="font-display text-4xl lg:text-5xl font-bold mb-6">
+            <h1 className="font-display text-4xl lg:text-6xl font-bold mb-6">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua">
-                À propos
+                À propos d'ACE 2025
               </span>
             </h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Découvrez l'événement, le scénario et les règles de notre escape game cybersécurité
+            </p>
           </div>
 
-          {/* Link Section */}
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {/* L'Événement - Large card */}
+            <div className="lg:col-span-2 glass-panel p-8 hover:border-neon-rose/50 transition-all group">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-neon-rose/10 rounded-xl group-hover:bg-neon-rose/20 transition-colors">
+                  <Calendar className="w-6 h-6 text-neon-rose" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">L'Événement</h2>
+                  <p className="text-sm text-sky-aqua font-mono">ACE 2025 - Escape Game Cybersécurité</p>
+                </div>
+              </div>
+              <div className="space-y-4 text-gray-300">
+                <p>
+                  <strong className="text-white">ACE (Antilles Cyber Escape)</strong> est un escape game unique en son genre,
+                  mêlant cybersécurité, énigmes et travail d'équipe. Organisé par l'association Vizyon Dijital,
+                  cet événement challenge les participants à travers des épreuves techniques et ludiques.
+                </p>
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-neon-rose" />
+                    <span className="text-sm">Compétition par équipes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-sky-aqua" />
+                    <span className="text-sm">4-5 joueurs par équipe</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Le Scénario */}
+            <div className="glass-panel p-8 hover:border-sky-aqua/50 transition-all group">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-sky-aqua/10 rounded-xl group-hover:bg-sky-aqua/20 transition-colors">
+                  <BookOpen className="w-6 h-6 text-sky-aqua" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">Le Scénario</h2>
+              </div>
+              <div className="space-y-3 text-gray-300">
+                <p className="text-sm leading-relaxed">
+                  Un groupe de cyber-activistes nommé <strong className="text-neon-rose">"Unitas"</strong> a infiltré le réseau de l'université.
+                  Leur objectif n'est pas de tout détruire, mais d'exposer les failles de sécurité de l'établissement en menaçant
+                  de publier des données sensibles (résultats d'examens, données personnelles d'étudiants, recherches de laboratoire)
+                  dans <strong className="text-sky-aqua">60 minutes</strong>.
+                </p>
+                <div className="pt-4 border-t border-white/10">
+                  <p className="text-sm leading-relaxed">
+                    <strong className="text-white">Votre Mission :</strong> L'équipe de la DSI est débordée. Elle a identifié que "Unitas"
+                    a exploité une série de <strong className="text-neon-rose">10 vulnérabilités</strong> pour pénétrer le système.
+                    Votre groupe doit suivre la piste numérique des pirates, résoudre chaque énigme pour colmater les brèches
+                    et désactiver le serveur de fuite avant la fin du compte à rebours.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Les Règles */}
+            <div className="lg:col-span-2 glass-panel p-8 hover:border-purple-400/50 transition-all group">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-3 bg-purple-400/10 rounded-xl group-hover:bg-purple-400/20 transition-colors">
+                  <Shield className="w-6 h-6 text-purple-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">Les Règles</h2>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-neon-rose/20 flex items-center justify-center text-neon-rose text-sm">1</span>
+                    Composition des équipes
+                  </h3>
+                  <ul className="space-y-2 text-sm text-gray-300 ml-8">
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>4 à 5 joueurs par équipe</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>Inscription obligatoire avant l'événement</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>Un capitaine par équipe</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-sky-aqua/20 flex items-center justify-center text-sky-aqua text-sm">2</span>
+                    Déroulement
+                  </h3>
+                  <ul className="space-y-2 text-sm text-gray-300 ml-8">
+                    <li className="flex items-start gap-2">
+                      <span className="text-sky-aqua mt-1">•</span>
+                      <span>Durée limitée pour résoudre les énigmes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-sky-aqua mt-1">•</span>
+                      <span>Points attribués selon la difficulté</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-sky-aqua mt-1">•</span>
+                      <span>Classement en temps réel</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-400/20 flex items-center justify-center text-purple-400 text-sm">3</span>
+                    Fair Play
+                  </h3>
+                  <ul className="space-y-2 text-sm text-gray-300 ml-8">
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span>Respect des autres équipes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span>Pas de sabotage ou d'attaque entre équipes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span>Toute tricherie entraîne la disqualification</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-neon-rose/20 flex items-center justify-center text-neon-rose text-sm">4</span>
+                    Récompenses
+                  </h3>
+                  <ul className="space-y-2 text-sm text-gray-300 ml-8">
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>Prix pour les 3 premières équipes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>Certificats de participation</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-neon-rose mt-1">•</span>
+                      <span>Reconnaissance de vos compétences</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Vizyon Dijital */}
+            <div className="glass-panel p-8 hover:border-neon-rose/50 transition-all group">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-gradient-to-br from-neon-rose/20 to-sky-aqua/20 rounded-xl group-hover:from-neon-rose/30 group-hover:to-sky-aqua/30 transition-colors">
+                  <Sparkles className="w-6 h-6 text-neon-rose" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">Vizyon Dijital</h2>
+              </div>
+              <div className="space-y-4 text-gray-300">
+                <p className="text-sm leading-relaxed">
+                  Vizyon Dijital est une association fondée par des étudiants passionnés.
+                  Nous avons pour mission de <strong className="text-white">démocratiser l'informatique</strong> à travers
+                  des projets concrets, des événements interactifs et des ateliers ouverts à tous.
+                </p>
+                <a
+                  href="https://www.vizyondijital.fr/index.php?page=home"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sky-aqua hover:text-neon-rose transition-colors text-sm font-mono group/link"
+                >
+                  <span>vizyondijital.fr</span>
+                  <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
           <div className="glass-panel p-8 text-center">
-            <a
-              href="https://www.vizyondijital.fr/index.php?page=home"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-2xl font-mono text-sky-aqua hover:text-neon-rose transition-colors underline decoration-2 underline-offset-4"
-            >
-              https://www.vizyondijital.fr/
-            </a>
+            {user ? (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Vous êtes prêt !
+                </h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Accédez à votre tableau de bord pour gérer votre équipe et suivre votre progression
+                </p>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-neon-rose to-purple-400 hover:from-neon-rose/90 hover:to-purple-400/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  Accéder au tableau de bord
+                </Link>
+              </>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Prêt à relever le défi ?
+                </h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Formez votre équipe et inscrivez-vous dès maintenant pour participer à ACE 2025
+                </p>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-neon-rose to-purple-400 hover:from-neon-rose/90 hover:to-purple-400/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon"
+                >
+                  S'inscrire maintenant
+                  <Trophy className="w-5 h-5" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </main>
     </div>
   );
 }
-

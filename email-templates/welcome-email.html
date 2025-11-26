@@ -16,29 +16,30 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511;
-            /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
             color: #f6f2f9;
-            /* Texte clair */
             -webkit-font-smoothing: antialiased;
         }
-
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -46,48 +47,81 @@
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a;
-            /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(9, 199, 223, 0.3);
-            /* Accent Bleu */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(9, 199, 223, 0.1);
-            /* Glow Bleu */
-            text-align: center;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 20px 0;
             color: #ffffff;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(9, 199, 223, 0.5);
-            /* Glow Bleu */
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #09c7df;
-            /* Accent Bleu */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 20px 0;
+            
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #ec4899;
+            /* Pink */
+            font-weight: bold;
+            margin-right: 10px;
         }
 
         /* Mission Briefing Box */
@@ -124,14 +158,13 @@
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
-            background-color: #09c7df;
-            /* Accent Bleu */
-            color: #050511 !important;
-            /* Texte sombre pour contraste sur bleu */
+            background-color: #d53f8c;
+            /* Pink/Magenta */
+            color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
             border-radius: 8px;
@@ -141,33 +174,40 @@
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(9, 199, 223, 0.4);
-            /* Glow bouton */
-            border: 1px solid #09c7df;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
-            background-color: #07aabf;
-            box-shadow: 0 0 30px rgba(9, 199, 223, 0.6);
+            background-color: #b83280;
+            box-shadow: 0 0 20px rgba(213, 63, 140, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #fc10ca;
-            /* Accent Rose */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -186,46 +226,42 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80"
-                            height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="/home/dnd/Work/VizyonDijital/ACE/Logo_Vizyon_Dijital.png" alt="ACE Antilles Cyber Escape"
+                        class="vizyon-logo">
+                    <div class="invitation-title">ACCRÉDITATION</div>
+                    <div class="invitation-subtitle">11 Décembre • IUT de Martinique</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <h1>Accréditation <span class="accent-text">Validée</span></h1>
-
-                        <p>Bienvenue dans l'équipe, Agent <strong>{{firstName}}</strong>.</p>
-
-                        <p>Votre accréditation DSI est validée. Vous faites officiellement partie de la force
-                            d'intervention pour l'Opération Data-Campus.</p>
-
-                        <div class="briefing-box">
-                            <div class="briefing-title">ORDRE DE MISSION : 11 DÉCEMBRE 2025</div>
-                            <ul class="briefing-list">
-                                <li>Restez en alerte jusqu'au jour J.</li>
-                                <li>Préparez-vous à identifier 10 vulnérabilités critiques.</li>
-                                <li>Coordonnez-vous avec votre équipe <strong>{{teamName}}</strong>.</li>
-                            </ul>
-                        </div>
-
-                        <p>Le QG Numérique sera accessible le jour de l'opération. En attendant, affûtez vos
-                            compétences.</p>
-
-                        <div class="btn-container">
-                            <a href="{{dashboardLink}}" class="btn">Accéder au QG (Standby)</a>
-                        </div>
-
-                        <hr class="divider">
-
-                        <p style="font-size: 13px; margin-bottom: 0;">
-                            L'ennemi est invisible, mais la menace est réelle.<br>
-                            Soyez prêts.
-                        </p>
+                <td class="content-cell">
+                    <p style="margin-top: 30px;">Bienvenue dans l'équipe, Agent <strong>{{firstName}}</strong>.</p>
+                    
+                    <p>Votre <strong>accréditation DSI</strong> est validée. Vous faites officiellement partie de la force d'intervention pour l'<strong>Opération Data-Campus</strong>.</p>
+                    
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">&gt;_</span> Restez en alerte jusqu'au jour J</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Préparez-vous à identifier 10 vulnérabilités critiques</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Coordonnez-vous avec votre équipe <strong>{{teamName}}</strong></li>
+                    </ul>
+                    
+                    <p>Le QG Numérique sera accessible le jour de l'opération. En attendant, affûtez vos compétences et préparez-vous pour cette mission critique.</p>
+                    
+                    <p>L'ennemi est invisible, mais la menace est réelle. Soyez prêts.</p>
+                    
+                    <div class="btn-container">
+                        <a href="{{dashboardLink}}" class="btn">&gt; ACCÉDER AU QG &lt;</a>
                     </div>
                 </td>
             </tr>
@@ -233,11 +269,13 @@
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>

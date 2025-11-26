@@ -15,10 +15,10 @@ export class AdminController {
       const totalTeams = await Team.count();
       const completeTeams = await Team.count({ where: { isComplete: true } });
 
-      // Répartition par établissement
-      const schoolDistribution = await User.findAll({
-        attributes: ['school', [User.sequelize!.fn('COUNT', 'id'), 'count']],
-        group: ['school'],
+      // Répartition par composante
+      const composanteDistribution = await User.findAll({
+        attributes: ['composante', [User.sequelize!.fn('COUNT', 'id'), 'count']],
+        group: ['composante'],
         raw: true,
       });
 
@@ -47,7 +47,7 @@ export class AdminController {
             completeTeams,
             incompleteTeams: totalTeams - completeTeams,
           },
-          schoolDistribution,
+          composanteDistribution,
           registrationStatus,
           roomDistribution,
         },
@@ -61,7 +61,7 @@ export class AdminController {
   // Liste de toutes les inscriptions
   async getRegistrations(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { status, school, hasTeam } = req.query;
+      const { status, composante, hasTeam } = req.query;
 
       const where: any = {};
       if (status) where.status = status;
@@ -72,8 +72,8 @@ export class AdminController {
           {
             model: User,
             as: 'user',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'emailVerified'],
-            where: school ? { school } : undefined,
+            attributes: ['id', 'firstName', 'lastName', 'email', 'composante', 'specialty', 'emailVerified'],
+            where: composante ? { composante } : undefined,
           },
           {
             model: Team,
@@ -102,7 +102,7 @@ export class AdminController {
           {
             model: User,
             as: 'user',
-            attributes: ['firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'emailVerified'],
+            attributes: ['firstName', 'lastName', 'email', 'composante', 'specialty', 'emailVerified'],
           },
           {
             model: Team,
@@ -113,7 +113,7 @@ export class AdminController {
       });
 
       // Générer CSV
-      const csvHeader = 'Prénom,Nom,Email,Lycée,Classe,Spécialité,Email Vérifié,Équipe,Salle,Statut\n';
+      const csvHeader = 'Prénom,Nom,Email,Composante,Spécialité,Email Vérifié,Équipe,Salle,Statut\n';
       const csvRows = registrations.map((reg: any) => {
         const user = reg.user;
         const team = reg.team;
@@ -121,9 +121,8 @@ export class AdminController {
           user.firstName,
           user.lastName,
           user.email,
-          user.school,
-          user.grade,
-          user.specialty,
+          user.composante || '',
+          user.specialty || '',
           user.emailVerified ? 'Oui' : 'Non',
           team?.name || 'Aucune',
           team?.roomNumber || '',
@@ -321,7 +320,7 @@ export class AdminController {
           {
             model: User,
             as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'composante'],
           },
           {
             model: User,
@@ -381,7 +380,7 @@ export class AdminController {
       }
 
       // Sécurité : Filtrer les champs autorisés (Mass Assignment Protection)
-      const allowedFields = ['firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'isAdmin', 'emailVerified'];
+      const allowedFields = ['firstName', 'lastName', 'email', 'composante', 'specialty', 'isAdmin', 'emailVerified'];
       const filteredUpdates = Object.keys(updates)
         .filter(key => allowedFields.includes(key))
         .reduce((obj: any, key) => {

@@ -1,3 +1,5 @@
+name: ace-website
+
 services:
   frontend:
     build:
@@ -55,15 +57,13 @@ services:
       - ace-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aceuser} -d ${POSTGRES_DB:-acedb}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aceuser} -d ${POSTGRES_DB:-acedb}" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:

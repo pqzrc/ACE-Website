@@ -9,7 +9,7 @@ export interface Stats {
     completeTeams: number;
     incompleteTeams: number;
   };
-  schoolDistribution: Array<{ school: string; count: number }>;
+  composanteDistribution: Array<{ composante: string; count: number }>;
 }
 
 export interface AdminTeam {

@@ -8,7 +8,7 @@ interface Stats {
     completeTeams: number;
     incompleteTeams: number;
   };
-  schoolDistribution: Array<{ school: string; count: number }>;
+  composanteDistribution: Array<{ composante: string; count: number }>;
 }
 
 interface AdminStatsProps {
@@ -52,12 +52,12 @@ export default function AdminStats({ stats, onExportCSV }: AdminStatsProps) {
       <div className="glass-panel p-6 rounded-2xl border border-white/10">
         <h3 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-sky-aqua" />
-          Répartition par établissement
+          Répartition par composante
         </h3>
         <div className="space-y-2">
-          {stats.schoolDistribution.map((item) => (
-            <div key={item.school} className="flex justify-between items-center p-3 bg-surface rounded-lg">
-              <span className="text-gray-300">{item.school}</span>
+          {stats.composanteDistribution.map((item) => (
+            <div key={item.composante} className="flex justify-between items-center p-3 bg-surface rounded-lg">
+              <span className="text-gray-300">{item.composante}</span>
               <span className="font-bold text-white">{item.count}</span>
             </div>
           ))}

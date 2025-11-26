@@ -157,7 +157,7 @@ docker compose exec redis redis-cli FLUSHALL
 ### Erreur de connexion à la base de données
 
 1. Vérifiez que PostgreSQL est démarré
-2. Vérifiez les credentials dans `docker-compose.yml`
+2. Vérifiez les credentials dans `docker compose.yml`
 3. Recréez le container : `docker compose up -d --force-recreate backend`
 
 ### Les emails ne sont pas envoyés
@@ -177,7 +177,7 @@ sudo lsof -i :3000
 # Tuer le processus
 sudo kill -9 <PID>
 
-# Ou changer le port dans docker-compose.yml
+# Ou changer le port dans docker compose.yml
 ```
 
 

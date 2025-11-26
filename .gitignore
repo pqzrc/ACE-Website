@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+.env.dev
+.env.production
 
 # Dependencies
 node_modules/
@@ -37,6 +39,12 @@ Thumbs.db
 
 # Docker
 .dockerignore
+docker-compose.dev.yml
+docker-compose.*.dev.yml
+**/Dockerfile.dev
+dev.sh
+stop-dev.sh
+README.dev.md
 
 # Coverage
 coverage/

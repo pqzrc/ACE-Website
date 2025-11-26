@@ -16,7 +16,7 @@ export class AuthController {
    */
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password, firstName, lastName, username, affiliation, school, grade, specialty, captchaToken } = req.body;
+      const { email, password, firstName, lastName, username, composante, specialty, captchaToken } = req.body;
 
       // Verify CAPTCHA if required
       if (isCaptchaRequired()) {
@@ -72,10 +72,6 @@ export class AuthController {
       const verificationToken = generateToken();
       const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      // Use affiliation as primary source, fallback to school if needed
-      const finalAffiliation = affiliation || school;
-      const finalSchool = school || affiliation;
-
       // Create user
       const user = await User.create({
         email,
@@ -83,9 +79,7 @@ export class AuthController {
         firstName,
         lastName,
         username,
-        affiliation: finalAffiliation,
-        school: finalSchool,
-        grade,
+        composante,
         specialty,
         verificationToken,
         verificationTokenExpiry,

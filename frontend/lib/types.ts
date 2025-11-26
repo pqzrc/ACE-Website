@@ -3,11 +3,9 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  school?: string | null;
-  grade?: string | null;
   specialty?: string | null;
   username?: string | null;
-  affiliation?: string | null;
+  composante?: string | null;
   teamId?: string | null;
   emailVerified: boolean;
   isAdmin: boolean;
@@ -22,7 +20,7 @@ export interface Team {
   members: TeamMember[];
   memberCount: number;
   isComplete: boolean;
-  affiliation?: string | null;
+  composante?: string | null;
   roomNumber: number | null;
   sessionStartTime: string | null;
   currentScore: number;
@@ -34,9 +32,8 @@ export interface TeamMember {
   firstName: string;
   lastName: string;
   email: string;
-  school: string;
-  grade: string;
-  specialty: string;
+  composante?: string | null;
+  specialty?: string | null;
 }
 
 export interface ApiResponse<T> {

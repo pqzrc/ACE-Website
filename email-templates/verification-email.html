@@ -16,29 +16,30 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511;
-            /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
             color: #f6f2f9;
-            /* Texte clair */
             -webkit-font-smoothing: antialiased;
         }
-
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -46,71 +47,104 @@
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a;
-            /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(255, 0, 85, 0.3);
-            /* Accent Rouge Urgence */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(255, 0, 85, 0.1);
-            /* Glow Rouge */
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 10px 0;
             color: #ffffff;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
-            /* Glow Rouge */
-        }
-
-        .subtitle {
-            font-family: 'Space Grotesk', sans-serif;
-            color: #ff0055;
-            /* Error/Urgent color */
-            font-size: 14px;
             letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
             text-transform: uppercase;
-            margin-bottom: 25px;
-            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #fc10ca;
-            /* Accent Rose */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 20px 0;
+           
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #ff0055;
+            /* Red for urgency */
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .alert-badge {
+            background-color: rgba(255, 0, 85, 0.1);
+            border: 1px solid #ff0055;
+            color: #ff0055;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
-            background-color: #ff0055;
-            /* Rouge Urgence */
+            background-color: #D53F8C;
+            /* Red for urgency */
             color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
@@ -121,33 +155,40 @@
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
-            /* Glow bouton */
-            border: 1px solid #ff0055;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
             background-color: #d60047;
-            box-shadow: 0 0 30px rgba(255, 0, 85, 0.6);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #09c7df;
-            /* Accent Bleu */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -178,57 +219,63 @@
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80"
-                            height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="https://via.placeholder.com/150x60?text=Vizyon+Dijital" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">URGENCE DSI</div>
+                    <div class="invitation-subtitle">11 Décembre • Vérification Requise</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <div class="alert-badge">ORDRE DE MOBILISATION : PRIORITÉ 1</div>
-                        <h1>Opération <span style="color: #09c7df;">Data-Campus</span></h1>
-                        <div class="subtitle">Recrutement DSI - Session 2025</div>
-
-                        <p>Agent <strong>{{firstName}}</strong>,</p>
-
-                        <p>Nos services de renseignement ont intercepté des communications du groupe
-                            <strong>"Unitas"</strong>. Une cyber-attaque massive est planifiée pour le <strong>11
-                                Décembre 2025</strong>.</p>
-
-                        <p>La DSI constitue une force d'intervention d'élite pour contrer cette menace. Votre profil a
-                            été retenu pour rejoindre l'opération.</p>
-
-                        <p>Activez votre accréditation dès maintenant pour sécuriser votre place dans les rangs.</p>
-
-                        <div class="btn-container">
-                            <a href="{{verificationLink}}" class="btn">Confirmer ma Mobilisation</a>
-                        </div>
-
-                        <p style="font-size: 14px; color: #9ca3af;">Lien d'activation sécurisé :</p>
-                        <p style="font-size: 12px; color: #09c7df; word-break: break-all;">{{verificationLink}}</p>
-
-                        <hr class="divider">
-
-                        <p style="font-size: 13px; margin-bottom: 0; color: #ff0055;">
-                            ⚠️ Préparez-vous. Le compte à rebours a commencé.<br>
-                            Cible : 11 Décembre 2025.
-                        </p>
+                <td class="content-cell">
+                
+                    
+                    <p style="margin-top: 30px;">Agent <strong>{{firstName}}</strong>,</p>
+                    
+                    <p>Nos services de renseignement ont intercepté des communications du groupe <strong>"Unitas"</strong>. Une cyber-attaque massive est planifiée pour le <strong>11 Décembre 2025</strong>.</p>
+                    
+                    <p>La <strong>DSI</strong> constitue une force d'intervention d'élite pour contrer cette menace. Votre profil a été retenu pour rejoindre l'<strong>Opération Data-Campus</strong>.</p>
+                    
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">⚠</span> Cyber-attaque imminente détectée</li>
+                        <li><span class="bullet-prefix">⚠</span> Recrutement DSI en cours</li>
+                        <li><span class="bullet-prefix">⚠</span> Activation d'urgence requise</li>
+                    </ul>
+                    
+                    <p>Activez votre accréditation dès maintenant pour sécuriser votre place dans les rangs et rejoindre la force d'intervention.</p>
+                    
+                    <div class="btn-container">
+                        <a href="{{verificationLink}}" class="btn">&gt; CONFIRMER MA MOBILISATION &lt;</a>
                     </div>
+                    
+                    <p style="font-size: 14px; color: #9ca3af;">Lien d'activation sécurisé :</p>
+                    <p style="font-size: 12px; color: #09c7df; word-break: break-all;">{{verificationLink}}</p>
+                    
+         
                 </td>
             </tr>
 
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>
