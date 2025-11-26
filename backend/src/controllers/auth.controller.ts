@@ -241,7 +241,7 @@ export class AuthController {
             firstName: user.firstName,
             lastName: user.lastName,
             username: user.username,
-            affiliation: user.affiliation,
+            composante: user.composante,
             isAdmin: user.isAdmin,
             emailVerified: user.emailVerified,
             teamId: user.teamId,

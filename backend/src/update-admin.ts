@@ -14,9 +14,9 @@ const updateAdminProfile = async () => {
 
         if (user) {
             user.username = 'AdminACE';
-            user.affiliation = 'ACE Staff';
+            user.composante = 'ACE Staff';
             await user.save();
-            console.log(`✅ Admin profile updated: username=${user.username}, affiliation=${user.affiliation}`);
+            console.log(`✅ Admin profile updated: username=${user.username}, composante=${user.composante}`);
         } else {
             console.log('⚠️ Admin user not found, creating it...');
             // const hashedPassword = await User.hashPassword('Admin123Pass'); // Hook handles hashing
@@ -26,7 +26,7 @@ const updateAdminProfile = async () => {
                 firstName: 'Admin',
                 lastName: 'ACE',
                 username: 'AdminACE',
-                affiliation: 'ACE Staff',
+                composante: 'ACE Staff',
                 isAdmin: true,
                 emailVerified: true
             });

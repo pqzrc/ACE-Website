@@ -14,7 +14,7 @@ class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       username: user.username,
-      affiliation: user.affiliation,
+      composante: user.composante,
       teamId: user.teamId,
       isAdmin: user.isAdmin,
     };

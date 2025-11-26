@@ -6,7 +6,7 @@ export interface UserPayload {
   firstName?: string;
   lastName?: string;
   username?: string | null;
-  affiliation?: string | null;
+  composante?: string | null;
   teamId?: string | null;
   isAdmin: boolean;
   iat?: number;
