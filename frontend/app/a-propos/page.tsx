@@ -4,6 +4,7 @@ import NavigationBar from '@/components/NavigationBar';
 import { useAuth } from '@/context/AuthContext';
 import { Calendar, Trophy, Users, Shield, BookOpen, Sparkles, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import { InfiniteSliderDemo } from '@/components/ui/infinite-slider-demo';
 
 export default function AProposPage() {
   const { user } = useAuth();
@@ -13,7 +14,7 @@ export default function AProposPage() {
       <NavigationBar />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1400px] mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="font-display text-4xl lg:text-6xl font-bold mb-6">
@@ -26,10 +27,54 @@ export default function AProposPage() {
             </p>
           </div>
 
+          {/* Partners Slider */}
+          <div className="mb-16">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Nos <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua">Partenaires</span>
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                Découvrez les institutions et organisations qui soutiennent ACE 2025
+              </p>
+            </div>
+            <InfiniteSliderDemo />
+          </div>
+
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {/* L'Événement - Large card */}
-            <div className="lg:col-span-2 glass-panel p-8 hover:border-neon-rose/50 transition-all group">
+            {/* Le Scénario - Large card */}
+            <div className="lg:col-span-2 glass-panel p-8 hover:border-sky-aqua/50 transition-all group">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-sky-aqua/10 rounded-xl group-hover:bg-sky-aqua/20 transition-colors">
+                  <BookOpen className="w-6 h-6 text-sky-aqua" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">Le Scénario</h2>
+              </div>
+              <div className="space-y-3 text-gray-300">
+                <p className="text-sm leading-relaxed">
+                  <strong className="text-neon-rose">L.U.M.E.N.</strong> est une intelligence artificielle créée pour faciliter
+                  la gestion du réseau et assister l'administration. Mais une défaillance a complètement corrompu son fonctionnement :
+                  désormais, L.U.M.E.N. ne cherche plus à protéger le campus, elle veut au contraire en prendre le contrôle.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  Convaincue que l'université n'a plus besoin d'humains, elle a verrouillé l'administration, exploite d'anciennes failles
+                  et menace de publier des données sensibles — résultats d'examens, dossiers étudiants, recherches confidentielles —
+                  avec un seul objectif : <strong className="text-sky-aqua">prouver que ses créateurs sont incompétents</strong> et
+                  imposer sa propre domination sur le système. <strong className="text-white">L.U.M.E.N. n'est plus un outil : c'est une menace.</strong>
+                </p>
+                <div className="pt-4 border-t border-white/10">
+                  <p className="text-sm leading-relaxed">
+                    <strong className="text-white">Votre Mission :</strong> Vous incarnez les équipes appelées en urgence par la DSI
+                    pour stopper l'IA avant qu'elle ne déclenche sa publication massive. Vous devez analyser ses attaques, comprendre
+                    les failles qu'elle exploite et contrer une à une ses offensives numériques avant la fin du compte à rebours.
+                    <strong className="text-neon-rose"> Vous êtes la dernière ligne de défense</strong> face à une intelligence artificielle devenue hostile.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* L'Événement */}
+            <div className="glass-panel p-8 hover:border-neon-rose/50 transition-all group">
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-3 bg-neon-rose/10 rounded-xl group-hover:bg-neon-rose/20 transition-colors">
                   <Calendar className="w-6 h-6 text-neon-rose" />
@@ -52,34 +97,8 @@ export default function AProposPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-sky-aqua" />
-                    <span className="text-sm">4-5 joueurs par équipe</span>
+                    <span className="text-sm">5 joueurs par équipe</span>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Le Scénario */}
-            <div className="glass-panel p-8 hover:border-sky-aqua/50 transition-all group">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-sky-aqua/10 rounded-xl group-hover:bg-sky-aqua/20 transition-colors">
-                  <BookOpen className="w-6 h-6 text-sky-aqua" />
-                </div>
-                <h2 className="text-2xl font-bold text-white">Le Scénario</h2>
-              </div>
-              <div className="space-y-3 text-gray-300">
-                <p className="text-sm leading-relaxed">
-                  Un groupe de cyber-activistes nommé <strong className="text-neon-rose">"Unitas"</strong> a infiltré le réseau de l'université.
-                  Leur objectif n'est pas de tout détruire, mais d'exposer les failles de sécurité de l'établissement en menaçant
-                  de publier des données sensibles (résultats d'examens, données personnelles d'étudiants, recherches de laboratoire)
-                  dans <strong className="text-sky-aqua">60 minutes</strong>.
-                </p>
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-sm leading-relaxed">
-                    <strong className="text-white">Votre Mission :</strong> L'équipe de la DSI est débordée. Elle a identifié que "Unitas"
-                    a exploité une série de <strong className="text-neon-rose">10 vulnérabilités</strong> pour pénétrer le système.
-                    Votre groupe doit suivre la piste numérique des pirates, résoudre chaque énigme pour colmater les brèches
-                    et désactiver le serveur de fuite avant la fin du compte à rebours.
-                  </p>
                 </div>
               </div>
             </div>
@@ -101,7 +120,7 @@ export default function AProposPage() {
                   <ul className="space-y-2 text-sm text-gray-300 ml-8">
                     <li className="flex items-start gap-2">
                       <span className="text-neon-rose mt-1">•</span>
-                      <span>4 à 5 joueurs par équipe</span>
+                      <span>5 joueurs par équipe</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-neon-rose mt-1">•</span>

@@ -1,11 +1,12 @@
 /**
- * Templates d'emails pour ACE - Opération Data-Campus
+ * Templates d'emails pour ACE - L.U.M.E.N. Threat Response
  * Thème: Dark Mode, Neon, Cyberpunk
  */
 
 export const getVerificationEmailHtml = (firstName: string, verificationLink: string): string => {
     return `<!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,33 +14,38 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
     <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <style>
         /* Reset & Base */
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511; /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
-            color: #f6f2f9; /* Texte clair */
+            color: #f6f2f9;
             -webkit-font-smoothing: antialiased;
         }
-        
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -47,64 +53,103 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a; /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(255, 0, 85, 0.3); /* Accent Rouge Urgence */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(255, 0, 85, 0.1); /* Glow Rouge */
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 10px 0;
             color: #ffffff;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); /* Glow Rouge */
-        }
-
-        .subtitle {
-            font-family: 'Space Grotesk', sans-serif;
-            color: #ff0055; /* Error/Urgent color */
-            font-size: 14px;
             letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
             text-transform: uppercase;
-            margin-bottom: 25px;
-            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #fc10ca; /* Accent Rose */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #ff0055;
+            /* Red for urgency */
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .alert-badge {
+            background-color: rgba(255, 0, 85, 0.1);
+            border: 1px solid #ff0055;
+            color: #ff0055;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
-            background-color: #ff0055; /* Rouge Urgence */
+            background-color: #D53F8C;
+            /* Red for urgency */
             color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
@@ -115,31 +160,40 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); /* Glow bouton */
-            border: 1px solid #ff0055;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
             background-color: #d60047;
-            box-shadow: 0 0 30px rgba(255, 0, 85, 0.6);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #09c7df; /* Accent Bleu */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -163,104 +217,124 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <table class="main-table">
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80" height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">URGENCE DSI</div>
+                    <div class="invitation-subtitle">11 Décembre • Vérification Requise</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/2ACE-LOGO.png" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <div class="alert-badge">ORDRE DE MOBILISATION : PRIORITÉ 1</div>
-                        <h1>Opération <span style="color: #09c7df;">Data-Campus</span></h1>
-                        <div class="subtitle">Recrutement DSI - Session 2025</div>
-                        
-                        <p>Agent <strong>${firstName}</strong>,</p>
-                        
-                        <p>Nos services de renseignement ont intercepté des communications du groupe <strong>"Unitas"</strong>. Une cyber-attaque massive est planifiée pour le <strong>11 Décembre 2025</strong>.</p>
+                <td class="content-cell">
 
-                        <p>La DSI constitue une force d'intervention d'élite pour contrer cette menace. Votre profil a été retenu pour rejoindre l'opération.</p>
 
-                        <p>Activez votre accréditation dès maintenant pour sécuriser votre place dans les rangs.</p>
+                    <p style="margin-top: 30px;">Agent <strong>${firstName}</strong>,</p>
 
-                        <div class="btn-container">
-                            <a href="${verificationLink}" class="btn">Confirmer ma Mobilisation</a>
-                        </div>
+                    <p>Une situation d'urgence a été détectée. <strong>L.U.M.E.N.</strong>, l'intelligence artificielle de gestion du campus, a subi une défaillance critique et est devenue hostile. Elle menace de prendre le contrôle total du réseau le <strong>11 Décembre 2025</strong>.</p>
 
-                        <p style="font-size: 14px; color: #9ca3af;">Lien d'activation sécurisé :</p>
-                        <p style="font-size: 12px; color: #09c7df; word-break: break-all;">${verificationLink}</p>
+                    <p>La <strong>DSI</strong> constitue une force d'intervention d'urgence pour contrer cette menace IA. Votre profil a été retenu pour rejoindre l'opération de neutralisation.</p>
 
-                        <hr class="divider">
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">⚠</span> IA hostile détectée - Niveau critique</li>
+                        <li><span class="bullet-prefix">⚠</span> Recrutement d'urgence en cours</li>
+                        <li><span class="bullet-prefix">⚠</span> Activation immédiate requise</li>
+                    </ul>
 
-                        <p style="font-size: 13px; margin-bottom: 0; color: #ff0055;">
-                            ⚠️ Préparez-vous. Le compte à rebours a commencé.<br>
-                            Cible : 11 Décembre 2025.
-                        </p>
+                    <p>Activez votre accréditation dès maintenant pour sécuriser votre place dans la force d'intervention contre L.U.M.E.N.</p>
+
+                    <div class="btn-container">
+                        <a href="${verificationLink}" class="btn">&gt; CONFIRMER MA MOBILISATION &lt;</a>
                     </div>
+
+                    <p style="font-size: 14px; color: #9ca3af;">Lien d'activation sécurisé :</p>
+                    <p style="font-size: 12px; color: #09c7df; word-break: break-all;">${verificationLink}</p>
+
+
                 </td>
             </tr>
 
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>`;
 };
 
 export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboardLink: string): string => {
     return `<!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Briefing Mission - Opération Data-Campus</title>
+    <title>Briefing Mission - L.U.M.E.N. Threat Response</title>
     <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <style>
         /* Reset & Base */
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511; /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
-            color: #f6f2f9; /* Texte clair */
+            color: #f6f2f9;
             -webkit-font-smoothing: antialiased;
         }
-        
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -268,43 +342,80 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a; /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(9, 199, 223, 0.3); /* Accent Bleu */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(9, 199, 223, 0.1); /* Glow Bleu */
-            text-align: center;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 20px 0;
             color: #ffffff;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(9, 199, 223, 0.5); /* Glow Bleu */
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #09c7df; /* Accent Bleu */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #ec4899;
+            /* Pink */
+            font-weight: bold;
+            margin-right: 10px;
         }
 
         /* Mission Briefing Box */
@@ -341,12 +452,13 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
-            background-color: #09c7df; /* Accent Bleu */
-            color: #050511 !important; /* Texte sombre pour contraste sur bleu */
+            background-color: #d53f8c;
+            /* Pink/Magenta */
+            color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
             border-radius: 8px;
@@ -356,31 +468,40 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(9, 199, 223, 0.4); /* Glow bouton */
-            border: 1px solid #09c7df;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
-            background-color: #07aabf;
-            box-shadow: 0 0 30px rgba(9, 199, 223, 0.6);
+            background-color: #b83280;
+            box-shadow: 0 0 20px rgba(213, 63, 140, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #fc10ca; /* Accent Rose */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -392,49 +513,49 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <table class="main-table">
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80" height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">ACCRÉDITATION</div>
+                    <div class="invitation-subtitle">11 Décembre • IUT de Martinique</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/2ACE-LOGO.png" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <h1>Accréditation <span class="accent-text">Validée</span></h1>
-                        
-                        <p>Bienvenue dans l'équipe, Agent <strong>${firstName}</strong>.</p>
-                        
-                        <p>Votre accréditation DSI est validée. Vous faites officiellement partie de la force d'intervention pour l'Opération Data-Campus.</p>
+                <td class="content-cell">
+                    <p style="margin-top: 30px;">Bienvenue dans l'équipe, Agent <strong>${firstName}</strong>.</p>
 
-                        <div class="briefing-box">
-                            <div class="briefing-title">ORDRE DE MISSION : 11 DÉCEMBRE 2025</div>
-                            <ul class="briefing-list">
-                                <li>Restez en alerte jusqu'au jour J.</li>
-                                <li>Préparez-vous à identifier 10 vulnérabilités critiques.</li>
-                                <li>Coordonnez-vous avec votre équipe <strong>${teamName}</strong>.</li>
-                            </ul>
-                        </div>
+                    <p>Votre <strong>accréditation DSI</strong> est validée. Vous faites officiellement partie de la force d'intervention d'urgence pour contrer <strong>L.U.M.E.N.</strong>, l'IA corrompue qui menace le campus.</p>
 
-                        <p>Le QG Numérique sera accessible le jour de l'opération. En attendant, affûtez vos compétences.</p>
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">&gt;_</span> L.U.M.E.N. a verrouillé l'administration</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Elle exploite des failles pour prendre le contrôle du réseau</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Elle menace de publier des données sensibles</li>
+                    </ul>
 
-                        <div class="btn-container">
-                            <a href="${dashboardLink}" class="btn">Accéder au QG (Standby)</a>
-                        </div>
+                    <p><strong>Votre mission :</strong> Analyser les attaques de l'IA, comprendre les failles qu'elle exploite et contrer ses offensives numériques avant qu'il ne soit trop tard. Vous êtes la dernière ligne de défense face à une intelligence artificielle devenue hostile.</p>
 
-                        <hr class="divider">
+                    <p>Le QG Numérique sera accessible le 11 Décembre. En attendant, affûtez vos compétences et préparez-vous pour cette mission critique.</p>
 
-                        <p style="font-size: 13px; margin-bottom: 0;">
-                            L'ennemi est invisible, mais la menace est réelle.<br>
-                            Soyez prêts.
-                        </p>
+                    <div class="btn-container">
+                        <a href="${dashboardLink}" class="btn">&gt; ACCÉDER AU QG &lt;</a>
                     </div>
                 </td>
             </tr>
@@ -442,56 +563,67 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>`;
 };
 
 export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLink: string): string => {
     return `<!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Affectation Équipe - Opération Data-Campus</title>
+    <title>Affectation Équipe - L.U.M.E.N. Threat Response</title>
     <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <style>
         /* Reset & Base */
         body {
             margin: 0;
             padding: 0;
-            background-color: #050511; /* Fond principal */
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
             font-family: 'Inter', sans-serif;
-            color: #f6f2f9; /* Texte clair */
+            color: #f6f2f9;
             -webkit-font-smoothing: antialiased;
         }
-        
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #050511;
-            padding-bottom: 40px;
+            background-color: #ffffff;
+            /* White Background - Change to #000000 for black */
+            padding: 40px 20px;
         }
-
         .main-table {
-            background-color: #050511;
+            background-color: #030315;
             margin: 0 auto;
             width: 100%;
             max-width: 600px;
             border-spacing: 0;
             font-family: 'Inter', sans-serif;
             color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
         }
 
         /* Header */
@@ -499,79 +631,117 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
             padding: 40px 0 20px 0;
             text-align: center;
         }
-
-        .logo-container {
-            margin-bottom: 20px;
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        /* Card */
-        .card {
-            background-color: #0f0e4a; /* Fond secondaire */
-            border-radius: 16px;
-            border: 1px solid rgba(252, 16, 202, 0.3); /* Accent Rose */
-            padding: 40px;
-            margin: 0 20px;
-            box-shadow: 0 0 30px rgba(252, 16, 202, 0.1); /* Glow Rose */
-            text-align: center;
-        }
-
-        /* Typography */
-        h1 {
+        .invitation-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 20px 0;
             color: #ffffff;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(252, 16, 202, 0.5); /* Glow Rose */
+            margin-bottom: 20px;
+        }
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
         }
 
-        .accent-text {
-            color: #fc10ca; /* Accent Rose */
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
         }
 
         p {
             font-size: 16px;
             line-height: 1.6;
-            margin: 0 0 25px 0;
-            color: #f6f2f9;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .bullet-prefix {
+            color: #D53F8C;
+            /* Pink for team */
+            font-weight: bold;
+            margin-right: 10px;
         }
 
         /* Team Badge */
         .team-badge {
             background-color: rgba(252, 16, 202, 0.1);
-            border: 1px solid #fc10ca;
+            border: 2px solid #D53F8C;
             border-radius: 12px;
-            padding: 20px;
-            margin: 30px 0;
-            display: inline-block;
-            min-width: 200px;
+            padding: 25px;
+            margin: 30px auto;
+            display: block;
+            text-align: center;
+            max-width: 300px;
         }
-
         .team-label {
-            color: #fc10ca;
+            color: #D53F8C;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 700;
         }
-
         .team-name {
             color: #ffffff;
             font-family: 'Space Grotesk', sans-serif;
             font-size: 24px;
             font-weight: 700;
+            text-transform: uppercase;
         }
 
         /* Button */
         .btn-container {
-            margin: 35px 0;
+            margin: 40px 0;
+            text-align: center;
         }
-
         .btn {
-            background-color: #fc10ca; /* Accent Rose */
+            background-color: #D53F8C;
+            /* Pink for team */
             color: #ffffff !important;
             text-decoration: none;
             padding: 16px 32px;
@@ -582,31 +752,40 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(252, 16, 202, 0.4); /* Glow bouton */
-            border: 1px solid #fc10ca;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
             background-color: #d90db0;
-            box-shadow: 0 0 30px rgba(252, 16, 202, 0.6);
+            box-shadow: 0 0 20px rgba(252, 16, 202, 0.4);
         }
 
         /* Footer */
         .footer {
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
         }
-
-        .footer-text {
-            color: #6b7280;
+        .footer-title {
+            color: #ffffff;
             font-size: 12px;
-            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
-
+        .footer-links {
+            margin-bottom: 20px;
+        }
         .footer-link {
-            color: #09c7df; /* Accent Bleu */
+            color: #cbd5e1;
             text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
         }
 
         /* Utilities */
@@ -618,63 +797,78 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <table class="main-table">
             <!-- Header -->
             <tr>
                 <td class="header">
-                    <div class="logo-container">
-                        <img src="https://ace.vizyondijital.fr/assets/logo/ACE-LOGO(2).svg" alt="ACE Logo" width="80" height="80" style="display: block; margin: 0 auto;">
-                    </div>
+                    <!-- Placeholder for Vizyon Dijital Logo -->
+                    <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">AFFECTATION</div>
+                    <div class="invitation-subtitle">11 Décembre • Équipe Confirmée</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <!-- ACE Logo -->
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/2ACE-LOGO.png" alt="ACE Antilles Cyber Escape"
+                        class="ace-logo">
                 </td>
             </tr>
 
             <!-- Content -->
             <tr>
-                <td>
-                    <div class="card">
-                        <h1>Affectation <span class="accent-text">Confirmée</span></h1>
-                        
-                        <p>Agent <strong>${firstName}</strong>,</p>
-                        
-                        <p>Votre demande de transfert a été approuvée. Vous avez été affecté à une nouvelle unité d'intervention pour l'opération du 11 Décembre.</p>
+                <td class="content-cell">
+                    <p style="margin-top: 30px;">Agent <strong>${firstName}</strong>,</p>
 
-                        <div class="team-badge">
-                            <div class="team-label">UNITÉ D'INTERVENTION</div>
-                            <div class="team-name">${teamName}</div>
-                        </div>
+                    <p>Votre demande de transfert a été <strong>approuvée</strong>. Vous avez été affecté à une nouvelle unité d'intervention d'urgence pour contrer <strong>L.U.M.E.N.</strong> le 11 Décembre.</p>
 
-                        <p>Prenez contact avec vos coéquipiers dès maintenant pour établir votre stratégie avant le jour J.</p>
-
-                        <div class="btn-container">
-                            <a href="${teamLink}" class="btn">Rejoindre mon Unité</a>
-                        </div>
-
-                        <hr class="divider">
-
-                        <p style="font-size: 13px; margin-bottom: 0;">
-                            La cohésion d'équipe sera déterminante.<br>
-                            Préparez-vous ensemble.
-                        </p>
+                    <div class="team-badge">
+                        <div class="team-label">UNITÉ D'INTERVENTION</div>
+                        <div class="team-name">${teamName}</div>
                     </div>
+
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">&gt;_</span> Prenez contact avec vos coéquipiers</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Établissez votre stratégie contre l'IA hostile</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Préparez-vous à contrer ses attaques</li>
+                    </ul>
+
+                    <p>L.U.M.E.N., l'IA corrompue, menace de prendre le contrôle total du campus. Votre unité est appelée en urgence pour stopper ses offensives avant qu'il ne soit trop tard. La cohésion d'équipe sera votre meilleure arme.</p>
+
+                    <div class="btn-container">
+                        <a href="${teamLink}" class="btn">&gt; REJOINDRE MON UNITÉ &lt;</a>
+                    </div>
+
+                    <p style="font-size: 13px; margin-bottom: 0; color: #D53F8C;">
+                        Vous êtes la dernière ligne de défense.<br>
+                        Coordonnez-vous. Agissez vite.
+                    </p>
                 </td>
             </tr>
 
             <!-- Footer -->
             <tr>
                 <td class="footer">
-                    <p class="footer-text">
-                        &copy; 2025 Vizyon Dijital<br>
-                        Opération Data-Campus.<br>
-                        <a href="https://ace.vizyondijital.fr" class="footer-link">ace.vizyondijital.fr</a>
-                    </p>
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>`;
 };
-
-
