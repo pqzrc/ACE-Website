@@ -159,14 +159,16 @@ export default function ClassementPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-sky-aqua/10 mb-6">
                   <Clock className="w-8 h-8 text-sky-aqua" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-4">
-                  L'événement commence dans
-                </h2>
                 <p className="text-gray-400 mb-8">
                   Le classement sera disponible après le début de l'épreuve
                 </p>
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  L'événement commence dans
+                </h2>
+                <CountdownDisplay time={timeRemaining} />
+           
               </div>
-              <CountdownDisplay time={timeRemaining} />
+              
             </div>
           )}
 
