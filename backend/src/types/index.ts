@@ -22,7 +22,7 @@ export interface TeamMemberInfo {
   firstName: string;
   lastName: string;
   email: string;
-  school: string;
+  composante: string;
 }
 
 export interface CTFdUser {

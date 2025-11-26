@@ -193,7 +193,7 @@ export class TeamController {
           {
             model: User,
             as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'composante', 'specialty'],
           },
           {
             model: User,
@@ -324,7 +324,7 @@ export class TeamController {
           {
             model: User,
             as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade', 'specialty'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'composante', 'specialty'],
           },
           {
             model: User,

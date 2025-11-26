@@ -175,7 +175,7 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-500">{member.school} • {member.grade}</p>
+                  <p className="text-xs text-gray-500">{member.composante} • {member.specialty}</p>
                 </div>
               </div>
               <div className="text-right">

@@ -44,10 +44,8 @@ const registerSchema = z.object({
       (username) => isUsernameAppropriate(username),
       'Ce nom d\'utilisateur contient des mots interdits'
     ),
-  composante: z.string().optional(),
   // Champs optionnels pour les statistiques
-  school: z.string().optional(),
-  grade: z.string().optional(),
+  composante: z.string().optional(),
   specialty: z.string().optional(),
   // hCaptcha token (requis en production, optionnel en dev)
   captchaToken: z.string().optional(),
