@@ -29,8 +29,8 @@ export default function ClassementPage() {
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
 
   // Event dates from environment variables
-  const EVENT_START = process.env.NEXT_PUBLIC_EVENT_START_TIME || '2025-02-01T09:00:00Z';
-  const EVENT_END = process.env.NEXT_PUBLIC_EVENT_END_TIME || '2025-02-01T17:00:00Z';
+  const EVENT_START = process.env.NEXT_PUBLIC_EVENT_START_TIME || '2025-12-11T09:00:00Z';
+  const EVENT_END = process.env.NEXT_PUBLIC_EVENT_END_TIME || '2025-12-11T17:00:00Z';
 
   useEffect(() => {
     // Check event status and update countdown
