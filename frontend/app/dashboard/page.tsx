@@ -28,7 +28,7 @@ export default function DashboardPage() {
 
   // Merge roomNames from both sources (admin takes precedence)
   const roomNames = user?.isAdmin ? adminRoomNames : teamRoomNames;
-  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms' | 'timeslots'>('team');
   const [leavingTeam, setLeavingTeam] = useState(false);
   const [redirectingToCTFd, setRedirectingToCTFd] = useState(false);
   const [success, setSuccess] = useState('');
@@ -238,7 +238,7 @@ export default function DashboardPage() {
         {/* Admin Tabs */}
         {user.isAdmin && (
           <div className="mb-6">
-            <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            <AdminTabs activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as 'team' | 'stats' | 'teams' | 'rooms' | 'timeslots')} />
           </div>
         )}
 
