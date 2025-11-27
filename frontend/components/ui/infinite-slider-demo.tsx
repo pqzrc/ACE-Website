@@ -22,6 +22,11 @@ const PartnerLogos = [
     alt: "CVEC - Contribution de Vie Étudiante et de Campus",
     name: "CVEC"
   },
+  {
+    src: "/assets/logo/quad.png",
+    alt: "Quad Autre",
+    name: "Quand Autre"
+  },
 
 
 ];
