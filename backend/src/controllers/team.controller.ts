@@ -107,7 +107,12 @@ export class TeamController {
       );
 
       // Send confirmation email to captain
-      await emailService.sendTeamCreatedEmail(user.email, user.firstName, team.name, team.inviteCode);
+      try {
+        await emailService.sendTeamCreatedEmail(user.email, user.firstName, team.name, team.inviteCode);
+      } catch (emailError) {
+        logger.error('Email error:', emailError);
+        // Continue anyway - email failure shouldn't block team creation
+      }
 
       res.status(201).json({
         success: true,

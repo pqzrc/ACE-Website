@@ -71,6 +71,34 @@ export class CTFdController {
       res.status(500).json({ success: false, message: 'Erreur lors de la récupération du scoreboard.' });
     }
   }
+
+  // Synchroniser les équipes vers CTFd
+  async syncTeams(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { password } = req.body;
+
+      // Vérifier le mot de passe admin
+      if (password !== process.env.ADMIN_PASSWORD) {
+        res.status(401).json({ success: false, message: 'Mot de passe incorrect' });
+        return;
+      }
+
+      const result = await ctfdService.syncTeams();
+
+      res.json({
+        success: true,
+        message: 'Équipes synchronisées avec succès',
+        data: result,
+      });
+    } catch (error) {
+      logger.error('Sync teams error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la synchronisation des équipes',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
 }
 
 export default new CTFdController();

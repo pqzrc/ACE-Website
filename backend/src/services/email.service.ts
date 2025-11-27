@@ -40,7 +40,7 @@ class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string, firstName: string): Promise<void> {
-    const verificationUrl = `${config.frontendUrl}/verify?token=${token}`;
+    const verificationUrl = `${config.frontendPublicUrl}/verify?token=${token}`;
 
     const mailOptions = {
       from: config.smtpFrom,
@@ -59,7 +59,7 @@ class EmailService {
   }
 
   async sendAccountConfirmedEmail(email: string, firstName: string, teamName: string = 'Non assigné'): Promise<void> {
-    const dashboardUrl = `${config.frontendUrl}/dashboard`;
+    const dashboardUrl = `${config.frontendPublicUrl}/dashboard`;
 
     const mailOptions = {
       from: config.smtpFrom,
@@ -78,7 +78,7 @@ class EmailService {
   }
 
   async sendWelcomeEmail(email: string, firstName: string, teamName: string): Promise<void> {
-    const teamUrl = `${config.frontendUrl}/team`;
+    const teamUrl = `${config.frontendPublicUrl}/team`;
 
     const mailOptions = {
       from: config.smtpFrom,
@@ -96,7 +96,7 @@ class EmailService {
   }
 
   async sendPasswordResetEmail(email: string, token: string, firstName: string): Promise<void> {
-    const resetUrl = `${config.frontendUrl}/reset-password?token=${token}`;
+    const resetUrl = `${config.frontendPublicUrl}/reset-password?token=${token}`;
 
     const mailOptions = {
       from: config.smtpFrom,
@@ -115,7 +115,7 @@ class EmailService {
   }
 
   async sendTeamCreatedEmail(email: string, firstName: string, teamName: string, inviteCode: string): Promise<void> {
-    const dashboardUrl = `${config.frontendUrl}/dashboard`;
+    const dashboardUrl = `${config.frontendPublicUrl}/dashboard`;
 
     const mailOptions = {
       from: config.smtpFrom,
@@ -133,7 +133,7 @@ class EmailService {
     }
   }
   async sendAdminAddPlayerEmail(email: string, firstName: string, teamName: string): Promise<void> {
-    const teamUrl = `${config.frontendUrl}/team`;
+    const teamUrl = `${config.frontendPublicUrl}/team`;
 
     const mailOptions = {
       from: config.smtpFrom,

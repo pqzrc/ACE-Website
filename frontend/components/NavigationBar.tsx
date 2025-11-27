@@ -32,8 +32,7 @@ export default function NavigationBar({
     { to: '/classement', label: 'Classement', isActive: pathname === '/classement' },
     { to: '/a-propos', label: 'À propos', isActive: pathname === '/a-propos' },
     ...(user ? [
-      { to: '/dashboard', label: 'Tableau de bord', isActive: pathname === '/dashboard' },
-      ...(user.isAdmin ? [{ to: '/admin', label: 'Admin', isActive: pathname === '/admin' }] : [])
+      { to: '/dashboard', label: 'Tableau de bord', isActive: pathname === '/dashboard' }
     ] : [])
   ];
 

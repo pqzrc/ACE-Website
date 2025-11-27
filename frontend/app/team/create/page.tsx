@@ -53,12 +53,15 @@ export default function CreateTeamPage() {
         name: teamName,
         timeSlotId: selectedTimeSlotId || undefined,
       });
+
       if (response.data.success) {
         router.push('/dashboard');
+      } else {
+        setError(response.data.message || "Erreur lors de la création de l'équipe");
+        setLoading(false);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Erreur lors de la création de l'équipe");
-    } finally {
       setLoading(false);
     }
   };

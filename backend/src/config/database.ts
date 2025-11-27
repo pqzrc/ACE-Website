@@ -28,9 +28,23 @@ const sanitizedLogger = (sql: string) => {
   console.log(sanitized);
 };
 
+// Déterminer si on doit logger les requêtes SQL
+const shouldLogSQL = () => {
+  // Si DB_LOGGING est explicitement à 'false', ne pas logger
+  if (process.env.DB_LOGGING === 'false') {
+    return false;
+  }
+  // En production, ne jamais logger
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
+  // En dev, logger uniquement si DB_LOGGING n'est pas défini ou est à 'true'
+  return process.env.DB_LOGGING === 'true' || process.env.DB_LOGGING === undefined;
+};
+
 export const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
-  logging: process.env.NODE_ENV === 'development' ? sanitizedLogger : false,
+  logging: shouldLogSQL() ? sanitizedLogger : false,
   models: [User, Team, Registration, TimeSlot],
   pool: {
     max: 5,

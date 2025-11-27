@@ -35,6 +35,7 @@ export const config = {
 
   // Frontend
   frontendUrl: process.env.FRONTEND_URL,
+  frontendPublicUrl: process.env.FRONTEND_PUBLIC_URL,
 
   // Admin
   adminEmail: process.env.ADMIN_EMAIL,
@@ -48,6 +49,7 @@ export const validateEnv = (): void => {
     'REDIS_URL',
     'JWT_SECRET',
     'FRONTEND_URL',
+    'FRONTEND_PUBLIC_URL',
     'ADMIN_EMAIL',
     'ADMIN_PASSWORD'
   ];

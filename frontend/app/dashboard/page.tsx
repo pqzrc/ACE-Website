@@ -15,6 +15,7 @@ import AdminTabs from '@/components/dashboard/AdminTabs';
 import AdminStats from '@/components/dashboard/AdminStats';
 import AdminTeamsManagement from '@/components/dashboard/AdminTeamsManagement';
 import AdminRoomsManagement from '@/components/dashboard/AdminRoomsManagement';
+import AdminTimeSlotsManagement from '@/components/dashboard/AdminTimeSlotsManagement';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import EmailVerificationBanner from '@/components/dashboard/EmailVerificationBanner';
@@ -262,6 +263,11 @@ export default function DashboardPage() {
             onAddRoom={handleAddRoomWithAlert}
             onDeleteRoom={handleDeleteRoomClick}
           />
+        )}
+
+        {/* Time Slots Tab */}
+        {activeTab === 'timeslots' && user.isAdmin && (
+          <AdminTimeSlotsManagement />
         )}
 
         <ConfirmationModal

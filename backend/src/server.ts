@@ -73,6 +73,14 @@ app.use('/api/timeslots', timeSlotRoutes);
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error:', err);
 
+  // IMPORTANT: Always send CORS headers, even on errors
+  // This prevents "CORS header missing" errors when backend returns 500
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',

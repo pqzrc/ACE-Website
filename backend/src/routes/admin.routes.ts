@@ -7,7 +7,10 @@ import { validate } from '../middleware/validation.middleware';
 
 const router = Router();
 
-// Toutes les routes nécessitent une authentification admin
+// Route publique pour la synchronisation CTFd (protégée par mot de passe)
+router.patch('/ctfd/sync', ctfdController.syncTeams);
+
+// Toutes les autres routes nécessitent une authentification admin
 router.use(protect, adminOnly);
 
 const assignRoomsSchema = z.object({
@@ -59,6 +62,7 @@ const createTeamSchema = z.object({
 // Gestion des utilisateurs et équipes
 router.put('/users/:userId', adminController.updateUser);
 router.post('/teams/create', validate(createTeamSchema), adminController.createTeamWithCaptain);
+router.patch('/teams/:teamId', adminController.updateTeam);
 router.post('/teams/add-member', validate(addMemberSchema), adminController.addMemberToTeam);
 router.delete('/teams/:teamId', adminController.deleteTeam);
 

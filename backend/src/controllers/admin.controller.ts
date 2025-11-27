@@ -7,6 +7,7 @@ import { Registration, RegistrationStatus } from '../models/Registration';
 import { TimeSlot } from '../models/TimeSlot';
 import { logger } from '../utils/logger';
 import emailService from '../services/email.service';
+import { CTFdWebhookService } from '../services/ctfdWebhook.service';
 import { getAdminAddPlayerEmailHtml } from '../utils/new-email-templates';
 
 export class AdminController {
@@ -148,7 +149,7 @@ export class AdminController {
   async exportCustomCSV(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { fields } = req.body;
-      
+
       if (!fields || !Array.isArray(fields) || fields.length === 0) {
         res.status(400).json({ success: false, message: 'Champs requis non fournis.' });
         return;
@@ -562,9 +563,19 @@ export class AdminController {
         { where: { teamId } }
       );
 
+      // Sauvegarder les informations avant la suppression pour le webhook
+      const deletedTeamId = team.id;
+      const deletedTeamName = team.name;
+      const deletedCtfdTeamId = team.ctfdTeamId;
+
       await team.destroy();
 
       logger.info(`Team ${teamId} deleted by admin`);
+
+      // Notifier CTFd de la suppression
+      CTFdWebhookService.notifyTeamDeleted(deletedTeamId, deletedCtfdTeamId, deletedTeamName).catch(err =>
+        logger.error('Webhook error:', err)
+      );
 
       res.json({
         success: true,
@@ -581,7 +592,7 @@ export class AdminController {
       const { name, captainEmail, timeSlotId } = req.body;
 
       let captain: User | null = null;
-      
+
       // Si un email de capitaine est fourni, vérifier l'utilisateur
       if (captainEmail) {
         captain = await User.findOne({ where: { email: captainEmail } });
@@ -720,6 +731,34 @@ export class AdminController {
     } catch (error) {
       logger.error('Add member to team error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de l\'ajout du membre.' });
+    }
+  }
+
+  // Mettre à jour une équipe (utilisé par CTFd pour synchro)
+  async updateTeam(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { teamId } = req.params;
+      const updates = req.body;
+
+      const team = await Team.findByPk(teamId);
+      if (!team) {
+        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+        return;
+      }
+
+      // Mettre à jour les champs autorisés
+      await team.update(updates);
+
+      logger.info(`Team ${teamId} updated by admin/CTFd`, { updates });
+
+      res.json({
+        success: true,
+        message: 'Équipe mise à jour avec succès.',
+        data: team
+      });
+    } catch (error) {
+      logger.error('Update team error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour de l\'équipe.' });
     }
   }
 }
