@@ -64,7 +64,7 @@ export default function AProposPage() {
                 </p>
                 <div className="pt-4 border-t border-white/10">
                   <p className="text-sm leading-relaxed">
-                    <strong className="text-white">Votre Mission :</strong> Vous incarnez les équipes appelées en urgence par la DSI
+                    <strong className="text-white">Votre Mission :</strong> Vous incarnez les équipes appelées en urgence par la DSIN
                     pour stopper l'IA avant qu'elle ne déclenche sa publication massive. Vous devez analyser ses attaques, comprendre
                     les failles qu'elle exploite et contrer une à une ses offensives numériques avant la fin du compte à rebours.
                     <strong className="text-neon-rose"> Vous êtes la dernière ligne de défense</strong> face à une intelligence artificielle devenue hostile.

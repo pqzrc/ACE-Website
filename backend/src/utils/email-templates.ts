@@ -10,7 +10,7 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urgence DSI - Vérification Requise</title>
+    <title>Urgence DSIN - Vérification Requise</title>
     <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,7 +227,7 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
                     <!-- Placeholder for Vizyon Dijital Logo -->
                     <img src="https://ace.vizyondijital.fr/assets/logo/vizyon-dijital-logo.png" alt="Vizyon Dijital"
                         class="vizyon-logo">
-                    <div class="invitation-title">URGENCE DSI</div>
+                    <div class="invitation-title">URGENCE DSIN</div>
                     <div class="invitation-subtitle">11 Décembre • Vérification Requise</div>
                     <hr class="header-divider">
                 </td>
@@ -250,7 +250,7 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
 
                     <p>Une situation d'urgence a été détectée. <strong>L.U.M.E.N.</strong>, l'intelligence artificielle de gestion du campus, a subi une défaillance critique et est devenue hostile. Elle menace de prendre le contrôle total du réseau le <strong>11 Décembre 2025</strong>.</p>
 
-                    <p>La <strong>DSI</strong> constitue une force d'intervention d'urgence pour contrer cette menace IA. Votre profil a été retenu pour rejoindre l'opération de neutralisation.</p>
+                    <p>La <strong>DSIN</strong> constitue une force d'intervention d'urgence pour contrer cette menace IA. Votre profil a été retenu pour rejoindre l'opération de neutralisation.</p>
 
                     <ul class="bullet-list">
                         <li><span class="bullet-prefix">⚠</span> IA hostile détectée - Niveau critique</li>
@@ -542,7 +542,7 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
                 <td class="content-cell">
                     <p style="margin-top: 30px;">Bienvenue dans l'équipe, Agent <strong>${firstName}</strong>.</p>
 
-                    <p>Votre <strong>accréditation DSI</strong> est validée. Vous faites officiellement partie de la force d'intervention d'urgence pour contrer <strong>L.U.M.E.N.</strong>, l'IA corrompue qui menace le campus.</p>
+                    <p>Votre <strong>accréditation DSIN</strong> est validée. Vous faites officiellement partie de la force d'intervention d'urgence pour contrer <strong>L.U.M.E.N.</strong>, l'IA corrompue qui menace le campus.</p>
 
                     <ul class="bullet-list">
                         <li><span class="bullet-prefix">&gt;_</span> L.U.M.E.N. a verrouillé l'administration</li>
