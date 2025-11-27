@@ -2,7 +2,16 @@ import nodemailer from 'nodemailer';
 import { config } from '../config/env';
 import { logger } from '../utils/logger';
 
-import { getVerificationEmailHtml, getWelcomeEmailHtml, getTeamJoinEmailHtml } from '../utils/email-templates';
+import {
+  getVerificationEmailHtml,
+  getWelcomeEmailHtml,
+  getTeamJoinEmailHtml
+} from '../utils/email-templates';
+import {
+  getTeamCreatedEmailHtml,
+  getPasswordResetEmailHtml,
+  getAdminAddPlayerEmailHtml
+} from '../utils/new-email-templates';
 
 class EmailService {
   private transporter: nodemailer.Transporter;
@@ -92,24 +101,8 @@ class EmailService {
     const mailOptions = {
       from: config.smtpFrom,
       to: email,
-      subject: 'Réinitialisation de mot de passe - ACE - Vizyon Dijital',
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <body style="font-family: Arial, sans-serif;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2>Réinitialisation de mot de passe</h2>
-              <p>Bonjour ${firstName},</p>
-              <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien ci-dessous :</p>
-              <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background: #fc10ca; color: white; text-decoration: none; border-radius: 5px;">
-                Réinitialiser mon mot de passe
-              </a>
-              <p>Ce lien expire dans 1 heure.</p>
-              <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-            </div>
-          </body>
-        </html>
-      `,
+      subject: 'Réinitialisation de mot de passe - ACE',
+      html: getPasswordResetEmailHtml(firstName, resetUrl),
     };
 
     try {
@@ -120,7 +113,42 @@ class EmailService {
       throw new Error('Failed to send password reset email');
     }
   }
+
+  async sendTeamCreatedEmail(email: string, firstName: string, teamName: string, inviteCode: string): Promise<void> {
+    const dashboardUrl = `${config.frontendUrl}/dashboard`;
+
+    const mailOptions = {
+      from: config.smtpFrom,
+      to: email,
+      subject: 'Équipe Créée - Mission L.U.M.E.N.',
+      html: getTeamCreatedEmailHtml(firstName, teamName, inviteCode, dashboardUrl),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      logger.info(`Team created email sent to ${email}`);
+    } catch (error) {
+      logger.error('Failed to send team created email:', error);
+      // Non-blocking error
+    }
+  }
+  async sendAdminAddPlayerEmail(email: string, firstName: string, teamName: string): Promise<void> {
+    const teamUrl = `${config.frontendUrl}/team`;
+
+    const mailOptions = {
+      from: config.smtpFrom,
+      to: email,
+      subject: 'Affectation Équipe - Opération Data-Campus',
+      html: getAdminAddPlayerEmailHtml(firstName, teamName, teamUrl),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      logger.info(`Admin add player email sent to ${email}`);
+    } catch (error) {
+      logger.error('Failed to send admin add player email:', error);
+    }
+  }
 }
 
 export default new EmailService();
-

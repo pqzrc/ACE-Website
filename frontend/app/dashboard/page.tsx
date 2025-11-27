@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
-import { Clock, Users, Flag } from 'lucide-react';
+import { Clock, Users, Flag, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminActions } from '@/hooks/useAdminActions';
 import { useTeamData } from '@/hooks/useTeamData';
@@ -13,16 +13,17 @@ import UserProfile from '@/components/dashboard/UserProfile';
 import TeamSection from '@/components/dashboard/TeamSection';
 import AdminTabs from '@/components/dashboard/AdminTabs';
 import AdminStats from '@/components/dashboard/AdminStats';
-import AdminTeamsList from '@/components/dashboard/AdminTeamsList';
+import AdminTeamsManagement from '@/components/dashboard/AdminTeamsManagement';
 import AdminRoomsManagement from '@/components/dashboard/AdminRoomsManagement';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import EmailVerificationBanner from '@/components/dashboard/EmailVerificationBanner';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout, updateUser } = useAuth();
   const { team, roomNames: teamRoomNames, loading: teamLoading, setTeam } = useTeamData();
-  const { stats, teams: allTeams, roomNames: adminRoomNames, loading: adminLoading, updateTeam, setRoomNames } = useAdminData(user?.isAdmin ?? false);
+  const { stats, teams: allTeams, roomNames: adminRoomNames, loading: adminLoading, updateTeam, setRoomNames, refresh } = useAdminData(user?.isAdmin ?? false);
   const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(allTeams, updateTeam);
 
   // Merge roomNames from both sources (admin takes precedence)
@@ -30,6 +31,8 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms'>('team');
   const [leavingTeam, setLeavingTeam] = useState(false);
   const [redirectingToCTFd, setRedirectingToCTFd] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   // Modal State
   const [deleteRoomModal, setDeleteRoomModal] = useState<{ isOpen: boolean; roomNumber: number | null }>({
@@ -48,8 +51,12 @@ export default function DashboardPage() {
   const handleAssignRoomWithAlert = async (teamId: string, roomNumber: number) => {
     try {
       await handleAssignRoom(teamId, roomNumber);
+      setSuccess('Salle assignée avec succès !');
+      setError('');
+      setTimeout(() => setSuccess(''), 3000);
     } catch {
-      alert('Erreur lors de l\'assignation');
+      setError('Erreur lors de l\'assignation');
+      setSuccess('');
     }
   };
 
@@ -57,8 +64,12 @@ export default function DashboardPage() {
     try {
       await handleUpdateRoomName(roomNumber, name);
       setRoomNames(prev => ({ ...prev, [roomNumber]: name }));
+      setSuccess('Nom de salle mis à jour avec succès !');
+      setError('');
+      setTimeout(() => setSuccess(''), 3000);
     } catch {
-      alert('Erreur lors de la mise à jour du nom');
+      setError('Erreur lors de la mise à jour du nom');
+      setSuccess('');
     }
   };
 
@@ -67,9 +78,13 @@ export default function DashboardPage() {
       const newRoom = await handleAddRoom();
       if (newRoom) {
         setRoomNames(prev => ({ ...prev, [newRoom.id]: newRoom.name }));
+        setSuccess('Salle ajoutée avec succès !');
+        setError('');
+        setTimeout(() => setSuccess(''), 3000);
       }
     } catch {
-      alert('Erreur lors de l\'ajout de la salle');
+      setError('Erreur lors de l\'ajout de la salle');
+      setSuccess('');
     }
   };
 
@@ -215,6 +230,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Email Verification Banner */}
+        {!user.emailVerified && (
+          <EmailVerificationBanner email={user.email} />
+        )}
+
         {/* Admin Tabs */}
         {user.isAdmin && (
           <div className="mb-6">
@@ -224,12 +244,12 @@ export default function DashboardPage() {
 
         {/* Stats Tab */}
         {activeTab === 'stats' && user.isAdmin && stats && (
-          <AdminStats stats={stats} onExportCSV={handleExportCSV} />
+          <AdminStats stats={stats} />
         )}
 
         {/* All Teams Tab */}
         {activeTab === 'teams' && user.isAdmin && (
-          <AdminTeamsList teams={allTeams} roomNames={roomNames} />
+          <AdminTeamsManagement teams={allTeams} onRefresh={refresh} />
         )}
 
         {/* Rooms Tab */}

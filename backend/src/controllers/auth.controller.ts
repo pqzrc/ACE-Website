@@ -16,7 +16,7 @@ export class AuthController {
    */
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password, firstName, lastName, username, composante, specialty, captchaToken } = req.body;
+      const { email, password, firstName, lastName, username, phoneNumber, composante, specialty, captchaToken } = req.body;
 
       // Verify CAPTCHA if required
       if (isCaptchaRequired()) {
@@ -79,6 +79,7 @@ export class AuthController {
         firstName,
         lastName,
         username,
+        phoneNumber,
         composante,
         specialty,
         verificationToken,
@@ -241,6 +242,7 @@ export class AuthController {
             firstName: user.firstName,
             lastName: user.lastName,
             username: user.username,
+            phoneNumber: user.phoneNumber,
             composante: user.composante,
             isAdmin: user.isAdmin,
             emailVerified: user.emailVerified,
@@ -294,6 +296,88 @@ export class AuthController {
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la récupération du profil.',
+      });
+    }
+  }
+
+  /**
+   * Forgot password
+   */
+  async forgotPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        // Pour des raisons de sécurité, on ne dit pas si l'utilisateur existe ou non
+        res.json({
+          success: true,
+          message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.',
+        });
+        return;
+      }
+
+      // Generate reset token
+      const resetToken = generateToken();
+      const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = resetExpires;
+      await user.save();
+
+      // Send email
+      await emailService.sendPasswordResetEmail(email, resetToken, user.firstName);
+
+      res.json({
+        success: true,
+        message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.',
+      });
+    } catch (error) {
+      logger.error('Forgot password error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la demande de réinitialisation.',
+      });
+    }
+  }
+
+  /**
+   * Reset password
+   */
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { token, password } = req.body;
+
+      const user = await User.findOne({
+        where: {
+          resetPasswordToken: token,
+          resetPasswordExpires: { [Op.gt]: new Date() },
+        },
+      });
+
+      if (!user) {
+        res.status(400).json({
+          success: false,
+          message: 'Le lien de réinitialisation est invalide ou a expiré.',
+        });
+        return;
+      }
+
+      // Update password
+      user.password = password;
+      user.resetPasswordToken = null;
+      user.resetPasswordExpires = null;
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.',
+      });
+    } catch (error) {
+      logger.error('Reset password error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la réinitialisation du mot de passe.',
       });
     }
   }

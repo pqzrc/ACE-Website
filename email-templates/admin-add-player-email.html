@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouté à une Équipe - ACE</title>
+    <!-- Import Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset & Base */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            color: #f6f2f9;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .main-table {
+            background-color: #030315;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 40px 0 20px 0;
+            text-align: center;
+        }
+
+        .vizyon-logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .invitation-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+
+        .invitation-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .header-divider {
+            height: 1px;
+            background-color: #1e293b;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            border: none;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .ace-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+
+        /* Content */
+        .content-cell {
+            padding: 0 40px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+        }
+
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+
+        .bullet-list li {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .bullet-prefix {
+            color: #a855f7;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Team Badge */
+        .team-badge {
+            background-color: rgba(168, 85, 247, 0.1);
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px auto;
+            display: block;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .team-label {
+            color: #a855f7;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .team-name {
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Admin Notice */
+        .admin-notice {
+            background-color: #050511;
+            border: 1px solid #a855f7;
+            border-left: 4px solid #a855f7;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .admin-notice-title {
+            color: #a855f7;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .admin-notice p {
+            margin: 0;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        /* Button */
+        .btn-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #a855f7;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #9333ea;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        .footer-copyright {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* Utilities */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(15, 14, 74, 0) 0%, rgba(168, 85, 247, 0.5) 50%, rgba(15, 14, 74, 0) 100%);
+            margin: 30px 0;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <table class="main-table">
+            <!-- Header -->
+            <tr>
+                <td class="header">
+                    <img src="https://via.placeholder.com/150x60?text=Vizyon+Dijital" alt="Vizyon Dijital"
+                        class="vizyon-logo">
+                    <div class="invitation-title">AFFECTATION ADMIN</div>
+                    <div class="invitation-subtitle">11 Décembre • Équipe Assignée</div>
+                    <hr class="header-divider">
+                </td>
+            </tr>
+            <!-- Hero -->
+            <tr>
+                <td class="hero-section">
+                    <img src="https://s3.us-east-2.amazonaws.com/harrowco.fr/vizyon-dijital/2ACE-LOGO.png"
+                        alt="ACE Antilles Cyber Escape" class="ace-logo">
+                </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+                <td class="content-cell">
+                    <p style="margin-top: 30px;">Agent <strong>{{firstName}}</strong>,</p>
+
+                    <p>Par décision administrative, vous avez été <strong>assigné à une unité d'intervention</strong>
+                        pour la mission contre <strong>L.U.M.E.N.</strong> le 11 Décembre.</p>
+
+                    <div class="team-badge">
+                        <div class="team-label">VOTRE UNITÉ ASSIGNÉE</div>
+                        <div class="team-name">{{teamName}}</div>
+                    </div>
+
+                    <div class="admin-notice">
+                        <div class="admin-notice-title">⚠️ AFFECTATION ADMINISTRATIVE</div>
+                        <p>Cette assignation a été effectuée par un administrateur du QG. Vous faites désormais partie
+                            de cette unité et devez vous coordonner avec vos nouveaux coéquipiers.</p>
+                    </div>
+
+                    <ul class="bullet-list">
+                        <li><span class="bullet-prefix">&gt;_</span> Prenez contact avec votre équipe</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Familiarisez-vous avec le briefing de mission</li>
+                        <li><span class="bullet-prefix">&gt;_</span> Préparez votre matériel et vos connaissances</li>
+                    </ul>
+
+                    <p>Votre rôle dans cette équipe est essentiel. L.U.M.E.N., l'IA corrompue, menace de prendre le
+                        contrôle total du campus. Chaque membre compte dans la lutte contre cette menace.</p>
+
+                    <div class="btn-container">
+                        <a href="{{teamLink}}" class="btn">&gt; REJOINDRE MON UNITÉ &lt;</a>
+                    </div>
+
+                    <p style="font-size: 13px; margin-bottom: 0; color: #a855f7;">
+                        Affectation prioritaire.<br>
+                        Présentez-vous à votre unité dès que possible.
+                    </p>
+                </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+                <td class="footer">
+                    <div class="footer-title">SUIVEZ-NOUS</div>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Instagram</a>
+                        <span style="color: #64748b;">|</span>
+                        <a href="#" class="footer-link">Linkedin</a>
+                    </div>
+                    <div class="footer-copyright">Vizyon Dijital - Martinique</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

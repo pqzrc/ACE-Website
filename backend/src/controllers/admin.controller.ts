@@ -4,7 +4,10 @@ import { AuthRequest } from '../types';
 import { User } from '../models/User';
 import { Team } from '../models/Team';
 import { Registration, RegistrationStatus } from '../models/Registration';
+import { TimeSlot } from '../models/TimeSlot';
 import { logger } from '../utils/logger';
+import emailService from '../services/email.service';
+import { getAdminAddPlayerEmailHtml } from '../utils/new-email-templates';
 
 export class AdminController {
   // Statistiques globales
@@ -94,7 +97,7 @@ export class AdminController {
     }
   }
 
-  // Export CSV
+  // Export CSV (legacy - GET method)
   async exportCSV(req: AuthRequest, res: Response): Promise<void> {
     try {
       const registrations = await Registration.findAll({
@@ -138,6 +141,144 @@ export class AdminController {
     } catch (error) {
       logger.error('Export CSV error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de l\'export CSV.' });
+    }
+  }
+
+  // Export CSV with custom fields (POST method)
+  async exportCustomCSV(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { fields } = req.body;
+      
+      if (!fields || !Array.isArray(fields) || fields.length === 0) {
+        res.status(400).json({ success: false, message: 'Champs requis non fournis.' });
+        return;
+      }
+
+      // Load all data with relations
+      const registrations = await Registration.findAll({
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'username', 'composante', 'specialty', 'emailVerified', 'createdAt'],
+          },
+          {
+            model: Team,
+            as: 'team',
+            attributes: ['id', 'name', 'captainId', 'roomNumber', 'currentScore', 'rank', 'timeSlotId'],
+            include: [
+              {
+                model: TimeSlot,
+                as: 'timeSlot',
+                attributes: ['roomName', 'startTime', 'endTime'],
+                required: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      // Load room names
+      let roomNames: Record<number, string> = {};
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const roomsFile = path.join(__dirname, '../../data/rooms.json');
+        if (fs.existsSync(roomsFile)) {
+          const fileContent = fs.readFileSync(roomsFile, 'utf8');
+          roomNames = JSON.parse(fileContent);
+        }
+      } catch (fileError) {
+        logger.warn('Could not load rooms.json:', fileError);
+      }
+
+      // Field mapping
+      const fieldLabels: Record<string, string> = {
+        firstName: 'Prénom',
+        lastName: 'Nom',
+        email: 'Email',
+        phoneNumber: 'Téléphone',
+        username: 'Nom d\'utilisateur',
+        composante: 'Composante',
+        specialty: 'Spécialité',
+        emailVerified: 'Email vérifié',
+        teamName: 'Équipe',
+        teamRole: 'Rôle équipe',
+        roomNumber: 'Salle',
+        roomName: 'Nom salle',
+        timeSlot: 'Créneau horaire',
+        currentScore: 'Points',
+        rank: 'Classement',
+        registrationStatus: 'Statut inscription',
+        createdAt: 'Date inscription',
+      };
+
+      // Generate CSV header
+      const csvHeader = fields.map(field => fieldLabels[field] || field).join(',') + '\n';
+
+      // Generate CSV rows
+      const csvRows = registrations.map((reg: any) => {
+        const user = reg.user;
+        const team = reg.team;
+        const timeSlot = team?.timeSlot;
+
+        return fields.map(field => {
+          switch (field) {
+            case 'firstName':
+              return user?.firstName || '';
+            case 'lastName':
+              return user?.lastName || '';
+            case 'email':
+              return user?.email || '';
+            case 'phoneNumber':
+              return user?.phoneNumber || '';
+            case 'username':
+              return user?.username || '';
+            case 'composante':
+              return user?.composante || '';
+            case 'specialty':
+              return user?.specialty || '';
+            case 'emailVerified':
+              return user?.emailVerified ? 'Oui' : 'Non';
+            case 'teamName':
+              return team?.name || 'Aucune';
+            case 'teamRole':
+              return team?.captainId === user?.id ? 'Capitaine' : 'Membre';
+            case 'roomNumber':
+              return team?.roomNumber || '';
+            case 'roomName':
+              return team?.roomNumber ? (roomNames[team.roomNumber] || `Salle ${team.roomNumber}`) : '';
+            case 'timeSlot':
+              return timeSlot ? `Salle ${timeSlot.roomName} – ${timeSlot.startTime.substring(0, 5)}-${timeSlot.endTime.substring(0, 5)}` : '';
+            case 'currentScore':
+              return team?.currentScore || '0';
+            case 'rank':
+              return team?.rank || '';
+            case 'registrationStatus':
+              return reg.status || '';
+            case 'createdAt':
+              return user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '';
+            default:
+              return '';
+          }
+        }).map(value => {
+          // Escape CSV values that contain commas or quotes
+          const stringValue = String(value);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        }).join(',');
+      }).join('\n');
+
+      const csv = csvHeader + csvRows;
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="inscriptions-ace-custom.csv"');
+      res.send('\uFEFF' + csv);
+    } catch (error) {
+      logger.error('Export custom CSV error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de l\'export CSV personnalisé.' });
     }
   }
 
@@ -380,7 +521,7 @@ export class AdminController {
       }
 
       // Sécurité : Filtrer les champs autorisés (Mass Assignment Protection)
-      const allowedFields = ['firstName', 'lastName', 'email', 'composante', 'specialty', 'isAdmin', 'emailVerified'];
+      const allowedFields = ['firstName', 'lastName', 'email', 'phoneNumber', 'composante', 'specialty', 'isAdmin', 'emailVerified'];
       const filteredUpdates = Object.keys(updates)
         .filter(key => allowedFields.includes(key))
         .reduce((obj: any, key) => {
@@ -432,6 +573,153 @@ export class AdminController {
     } catch (error) {
       logger.error('Delete team error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la suppression.' });
+    }
+  }
+  // Créer une équipe avec un capitaine (admin uniquement)
+  async createTeamWithCaptain(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { name, captainEmail, timeSlotId } = req.body;
+
+      let captain: User | null = null;
+      
+      // Si un email de capitaine est fourni, vérifier l'utilisateur
+      if (captainEmail) {
+        captain = await User.findOne({ where: { email: captainEmail } });
+        if (!captain) {
+          res.status(404).json({ success: false, message: 'Utilisateur avec cet email non trouvé.' });
+          return;
+        }
+
+        // Vérifier que l'utilisateur n'a pas déjà une équipe
+        if (captain.teamId) {
+          res.status(400).json({ success: false, message: 'Cet utilisateur fait déjà partie d\'une équipe.' });
+          return;
+        }
+      }
+
+      // Générer un code d'invitation unique
+      const generateInviteCode = () => {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+      };
+
+      let inviteCode = generateInviteCode();
+      let existingTeam = await Team.findOne({ where: { inviteCode } });
+
+      while (existingTeam) {
+        inviteCode = generateInviteCode();
+        existingTeam = await Team.findOne({ where: { inviteCode } });
+      }
+
+      // Créer l'équipe
+      const team = await Team.create({
+        name,
+        captainId: captain ? captain.id : null,
+        inviteCode,
+        timeSlotId: timeSlotId || null,
+        isComplete: false,
+        currentScore: 0,
+        createdByAdmin: true,
+      });
+
+      // Ajouter le capitaine à l'équipe (si fourni)
+      if (captain) {
+        await captain.update({ teamId: team.id });
+
+        // Mettre à jour le statut d'inscription
+        await Registration.update(
+          { teamId: team.id, status: RegistrationStatus.TEAM_INCOMPLETE },
+          { where: { userId: captain.id } }
+        );
+
+        logger.info(`Team ${team.id} created by admin with captain ${captain.email}`);
+      } else {
+        logger.info(`Team ${team.id} created by admin without captain`);
+      }
+
+      res.json({
+        success: true,
+        message: 'Équipe créée avec succès.',
+        data: { team, captain }
+      });
+    } catch (error) {
+      logger.error('Create team with captain error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la création de l\'équipe.' });
+    }
+  }
+
+  // Ajouter un membre à une équipe via email (admin uniquement)
+  async addMemberToTeam(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { teamId, userId, userEmail } = req.body;
+
+      const team = await Team.findByPk(teamId);
+      if (!team) {
+        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+        return;
+      }
+
+      // Trouver l'utilisateur soit par ID soit par email
+      let user: User | null = null;
+      if (userEmail) {
+        user = await User.findOne({ where: { email: userEmail } });
+      } else if (userId) {
+        user = await User.findByPk(userId);
+      }
+
+      if (!user) {
+        res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+        return;
+      }
+
+      // Vérifier si l'utilisateur fait déjà partie d'une équipe
+      if (user.teamId) {
+        res.status(400).json({ success: false, message: 'Cet utilisateur fait déjà partie d\'une équipe.' });
+        return;
+      }
+
+      // Vérifier si l'équipe est complète
+      if (await team.isFull()) {
+        res.status(400).json({ success: false, message: 'Cette équipe est déjà complète.' });
+        return;
+      }
+
+      // Mettre à jour l'utilisateur
+      await user.update({ teamId: team.id });
+
+      // If the team has no captain, make this user the captain
+      if (!team.captainId) {
+        team.captainId = user.id;
+        await team.save();
+        logger.info(`User ${user.email} automatically assigned as captain of team ${team.name} by admin`);
+      }
+
+      // Mettre à jour le statut d'inscription
+      const memberCount = await team.getMemberCount();
+      const newStatus = memberCount >= 3 ? RegistrationStatus.TEAM_COMPLETE : RegistrationStatus.TEAM_INCOMPLETE;
+
+      await Registration.update(
+        { teamId: team.id, status: newStatus },
+        { where: { userId: user.id } }
+      );
+
+      // Mettre à jour le statut de l'équipe si elle devient complète
+      if (memberCount >= 3) {
+        await team.update({ isComplete: true });
+      }
+
+      // Envoyer l'email de notification
+      await emailService.sendAdminAddPlayerEmail(user.email, user.firstName, team.name);
+
+      logger.info(`User ${user.email} added to team ${teamId} by admin`);
+
+      res.json({
+        success: true,
+        message: 'Membre ajouté à l\'équipe avec succès.',
+        data: { user, team }
+      });
+    } catch (error) {
+      logger.error('Add member to team error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de l\'ajout du membre.' });
     }
   }
 }

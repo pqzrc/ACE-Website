@@ -10,14 +10,18 @@ import AdminTabs from '@/components/dashboard/AdminTabs';
 import AdminStats from '@/components/dashboard/AdminStats';
 import AdminTeamsList from '@/components/dashboard/AdminTeamsList';
 import AdminRoomsManagement from '@/components/dashboard/AdminRoomsManagement';
+import AdminTimeSlotsManagement from '@/components/dashboard/AdminTimeSlotsManagement';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { CheckCircle, AlertCircle, X } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout } = useAuth();
   const { stats, teams, roomNames, loading, updateTeam, setTeams, setRoomNames } = useAdminData(user?.isAdmin ?? false);
   const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(teams, updateTeam);
-  const [activeTab, setActiveTab] = useState<'stats' | 'teams' | 'rooms'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'teams' | 'rooms' | 'timeslots'>('stats');
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) {
@@ -28,9 +32,13 @@ export default function AdminPage() {
   const handleAssignRoomWithAlert = async (teamId: string, roomNumber: number) => {
     try {
       await handleAssignRoom(teamId, roomNumber);
-      alert('Salle assignée avec succès');
-    } catch (error) {
-      alert('Erreur lors de l\'assignation');
+      setSuccess('Salle assignée avec succès !');
+      setError('');
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Erreur lors de l\'assignation');
+      setSuccess('');
     }
   };
 
@@ -43,10 +51,14 @@ export default function AdminPage() {
           ...prev,
           [result.id]: result.name
         }));
-        alert('Salle ajoutée avec succès');
+        setSuccess('Salle ajoutée avec succès !');
+        setError('');
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(''), 3000);
       }
-    } catch (error) {
-      alert('Erreur lors de l\'ajout de la salle');
+    } catch (err) {
+      setError('Erreur lors de l\'ajout de la salle');
+      setSuccess('');
     }
   };
 
@@ -69,14 +81,42 @@ export default function AdminPage() {
         <div className="mb-6">
           <AdminTabs
             activeTab={activeTab}
-            onTabChange={(tab) => setActiveTab(tab as 'stats' | 'teams' | 'rooms')}
+            onTabChange={(tab) => setActiveTab(tab as 'stats' | 'teams' | 'rooms' | 'timeslots')}
             showTeamTab={false}
           />
         </div>
 
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-900/50 border border-green-500 rounded-lg p-4 flex items-center gap-3 mb-6">
+            <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+            <span className="text-green-200">{success}</span>
+            <button
+              onClick={() => setSuccess('')}
+              className="ml-auto text-green-400 hover:text-green-300"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-900/50 border border-red-500 rounded-lg p-4 flex items-center gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <span className="text-red-200">{error}</span>
+            <button
+              onClick={() => setError('')}
+              className="ml-auto text-red-400 hover:text-red-300"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Stats Tab */}
         {activeTab === 'stats' && stats && (
-          <AdminStats stats={stats} onExportCSV={handleExportCSV} />
+          <AdminStats stats={stats} />
         )}
 
         {/* Teams Tab */}
@@ -104,6 +144,11 @@ export default function AdminPage() {
               });
             }}
           />
+        )}
+
+        {/* Time Slots Tab */}
+        {activeTab === 'timeslots' && (
+          <AdminTimeSlotsManagement />
         )}
       </main>
     </div>

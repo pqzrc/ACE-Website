@@ -28,6 +28,7 @@ export default function RegisterPage() {
     username: '',
     composante: '',
     specialty: '',
+    phoneNumber: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -238,6 +239,17 @@ export default function RegisterPage() {
                   Ces informations nous aident à améliorer l'événement. Elles sont optionnelles mais appréciées.
                 </p>
                 <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">Téléphone</label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      className="w-full bg-deep-navy/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-neon-rose/50 focus:ring-1 focus:ring-neon-rose/50 transition-all"
+                      placeholder="06 12 34 56 78"
+                    />
+                  </div>
                   <FormField
                     label="Composante (Université des Antilles)"
                     name="composante"

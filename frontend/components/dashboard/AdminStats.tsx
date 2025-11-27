@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Building2, Download } from 'lucide-react';
+import ExportCSVModal from './ExportCSVModal';
 
 interface Stats {
   overview: {
@@ -13,16 +15,17 @@ interface Stats {
 
 interface AdminStatsProps {
   stats: Stats;
-  onExportCSV: () => void;
 }
 
-export default function AdminStats({ stats, onExportCSV }: AdminStatsProps) {
+export default function AdminStats({ stats }: AdminStatsProps) {
+  const [showExportModal, setShowExportModal] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="font-display text-2xl font-bold text-white">Statistiques Globales</h2>
         <button
-          onClick={onExportCSV}
+          onClick={() => setShowExportModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-neon-rose hover:bg-neon-rose/90 text-white font-medium rounded-xl transition-all"
         >
           <Download className="w-4 h-4" />
@@ -63,6 +66,12 @@ export default function AdminStats({ stats, onExportCSV }: AdminStatsProps) {
           ))}
         </div>
       </div>
+
+      {/* Export CSV Modal */}
+      <ExportCSVModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+      />
     </div>
   );
 }

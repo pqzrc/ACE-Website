@@ -8,6 +8,8 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { User } from './User';
+import { TimeSlot } from './TimeSlot';
+
 
 @Table({
   tableName: 'teams',
@@ -38,9 +40,9 @@ export class Team extends Model {
   @ForeignKey(() => User)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
+    allowNull: true,
   })
-  captainId!: string;
+  captainId!: string | null;
 
   @BelongsTo(() => User, 'captainId')
   captain?: User;
@@ -69,6 +71,17 @@ export class Team extends Model {
     allowNull: true,
   })
   sessionEndTime!: Date | null;
+
+  @ForeignKey(() => TimeSlot)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  timeSlotId!: string | null;
+
+  @BelongsTo(() => TimeSlot, 'timeSlotId')
+  timeSlot?: TimeSlot;
+
 
   @Column({
     type: DataType.BOOLEAN,
@@ -99,6 +112,12 @@ export class Team extends Model {
     allowNull: true,
   })
   rank!: number | null;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  createdByAdmin!: boolean;
 
   // Get member count
   async getMemberCount(): Promise<number> {

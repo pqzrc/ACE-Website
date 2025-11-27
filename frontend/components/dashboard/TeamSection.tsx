@@ -12,10 +12,12 @@ import {
   Trash2,
   DoorOpen,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Calendar
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Team } from '@/lib/types';
+import TimeSlotSelector from './TimeSlotSelector';
 
 interface TeamSectionProps {
   team: Team | null;
@@ -27,6 +29,7 @@ interface TeamSectionProps {
 
 export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, roomNames = {} }: TeamSectionProps) {
   const [copied, setCopied] = useState(false);
+  const [showTimeSlotSelector, setShowTimeSlotSelector] = useState(false);
 
   if (!team) {
     return (
@@ -39,7 +42,7 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
           Pour participer à l&apos;opération, vous devez rejoindre une équipe existante ou en former une nouvelle.
         </p>
 
-        <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+        <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
           <Link
             href="/team/create"
             className="group p-4 rounded-xl border border-neon-rose/30 bg-neon-rose/10 hover:bg-neon-rose/20 transition-all text-left"
@@ -65,6 +68,19 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
               Intégrer une équipe existante avec un code.
             </p>
           </Link>
+
+          <Link
+            href="/no-team"
+            className="group p-4 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all text-left"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <Users className="w-5 h-5 text-purple-400" />
+              <span className="font-bold text-white">Je n'ai pas d'équipe</span>
+            </div>
+            <p className="text-xs text-gray-400 group-hover:text-gray-300">
+              Rejoindre une équipe disponible par créneau.
+            </p>
+          </Link>
         </div>
       </div>
     );
@@ -74,9 +90,9 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
     <div className="space-y-8">
       {/* Team Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-white/10">
-        <div>
+        <div className="flex-1">
           <h2 className="text-3xl font-display font-bold text-white text-glow">{team.name}</h2>
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex flex-wrap items-center gap-3 mt-2">
             <span className={clsx(
               "px-2 py-0.5 rounded text-xs font-medium border",
               team.isComplete
@@ -87,10 +103,42 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
             </span>
             <span className="text-gray-400 text-sm">{team.memberCount} / 5 Agents</span>
           </div>
+
+          {/* Time Slot Display/Selector */}
+          <div className="mt-4">
+            {team.timeSlot ? (
+              <div className="inline-flex items-center gap-2 px-3 py-2 bg-sky-aqua/10 border border-sky-aqua/30 rounded-lg">
+                <Calendar className="w-4 h-4 text-sky-aqua" />
+                <div>
+                  <p className="text-xs text-sky-aqua font-bold">
+                    Salle {team.timeSlot.roomName} – {team.timeSlot.startTime.substring(0, 5)}-{team.timeSlot.endTime.substring(0, 5)}
+                  </p>
+                </div>
+                {team.captainId === userId && (
+                  <button
+                    onClick={() => setShowTimeSlotSelector(true)}
+                    className="ml-2 text-xs text-sky-aqua hover:text-white transition-colors underline"
+                  >
+                    Modifier
+                  </button>
+                )}
+              </div>
+            ) : (
+              team.captainId === userId && (
+                <button
+                  onClick={() => setShowTimeSlotSelector(true)}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs font-medium">Choisir un créneau horaire</span>
+                </button>
+              )
+            )}
+          </div>
         </div>
 
         {team.roomNumber && (
-          <div className="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg flex items-center gap-2">
+          <div className="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg flex items-center gap-2 shrink-0">
             <MapPin className="w-5 h-5 text-purple-400" />
             <div>
               <p className="text-xs text-purple-300 uppercase font-bold">Salle</p>
@@ -242,6 +290,19 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
           </p>
         )}
       </div>
+
+      {/* Time Slot Selector Modal */}
+      {showTimeSlotSelector && (
+        <TimeSlotSelector
+          currentTimeSlotId={team.timeSlotId || null}
+          isCaptain={team.captainId === userId}
+          onClose={() => setShowTimeSlotSelector(false)}
+          onSuccess={() => {
+            // Trigger a page refresh to get updated team data
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 }

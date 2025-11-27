@@ -55,6 +55,12 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  phoneNumber!: string | null;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   specialty!: string | null;
 
   @Column({
@@ -97,6 +103,18 @@ export class User extends Model {
     allowNull: true,
   })
   verificationTokenExpiry!: Date | null;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  resetPasswordToken!: string | null;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  resetPasswordExpires!: Date | null;
 
   @Column({
     type: DataType.BOOLEAN,

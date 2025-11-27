@@ -25,6 +25,14 @@ export interface Team {
   sessionStartTime: string | null;
   currentScore: number;
   rank: number | null;
+  timeSlotId?: string | null;
+  timeSlot?: {
+    id: string;
+    displayName: string;
+    roomName: string;
+    startTime: string;
+    endTime: string;
+  } | null;
 }
 
 export interface TeamMember {

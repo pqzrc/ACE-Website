@@ -28,6 +28,11 @@ const registerSchema = z.object({
       (name) => isNameAppropriate(name),
       'Le nom contient des mots inappropriés'
     ),
+  phoneNumber: z
+    .string()
+    .regex(/^(\+33|0)[1-9](\d{2}){4}$/, 'Numéro de téléphone invalide (format français attendu)')
+    .optional()
+    .or(z.literal('')),
   username: z
     .string()
     .min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères')
@@ -64,11 +69,22 @@ const resendVerificationSchema = z.object({
   email: z.string().email('Email invalide'),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Email invalide'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token requis'),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+});
+
 // Routes publiques
 router.post('/register', authLimiter, validate(registerSchema), authController.register);
 router.post('/login', loginLimiter, validate(loginSchema), authController.login);
 router.post('/verify-email', validate(verifyEmailSchema), authController.verifyEmail);
 router.post('/resend-verification', authLimiter, validate(resendVerificationSchema), authController.resendVerification);
+router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), authController.forgotPassword);
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), authController.resetPassword);
 
 // Routes protégées
 router.get('/profile', protect, authController.getProfile);
