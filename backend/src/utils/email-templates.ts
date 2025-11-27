@@ -278,9 +278,9 @@ export const getVerificationEmailHtml = (firstName: string, verificationLink: st
                     <div class="footer-links">
                         <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Instagram</a>
+                        <a href="https://www.instagram.com/vizyon.dijital/" class="footer-link">Instagram</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Linkedin</a>
+                        <a href="https://www.linkedin.com/company/vizyon-dijital/posts/?feedView=all" class="footer-link">Linkedin</a>
                     </div>
                     <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
@@ -567,9 +567,9 @@ export const getWelcomeEmailHtml = (firstName: string, teamName: string, dashboa
                     <div class="footer-links">
                         <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Instagram</a>
+                        <a href="https://www.instagram.com/vizyon.dijital/" class="footer-link">Instagram</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Linkedin</a>
+                        <a href="https://www.linkedin.com/company/vizyon-dijital/posts/?feedView=all" class="footer-link">Linkedin</a>
                     </div>
                     <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
@@ -859,9 +859,9 @@ export const getTeamJoinEmailHtml = (firstName: string, teamName: string, teamLi
                     <div class="footer-links">
                         <a href="https://vizyondijital.fr/" class="footer-link">Site Web</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Instagram</a>
+                        <a href="https://www.instagram.com/vizyon.dijital/" class="footer-link">Instagram</a>
                         <span style="color: #64748b;">|</span>
-                        <a href="#" class="footer-link">Linkedin</a>
+                        <a href="https://www.linkedin.com/company/vizyon-dijital/posts/?feedView=all" class="footer-link">Linkedin</a>
                     </div>
                     <div class="footer-copyright">Vizyon Dijital - Martinique</div>
                 </td>
