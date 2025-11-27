@@ -7,15 +7,15 @@ const PartnerLogos = [
     alt: "IUT de Martinique",
     name: "IUT de la Martinique"
   },
+    {
+    src: "https://s3.us-east-2.amazonaws.com/harrowco.fr/HarrowCo/Logo.svg",
+    alt: "Harrow & Co",
+    name: "Harrow & Co"
+  },
   {
     src: "https://s3.us-east-2.amazonaws.com/harrowco.fr/IUT-Martinique/Logo_couleur_ua_martinique.svg",
     alt: "Université des Antilles",
     name: "Université des Antilles"
-  },
-  {
-    src: "https://s3.us-east-2.amazonaws.com/harrowco.fr/HarrowCo/Logo.svg",
-    alt: "Harrow & Co",
-    name: "Harrow & Co"
   },
   {
     src: "/assets/logo/cvec.png",
