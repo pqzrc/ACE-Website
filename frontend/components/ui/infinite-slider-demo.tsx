@@ -27,6 +27,11 @@ const PartnerLogos = [
     alt: "Quad Autre",
     name: "Quand Autre"
   },
+  {
+    src: "/assets/logo/west_paradise.png",
+    alt: "West Paradise",
+    name: "West Paradise"
+  },
 
 
 ];
