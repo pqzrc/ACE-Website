@@ -28,9 +28,24 @@ const PartnerLogos = [
     name: "Quand Autre"
   },
   {
-    src: "/assets/logo/west_paradise.png",
-    alt: "West Paradise",
-    name: "West Paradise"
+    src: "assets/logo/Logo_de_lArmee_de_lAir_et_de_lEspace.svg.png",
+    alt: "Armée de l'air et de l'espace",
+    name: "Armée de l'Air et de l'Espace"
+  },
+  {
+    src: "/assets/logo/Logo_of_the_French_Army_(Armee_de_Terre).svg",
+    alt: "Armée de Terre",
+    name: "Armée de Terre"
+  },
+  {
+    src: "/assets/logo/Logo-Marine-nationale.png",
+    alt: "Marine Nationale",
+    name: "La Marine Nationale"
+  },
+  {
+    src: "/public/assets/logo/LOGO-SCHOELCHER-2021-150x150.png",
+    alt: "Ville De Schoelcher",
+    name: "La ville de Schoelcher"
   },
 
 
