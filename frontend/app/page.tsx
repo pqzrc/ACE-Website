@@ -18,34 +18,34 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-deep-navy relative overflow-hidden selection:bg-neon-rose selection:text-white">
 
+      {/* PixelBlast Background - Absolute outer, relative inner per official example */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, minHeight: '100vh' }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <PixelBlast
+            variant="circle"
+            pixelSize={6}
+            color="#B19EEF"
+            patternScale={3}
+            patternDensity={1.2}
+            pixelSizeJitter={0.5}
+            enableRipples
+            rippleSpeed={0.4}
+            rippleThickness={0.12}
+            rippleIntensityScale={1.5}
+            liquid={false}
+            speed={0.6}
+            edgeFade={0.25}
+            transparent
+          />
+        </div>
+      </div>
+
       {/* Header */}
       <NavigationBar />
 
       {/* Hero Section */}
       <main className="relative z-10">
         <div className="relative w-full h-screen flex items-center justify-center">
-          {/* PixelBlast Background */}
-          <div className="absolute inset-0 z-0">
-            <PixelBlast
-              variant="circle"
-              pixelSize={6}
-              color="#B19EEF"
-              patternScale={3}
-              patternDensity={1.2}
-              pixelSizeJitter={0.5}
-              enableRipples
-              rippleSpeed={0.4}
-              rippleThickness={0.12}
-              rippleIntensityScale={1.5}
-              liquid
-              liquidStrength={0.12}
-              liquidRadius={1.2}
-              liquidWobbleSpeed={5}
-              speed={0.6}
-              edgeFade={0.25}
-              transparent
-            />
-          </div>
 
           {/* Content Overlay */}
           <div className="container mx-auto px-6 text-center relative z-10 pointer-events-none">
@@ -59,11 +59,11 @@ export default function Home() {
 
             <h1 className="font-display text-5xl lg:text-7xl font-bold mb-6 leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gray-400">
-                Escape Game
+                Antilles
               </span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua text-glow">
-                Cybersécurité
+                CyberEscape
               </span>
             </h1>
 

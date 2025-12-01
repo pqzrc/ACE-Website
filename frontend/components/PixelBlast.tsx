@@ -191,8 +191,6 @@ const int   MAX_CLICKS = 10;
 uniform vec2  uClickPos  [MAX_CLICKS];
 uniform float uClickTimes[MAX_CLICKS];
 
-out vec4 fragColor;
-
 float Bayer2(vec2 a) {
   a = floor(a);
   return fract(a.x / 2. + a.y * a.y * .75);
@@ -319,7 +317,7 @@ void main(){
   }
 
   vec3 color = uColor;
-  fragColor = vec4(color, M);
+  gl_FragColor = vec4(color, M);
 }
 `;
 
@@ -352,6 +350,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
   const speedRef = useRef(speed);
+  const mountedRef = useRef(true);
 
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -392,13 +391,26 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
+    mountedRef.current = true;
+
+    // Detect if we're on iOS/Safari
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
     const canvas = document.createElement('canvas');
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias,
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
+    let renderer: THREE.WebGLRenderer;
+
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: !isIOS && antialias, // Disable antialiasing on iOS for better compatibility
+        alpha: true,
+        powerPreference: isIOS ? 'default' : 'high-performance', // Use default on iOS
+        failIfMajorPerformanceCaveat: false // Don't fail on low-performance devices
+      });
+    } catch (e) {
+      console.error('[PixelBlast] Failed to create WebGL renderer:', e);
+      return;
+    }
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -434,8 +446,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uniforms,
       transparent: true,
       depthTest: false,
-      depthWrite: false,
-      glslVersion: THREE.GLSL3
+      depthWrite: false
+      // Using GLSL1 for better iOS/Safari compatibility
     });
     const quadGeom = new THREE.PlaneGeometry(2, 2);
     const quad = new THREE.Mesh(quadGeom, material);
@@ -448,8 +460,12 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       const h = container.clientHeight || 1;
       renderer.setSize(w, h, false);
       uniforms.uResolution.value.set(renderer.domElement.width, renderer.domElement.height);
-      if (threeRef.current?.composer)
+
+      // Force composer to update if it exists
+      if (threeRef.current?.composer) {
         threeRef.current.composer.setSize(renderer.domElement.width, renderer.domElement.height);
+      }
+
       uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
     };
     setSize();
@@ -505,7 +521,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       if (composer && composer.passes.length > 0) composer.passes.forEach(p => ((p as any).renderToScreen = false));
       composer.addPass(noisePass);
     }
-    if (composer) composer.setSize(renderer.domElement.width, renderer.domElement.height);
+    if (composer) {
+      composer.setSize(renderer.domElement.width, renderer.domElement.height);
+    }
 
     const mapToPixels = (e: PointerEvent) => {
       const rect = renderer.domElement.getBoundingClientRect();
@@ -540,6 +558,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 
     let raf = 0;
     const animate = () => {
+      if (!mountedRef.current) return;
+
       if (autoPauseOffscreen && !visibilityRef.current.visible) {
         raf = requestAnimationFrame(animate);
         return;
@@ -547,22 +567,38 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uniforms.uTime.value = timeOffset + clock.getElapsedTime() * speedRef.current;
       if (liquidEffect) (liquidEffect as any).uniforms.get('uTime').value = uniforms.uTime.value;
 
-      if (composer) {
-        if (touch) touch.update();
-        composer.passes.forEach(p => {
-          const effs = (p as any).effects;
-          if (effs)
-            effs.forEach((eff: any) => {
-              const u = eff.uniforms?.get('uTime');
-              if (u) u.value = uniforms.uTime.value;
-            });
-        });
-        composer.render();
-      } else {
-        renderer.render(scene, camera);
+      try {
+        if (composer) {
+          if (touch) touch.update();
+          composer.passes.forEach(p => {
+            const effs = (p as any).effects;
+            if (effs)
+              effs.forEach((eff: any) => {
+                const u = eff.uniforms?.get('uTime');
+                if (u) u.value = uniforms.uTime.value;
+              });
+          });
+          composer.render();
+        } else {
+          renderer.render(scene, camera);
+        }
+      } catch (e) {
+        // If rendering fails (e.g., lost WebGL context), stop animation
+        return;
       }
       raf = requestAnimationFrame(animate);
     };
+
+    // Force initial render before animation loop starts
+    if (composer) {
+      try {
+        if (touch) touch.update();
+        composer.render();
+      } catch (e) {
+        console.error('[PixelBlast] Initial render failed:', e);
+      }
+    }
+
     raf = requestAnimationFrame(animate);
 
     threeRef.current = {
@@ -583,18 +619,24 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     };
 
     return () => {
+      mountedRef.current = false;
       ro.disconnect();
       cancelAnimationFrame(raf);
       quad.geometry.dispose();
       material.dispose();
       composer?.dispose();
       renderer.dispose();
-      if (renderer.domElement.parentElement === container) {
-        container.removeChild(renderer.domElement);
+      // More robust cleanup - remove canvas if it exists anywhere in DOM
+      try {
+        if (renderer.domElement) {
+          renderer.domElement.remove();
+        }
+      } catch (e) {
+        // Silently ignore if already removed
       }
       threeRef.current = null;
     };
-  }, [antialias, liquid, noiseAmount]); // Only re-init on these structural changes
+  }, [liquid]); // Re-initialize when liquid prop changes
 
   // Effect 2: Updates
   useEffect(() => {
@@ -650,8 +692,14 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`w-full h-full relative overflow-hidden ${className ?? ''}`}
-      style={style}
+      className={`overflow-hidden ${className ?? ''}`}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        ...style
+      }}
       aria-label="PixelBlast interactive background"
     />
   );

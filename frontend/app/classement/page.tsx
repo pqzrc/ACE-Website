@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import NavigationBar from '@/components/NavigationBar';
+import PixelBlast from '@/components/PixelBlast';
 import { api } from '@/lib/api';
 import { Trophy, Medal, Award, Loader2, Clock, Lock } from 'lucide-react';
 
@@ -134,6 +135,25 @@ export default function ClassementPage() {
 
   return (
     <div className="min-h-screen bg-deep-navy relative overflow-hidden">
+      {/* PixelBlast Background - Light version */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, minHeight: '100vh' }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <PixelBlast
+            variant="square"
+            pixelSize={4}
+            color="#B19EEF"
+            patternScale={2}
+            patternDensity={0.8}
+            pixelSizeJitter={0.3}
+            enableRipples={false}
+            liquid={false}
+            speed={0.3}
+            edgeFade={0.3}
+            transparent
+          />
+        </div>
+      </div>
+
       <NavigationBar />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
