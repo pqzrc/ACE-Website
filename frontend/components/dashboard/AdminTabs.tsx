@@ -20,13 +20,13 @@ export default function AdminTabs({ activeTab, onTabChange, showTeamTab = true }
   const tabs = showTeamTab ? allTabs : allTabs.filter(tab => tab.id !== 'team');
 
   return (
-    <div className="flex gap-2 border-b border-white/10">
+    <div className="flex gap-2 border-b border-white/10 overflow-x-auto scrollbar-hide">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={clsx(
-            "px-6 py-3 font-medium border-b-2 transition-colors",
+            "px-6 py-3 font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0",
             activeTab === tab.id
               ? 'border-neon-rose text-neon-rose'
               : 'border-transparent text-gray-400 hover:text-white'
