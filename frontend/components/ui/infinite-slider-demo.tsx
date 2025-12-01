@@ -28,7 +28,7 @@ const PartnerLogos = [
     name: "Quand Autre"
   },
   {
-    src: "assets/logo/Logo_de_lArmee_de_lAir_et_de_lEspace.svg.png",
+    src: "/assets/logo/Logo_de_lArmee_de_lAir_et_de_lEspace.png",
     alt: "Armée de l'air et de l'espace",
     name: "Armée de l'Air et de l'Espace"
   },
@@ -43,7 +43,7 @@ const PartnerLogos = [
     name: "La Marine Nationale"
   },
   {
-    src: "/public/assets/logo/LOGO-SCHOELCHER-2021-150x150.png",
+    src: "/assets/logo/LOGOSCHOELCHER.png",
     alt: "Ville De Schoelcher",
     name: "La ville de Schoelcher"
   },
