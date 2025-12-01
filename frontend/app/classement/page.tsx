@@ -115,7 +115,7 @@ export default function ClassementPage() {
   };
 
   const CountdownDisplay = ({ time }: { time: TimeRemaining }) => (
-    <div className="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
       {[
         { label: 'Jours', value: time.days },
         { label: 'Heures', value: time.hours },
@@ -123,7 +123,7 @@ export default function ClassementPage() {
         { label: 'Secondes', value: time.seconds }
       ].map((item) => (
         <div key={item.label} className="glass-panel p-6 text-center">
-          <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua mb-2">
+          <div className="text-2xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-sky-aqua mb-2">
             {String(item.value).padStart(2, '0')}
           </div>
           <div className="text-sm text-gray-400 uppercase tracking-wider">{item.label}</div>
@@ -160,15 +160,15 @@ export default function ClassementPage() {
                   <Clock className="w-8 h-8 text-sky-aqua" />
                 </div>
                 <p className="text-gray-400 mb-8">
-                  Le classement sera disponible après le début de l'épreuve
+                  Le classement sera disponible après le début de l&apos;épreuve
                 </p>
                 <h2 className="text-2xl font-bold text-white mb-4">
-                  L'événement commence dans
+                  L&apos;événement commence dans
                 </h2>
                 <CountdownDisplay time={timeRemaining} />
-           
+
               </div>
-              
+
             </div>
           )}
 
@@ -180,16 +180,16 @@ export default function ClassementPage() {
                   <Lock className="w-8 h-8 text-neon-rose" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-4">
-                  Le classement sera disponible après l'épreuve
+                  Le classement sera disponible après l&apos;épreuve
                 </h2>
                 <p className="text-gray-400 mb-8">
-                  L'événement se termine dans
+                  L&apos;événement se termine dans
                 </p>
               </div>
               <CountdownDisplay time={timeRemaining} />
               <div className="glass-panel p-6 text-center">
                 <p className="text-sm text-gray-400">
-                  Concentrez-vous sur les énigmes ! Le classement final sera révélé à la fin de l'événement.
+                  Concentrez-vous sur les énigmes ! Le classement final sera révélé à la fin de l&apos;événement.
                 </p>
               </div>
             </div>

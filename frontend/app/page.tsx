@@ -28,11 +28,11 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <PixelBlast
               variant="circle"
-              pixelSize={6}
+              pixelSize={16}
               color="#B19EEF"
-              patternScale={3}
-              patternDensity={1.2}
-              pixelSizeJitter={0.5}
+              patternScale={4}
+              patternDensity={3.5}
+              pixelSizeJitter={0.6}
               enableRipples
               rippleSpeed={0.4}
               rippleThickness={0.12}
@@ -42,7 +42,7 @@ export default function Home() {
               liquidRadius={1.2}
               liquidWobbleSpeed={5}
               speed={0.6}
-              edgeFade={0.25}
+              edgeFade={0.0}
               transparent
             />
           </div>
@@ -93,14 +93,14 @@ export default function Home() {
                     href="/register"
                     className="group relative px-8 py-4 bg-neon-rose hover:bg-neon-rose/90 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-neon flex items-center gap-2"
                   >
-                    Rejoindre l'aventure
+                    Rejoindre l&apos;aventure
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
                     href="/login"
                     className="px-8 py-4 bg-deep-navy/80 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-xl backdrop-blur-md transition-all"
                   >
-                    J'ai déjà un compte
+                    J&apos;ai déjà un compte
                   </Link>
                 </>
               )}
