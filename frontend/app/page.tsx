@@ -28,11 +28,11 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <PixelBlast
               variant="circle"
-              pixelSize={16}
+              pixelSize={6}
               color="#B19EEF"
-              patternScale={4}
-              patternDensity={3.5}
-              pixelSizeJitter={0.6}
+              patternScale={3}
+              patternDensity={1.2}
+              pixelSizeJitter={0.5}
               enableRipples
               rippleSpeed={0.4}
               rippleThickness={0.12}
@@ -42,7 +42,7 @@ export default function Home() {
               liquidRadius={1.2}
               liquidWobbleSpeed={5}
               speed={0.6}
-              edgeFade={0.0}
+              edgeFade={0.25}
               transparent
             />
           </div>
