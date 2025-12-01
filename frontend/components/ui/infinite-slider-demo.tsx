@@ -25,7 +25,7 @@ const PartnerLogos = [
   {
     src: "/assets/logo/quad.png",
     alt: "Quad Autre",
-    name: "Quand Autre"
+    name: "Quad Autre"
   },
   {
     src: "/assets/logo/Logo_de_lArmee_de_lAir_et_de_lEspace.png",
