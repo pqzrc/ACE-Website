@@ -9,11 +9,13 @@ import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminActions } from '@/hooks/useAdminActions';
 import { useTeamData } from '@/hooks/useTeamData';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import ProfileModal from '@/components/dashboard/ProfileModal';
 import UserProfile from '@/components/dashboard/UserProfile';
 import TeamSection from '@/components/dashboard/TeamSection';
 import AdminTabs from '@/components/dashboard/AdminTabs';
 import AdminStats from '@/components/dashboard/AdminStats';
 import AdminTeamsManagement from '@/components/dashboard/AdminTeamsManagement';
+import AdminUsersManagement from '@/components/dashboard/AdminUsersManagement';
 import AdminRoomsManagement from '@/components/dashboard/AdminRoomsManagement';
 import AdminTimeSlotsManagement from '@/components/dashboard/AdminTimeSlotsManagement';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -24,16 +26,17 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout, updateUser } = useAuth();
   const { team, roomNames: teamRoomNames, loading: teamLoading, setTeam } = useTeamData();
-  const { stats, teams: allTeams, roomNames: adminRoomNames, loading: adminLoading, updateTeam, setRoomNames, refresh } = useAdminData(user?.isAdmin ?? false);
+  const { stats, teams: allTeams, users: allUsers, roomNames: adminRoomNames, loading: adminLoading, updateTeam, setRoomNames, refresh } = useAdminData(user?.isAdmin ?? false);
   const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(allTeams, updateTeam);
 
   // Merge roomNames from both sources (admin takes precedence)
   const roomNames = user?.isAdmin ? adminRoomNames : teamRoomNames;
-  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms' | 'timeslots'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'users' | 'teams' | 'rooms' | 'timeslots'>('team');
   const [leavingTeam, setLeavingTeam] = useState(false);
   const [redirectingToCTFd, setRedirectingToCTFd] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Modal State
   const [deleteRoomModal, setDeleteRoomModal] = useState<{ isOpen: boolean; roomNumber: number | null }>({
@@ -203,7 +206,12 @@ export default function DashboardPage() {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sky-aqua/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-neon-rose/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <DashboardHeader user={user} onLogout={logout} teamScore={team?.currentScore} />
+      <DashboardHeader
+        user={user}
+        onLogout={logout}
+        teamScore={team?.currentScore}
+        onProfileClick={() => setProfileModalOpen(true)}
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-8">
@@ -239,13 +247,18 @@ export default function DashboardPage() {
         {/* Admin Tabs */}
         {user.isAdmin && (
           <div className="mb-6">
-            <AdminTabs activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as 'team' | 'stats' | 'teams' | 'rooms' | 'timeslots')} />
+            <AdminTabs activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as 'team' | 'stats' | 'users' | 'teams' | 'rooms' | 'timeslots')} />
           </div>
         )}
 
         {/* Stats Tab */}
         {activeTab === 'stats' && user.isAdmin && stats && (
           <AdminStats stats={stats} />
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && user.isAdmin && (
+          <AdminUsersManagement users={allUsers} />
         )}
 
         {/* All Teams Tab */}
@@ -307,6 +320,17 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentPhoneNumber={user.phoneNumber || undefined}
+        onUpdate={(phoneNumber) => {
+          updateUser({ ...user, phoneNumber });
+          setProfileModalOpen(false);
+        }}
+      />
     </div>
   );
 }

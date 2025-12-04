@@ -29,9 +29,17 @@ export class TeamController {
       }
 
       if (!user.emailVerified) {
-        res.status(403).json({ 
-          success: false, 
-          message: 'Veuillez vérifier votre email avant de créer une équipe. Vérifiez votre boîte de réception ou demandez un nouvel email de vérification.' 
+        res.status(403).json({
+          success: false,
+          message: 'Veuillez vérifier votre email avant de créer une équipe. Vérifiez votre boîte de réception ou demandez un nouvel email de vérification.'
+        });
+        return;
+      }
+
+      if (!user.phoneNumber) {
+        res.status(403).json({
+          success: false,
+          message: 'Veuillez ajouter un numéro de téléphone à votre profil avant de créer une équipe.'
         });
         return;
       }
@@ -151,6 +159,14 @@ export class TeamController {
 
       if (!user.emailVerified) {
         res.status(403).json({ success: false, message: 'Email non vérifié.' });
+        return;
+      }
+
+      if (!user.phoneNumber) {
+        res.status(403).json({
+          success: false,
+          message: 'Veuillez ajouter un numéro de téléphone à votre profil avant de rejoindre une équipe.'
+        });
         return;
       }
 
@@ -434,7 +450,7 @@ export class TeamController {
         timeSlots.map(async (slot) => {
           // Find teams in this slot that are NOT full (< 5 members) AND created by admin
           const teams = await Team.findAll({
-            where: { 
+            where: {
               timeSlotId: slot.id,
               createdByAdmin: true
             },
@@ -481,7 +497,7 @@ export class TeamController {
 
       // Also get teams without a time slot (created by admins)
       const teamsWithoutSlot = await Team.findAll({
-        where: { 
+        where: {
           timeSlotId: null,
           createdByAdmin: true
         },
@@ -500,7 +516,7 @@ export class TeamController {
         memberCount: number;
         availableSpots: number;
       }> = [];
-      
+
       for (const team of teamsWithoutSlot) {
         const memberCount = await team.getMemberCount();
         if (memberCount < 5) {
@@ -567,6 +583,14 @@ export class TeamController {
         return;
       }
 
+      if (!user.phoneNumber) {
+        res.status(403).json({
+          success: false,
+          message: 'Veuillez ajouter un numéro de téléphone à votre profil avant de rejoindre une équipe.'
+        });
+        return;
+      }
+
       if (user.teamId) {
         res.status(400).json({ success: false, message: 'Vous faites déjà partie d\'une équipe.' });
         return;
@@ -588,24 +612,24 @@ export class TeamController {
           ],
         });
       } else {
-      // Validate time slot
+        // Validate time slot
         timeSlot = await TimeSlot.findByPk(timeSlotId);
-      if (!timeSlot || !timeSlot.isActive) {
-        res.status(404).json({ success: false, message: 'Créneau horaire non trouvé ou inactif.' });
-        return;
-      }
+        if (!timeSlot || !timeSlot.isActive) {
+          res.status(404).json({ success: false, message: 'Créneau horaire non trouvé ou inactif.' });
+          return;
+        }
 
-      // Find a team in this slot that is NOT full
+        // Find a team in this slot that is NOT full
         teams = await Team.findAll({
-        where: { timeSlotId },
-        include: [
-          {
-            model: User,
-            as: 'members',
-            attributes: ['id'],
-          },
-        ],
-      });
+          where: { timeSlotId },
+          include: [
+            {
+              model: User,
+              as: 'members',
+              attributes: ['id'],
+            },
+          ],
+        });
       }
 
       let availableTeam: Team | null = null;
@@ -719,9 +743,9 @@ export class TeamController {
 
       // Check if user is captain
       if (team.captainId !== userId) {
-        res.status(403).json({ 
-          success: false, 
-          message: 'Seul le capitaine peut modifier le créneau horaire de l\'équipe.' 
+        res.status(403).json({
+          success: false,
+          message: 'Seul le capitaine peut modifier le créneau horaire de l\'équipe.'
         });
         return;
       }

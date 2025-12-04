@@ -1,19 +1,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Terminal, LogOut, Shield } from 'lucide-react';
+import { Terminal, LogOut, Shield, User } from 'lucide-react';
 
 interface User {
   firstName: string;
   isAdmin: boolean;
+  phoneNumber?: string | null;
 }
 
 interface DashboardHeaderProps {
   user: User;
   onLogout: () => void;
   teamScore?: number;
+  onProfileClick: () => void;
 }
 
-export default function DashboardHeader({ user, onLogout, teamScore }: DashboardHeaderProps) {
+export default function DashboardHeader({ user, onLogout, teamScore, onProfileClick }: DashboardHeaderProps) {
   return (
     <header className="border-b border-white/10 bg-deep-navy/50 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -54,6 +56,13 @@ export default function DashboardHeader({ user, onLogout, teamScore }: Dashboard
                 <span className="text-sm font-medium">ADMIN</span>
               </div>
             )}
+            <button
+              onClick={onProfileClick}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-all"
+            >
+              <User className="w-5 h-5" />
+              <span className="hidden sm:inline">Profil</span>
+            </button>
             <button
               onClick={onLogout}
               className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"

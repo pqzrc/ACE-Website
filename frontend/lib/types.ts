@@ -6,6 +6,7 @@ export interface User {
   specialty?: string | null;
   username?: string | null;
   composante?: string | null;
+  phoneNumber?: string | null;
   teamId?: string | null;
   emailVerified: boolean;
   isAdmin: boolean;

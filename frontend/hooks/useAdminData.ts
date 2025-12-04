@@ -35,9 +35,26 @@ export interface AdminTeam {
   }>;
 }
 
+export interface AdminUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  composante?: string;
+  specialty?: string;
+  emailVerified: boolean;
+  team?: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+}
+
 export function useAdminData(isAdmin: boolean) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [teams, setTeams] = useState<AdminTeam[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [roomNames, setRoomNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,15 +62,25 @@ export function useAdminData(isAdmin: boolean) {
   const fetchData = async () => {
     try {
       setError(null);
-      const [statsRes, teamsRes, roomsRes] = await Promise.all([
+      const [statsRes, teamsRes, roomsRes, usersRes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/teams'),
         api.get('/admin/rooms/names'),
+        api.get('/admin/registrations'),
       ]);
 
       if (statsRes.data.success) setStats(statsRes.data.data);
       if (teamsRes.data.success) setTeams(teamsRes.data.data.teams);
       if (roomsRes.data.success) setRoomNames(roomsRes.data.data);
+      if (usersRes.data.success) {
+        // Map registrations to users
+        const mappedUsers = usersRes.data.data.registrations.map((reg: any) => ({
+          ...reg.user,
+          team: reg.team,
+          createdAt: reg.createdAt,
+        }));
+        setUsers(mappedUsers);
+      }
     } catch (err) {
       console.error('Error fetching admin data:', err);
       setError('Erreur lors du chargement des données');
@@ -75,6 +102,6 @@ export function useAdminData(isAdmin: boolean) {
     setTeams(teams.map(t => t.id === teamId ? { ...t, ...updates } : t));
   };
 
-  return { stats, teams, roomNames, loading, error, updateTeam, setTeams, setRoomNames, refresh: fetchData };
+  return { stats, teams, users, roomNames, loading, error, updateTeam, setTeams, setRoomNames, refresh: fetchData };
 }
 

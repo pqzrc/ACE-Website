@@ -15,6 +15,8 @@ import SuccessMessage from '@/components/ui/SuccessMessage';
 import HCaptcha from '@/components/HCaptcha';
 import UsernameField from '@/components/forms/UsernameField';
 import PasswordField from '@/components/forms/PasswordField';
+import 'react-phone-number-input/style.css';
+import PhoneInput from 'react-phone-number-input';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -67,6 +69,7 @@ export default function RegisterPage() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,
+        phoneNumber: formData.phoneNumber,
         composante: formData.composante,
         specialty: formData.specialty,
         captchaToken: captchaToken || undefined,
@@ -107,6 +110,7 @@ export default function RegisterPage() {
           email={formData.email}
           linkHref="/login"
           linkText="Retour à la base"
+          subMessage="Veuillez vérifier votre email afin de pouvoir participer."
         />
       </div>
     );
@@ -184,6 +188,22 @@ export default function RegisterPage() {
                     iconColor="text-gray-500"
                   />
                 </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    Numéro de téléphone <span className="text-neon-rose">*</span>
+                  </label>
+                  <div className="phone-input-container">
+                    <PhoneInput
+                      international
+                      defaultCountry="MQ"
+                      value={formData.phoneNumber}
+                      onChange={(value) => setFormData({ ...formData, phoneNumber: value || '' })}
+                      className="w-full bg-deep-navy/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus-within:border-neon-rose/50 focus-within:ring-1 focus-within:ring-neon-rose/50 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
                 <div className="mt-6">
                   <UsernameField
                     value={formData.username}
@@ -236,17 +256,7 @@ export default function RegisterPage() {
                   Ces informations nous aident à améliorer l'événement. Elles sont optionnelles mais appréciées.
                 </p>
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">Téléphone</label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      className="w-full bg-deep-navy/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-neon-rose/50 focus:ring-1 focus:ring-neon-rose/50 transition-all"
-                      placeholder="06 12 34 56 78"
-                    />
-                  </div>
+
                   <FormField
                     label="Composante (Université des Antilles)"
                     name="composante"

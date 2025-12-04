@@ -38,6 +38,15 @@ export class AuthController {
         }
       }
 
+      // Validate required fields
+      if (!email || !password || !firstName || !lastName || !username || !phoneNumber) {
+        res.status(400).json({
+          success: false,
+          message: 'Veuillez remplir tous les champs obligatoires (incluant le numéro de téléphone)',
+        });
+        return;
+      }
+
       // Check if user already exists (case-insensitive email)
       const existingUser = await User.findOne({
         where: {
@@ -63,6 +72,22 @@ export class AuthController {
           res.status(400).json({
             success: false,
             message: 'Ce nom d\'utilisateur est déjà pris.',
+          });
+          return;
+        }
+      }
+
+      // Check if phone number already exists
+      if (phoneNumber) {
+        const existingPhone = await User.findOne({
+          where: {
+            phoneNumber: phoneNumber
+          }
+        });
+        if (existingPhone) {
+          res.status(400).json({
+            success: false,
+            message: 'Ce numéro de téléphone est déjà utilisé.',
           });
           return;
         }
@@ -437,6 +462,78 @@ export class AuthController {
       res.status(500).json({
         success: false,
         message: 'Erreur lors de l\'envoi de l\'email.',
+      });
+    }
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateProfile(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: 'Non authentifié.' });
+        return;
+      }
+
+      const { phoneNumber } = req.body;
+      const userId = req.user.id;
+
+      const user = await User.findByPk(userId);
+      if (!user) {
+        res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+        return;
+      }
+
+      // Check if phone number is provided
+      if (!phoneNumber) {
+        res.status(400).json({
+          success: false,
+          message: 'Numéro de téléphone requis.',
+        });
+        return;
+      }
+
+      // Check if phone number already exists (for another user)
+      const existingPhone = await User.findOne({
+        where: {
+          phoneNumber: phoneNumber,
+          id: { [Op.ne]: userId } // Not the current user
+        }
+      });
+
+      if (existingPhone) {
+        res.status(400).json({
+          success: false,
+          message: 'Ce numéro de téléphone est déjà utilisé par un autre utilisateur.',
+        });
+        return;
+      }
+
+      // Update phone number
+      user.phoneNumber = phoneNumber;
+      await user.save();
+
+      logger.info(`User ${user.email} updated phone number`);
+
+      res.json({
+        success: true,
+        message: 'Profil mis à jour avec succès.',
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber,
+          },
+        },
+      });
+    } catch (error) {
+      logger.error('Update profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la mise à jour.',
       });
     }
   }

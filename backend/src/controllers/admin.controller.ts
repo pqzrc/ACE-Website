@@ -76,7 +76,7 @@ export class AdminController {
           {
             model: User,
             as: 'user',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'composante', 'specialty', 'emailVerified'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'composante', 'specialty', 'emailVerified'],
             where: composante ? { composante } : undefined,
           },
           {

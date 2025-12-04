@@ -7,6 +7,7 @@ interface SuccessMessageProps {
   email?: string;
   linkHref?: string;
   linkText?: string;
+  subMessage?: string;
 }
 
 export default function SuccessMessage({
@@ -15,6 +16,7 @@ export default function SuccessMessage({
   email,
   linkHref = '/login',
   linkText = 'Retour à la base',
+  subMessage,
 }: SuccessMessageProps) {
   return (
     <div className="flex items-center justify-center min-h-screen p-4 relative">
@@ -37,8 +39,14 @@ export default function SuccessMessage({
               <span className="text-sky-aqua font-mono">{email}</span>
             </>
           )}
+          {subMessage && (
+            <>
+              <br />
+              <span className="block mt-2 text-gray-300">{subMessage}</span>
+            </>
+          )}
         </p>
-        <Link 
+        <Link
           href={linkHref}
           className="inline-flex items-center justify-center w-full bg-surface hover:bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl transition-all gap-2 group"
         >
