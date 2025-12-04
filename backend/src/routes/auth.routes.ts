@@ -30,7 +30,7 @@ const registerSchema = z.object({
     ),
   phoneNumber: z
     .string()
-    .regex(/^(\+33|0)[1-9](\d{2}){4}$/, 'Numéro de téléphone invalide (format français attendu)')
+    .regex(/^((\+33|0)[1-9]\d{8}|(\+596|\+590|\+594|\+262)\d{9})$/, 'Numéro de téléphone invalide (France métropolitaine et DOM-TOM)')
     .optional()
     .or(z.literal('')),
   username: z

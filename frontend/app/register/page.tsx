@@ -63,13 +63,16 @@ export default function RegisterPage() {
     }
 
     try {
+      // Clean phone number (remove spaces, dashes, dots)
+      const cleanedPhoneNumber = formData.phoneNumber.replace(/[\s\-\.]/g, '');
+
       const response = await api.post('/auth/register', {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,
-        phoneNumber: formData.phoneNumber,
+        phoneNumber: cleanedPhoneNumber,
         composante: formData.composante,
         specialty: formData.specialty,
         captchaToken: captchaToken || undefined,
