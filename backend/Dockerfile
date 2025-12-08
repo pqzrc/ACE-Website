@@ -1,4 +1,21 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# --- Production image ---
+FROM node:20-alpine AS runner
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -9,18 +26,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install production dependencies only
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy source code
-COPY --chown=nodejs:nodejs . .
-
-# Build TypeScript
-RUN npm run build
-
-# Remove dev dependencies and source files after build
-RUN rm -rf src/ && \
-    rm -rf node_modules/.cache
+# Copy built files from builder
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 
 # Switch to non-root user
 USER nodejs
@@ -32,5 +42,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start application in production mode
-CMD ["npm", "run", "start"]
+# Start application
+CMD ["node", "dist/server.js"]
