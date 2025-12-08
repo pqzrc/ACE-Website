@@ -1,9 +1,5 @@
 FROM node:20-alpine
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 -G nodejs
-
 WORKDIR /app
 
 # Copy package files
@@ -13,7 +9,7 @@ COPY package*.json ./
 RUN npm ci && npm cache clean --force
 
 # Copy source code
-COPY --chown=nextjs:nodejs . .
+COPY . .
 
 # Build arguments for Next.js
 ARG NEXT_PUBLIC_API_URL
@@ -25,12 +21,6 @@ ENV NEXT_PUBLIC_CTFD_URL=$NEXT_PUBLIC_CTFD_URL
 
 # Build Next.js
 RUN npm run build
-
-# Create cache directory for Next.js image optimization with correct permissions
-RUN mkdir -p /app/.next/cache/images && chown -R nextjs:nodejs /app/.next/cache
-
-# Switch to non-root user
-USER nextjs
 
 EXPOSE 3000
 

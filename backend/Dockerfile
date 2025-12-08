@@ -17,10 +17,6 @@ RUN npm run build
 # --- Production image ---
 FROM node:20-alpine AS runner
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs
-
 WORKDIR /app
 
 # Copy package files
@@ -30,13 +26,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy built files from builder
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-
-# Create data directory for rooms.json with correct permissions
-RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
-
-# Switch to non-root user
-USER nodejs
+COPY --from=builder /app/dist ./dist
 
 # Expose port
 EXPOSE 5000
