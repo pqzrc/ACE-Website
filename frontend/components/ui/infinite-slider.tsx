@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { useMotionValue, animate, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useMeasure from 'react-use-measure';
 
 type InfiniteSliderProps = {
@@ -29,8 +29,24 @@ export function InfiniteSlider({
   const translation = useMotionValue(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [key, setKey] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
+    // Don't animate if paused (user is touching/scrolling)
+    if (isPaused) return;
+
     let controls;
     const size = direction === 'horizontal' ? width : height;
     const contentSize = size + gap;
@@ -71,6 +87,7 @@ export function InfiniteSlider({
     isTransitioning,
     direction,
     reverse,
+    isPaused,
   ]);
 
   const hoverProps = durationOnHover
@@ -86,14 +103,37 @@ export function InfiniteSlider({
       }
     : {};
 
+  // Touch handlers for mobile - pause animation while user interacts
+  const touchProps = isMobile
+    ? {
+        onTouchStart: () => setIsPaused(true),
+        onTouchEnd: () => {
+          // Resume animation after a short delay
+          setTimeout(() => setIsPaused(false), 2000);
+        },
+      }
+    : {};
+
   return (
-    <div className={cn('overflow-hidden', className)}>
+    <div 
+      ref={containerRef}
+      className={cn(
+        'overflow-hidden',
+        // On mobile, allow horizontal scroll
+        isMobile && 'overflow-x-auto scrollbar-hide touch-pan-x',
+        className
+      )}
+      {...touchProps}
+    >
       <motion.div
         className='flex w-max'
         style={{
-          ...(direction === 'horizontal'
+          ...(direction === 'horizontal' && !isPaused
             ? { x: translation }
-            : { y: translation }),
+            : {}),
+          ...(direction === 'vertical' && !isPaused
+            ? { y: translation }
+            : {}),
           gap: `${gap}px`,
           flexDirection: direction === 'horizontal' ? 'row' : 'column',
         }}

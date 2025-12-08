@@ -72,6 +72,15 @@
   .text-glow-blue {
     text-shadow: 0 0 10px rgba(9, 199, 223, 0.5);
   }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Custom Scrollbar */
