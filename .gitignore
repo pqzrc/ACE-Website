@@ -1,61 +1,79 @@
-# Environment variables
+# ============================================
+# ACE Website - .gitignore
+# ============================================
+
+# ============================================
+# SECURITY: Environment Files
+# ============================================
 .env
 .env.local
 .env.*.local
-.env.dev
 .env.production
+.env.staging
 
+# SAFE TO COMMIT:
+# - .env.example (template only)
+# - .env.dev (if no real secrets)
+
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# ============================================
 # Build outputs
+# ============================================
 dist/
 build/
 .next/
 out/
 
+# ============================================
 # Logs
+# ============================================
 logs/
 *.log
 
+# ============================================
 # Database
+# ============================================
 *.sqlite
 *.db
 
+# ============================================
 # IDE
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
+# ============================================
 # OS
+# ============================================
 .DS_Store
 Thumbs.db
 
-# Docker
-.dockerignore
-docker-compose.dev.yml
-docker-compose.*.dev.yml
-**/Dockerfile.dev
-dev.sh
-stop-dev.sh
-README.dev.md
-
+# ============================================
 # Coverage
+# ============================================
 coverage/
 .nyc_output/
 
+# ============================================
 # Temporary files
+# ============================================
 tmp/
 temp/
 *.tmp
 
-# Plan files (keeping as reference)
+# ============================================
+# Plan/Notes (optional)
+# ============================================
 *.plan.md
-
 todo.md
