@@ -32,6 +32,9 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Copy built files from builder
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 
+# Create data directory for rooms.json with correct permissions
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
+
 # Switch to non-root user
 USER nodejs
 

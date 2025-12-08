@@ -26,6 +26,9 @@ ENV NEXT_PUBLIC_CTFD_URL=$NEXT_PUBLIC_CTFD_URL
 # Build Next.js
 RUN npm run build
 
+# Create cache directory for Next.js image optimization with correct permissions
+RUN mkdir -p /app/.next/cache/images && chown -R nextjs:nodejs /app/.next/cache
+
 # Switch to non-root user
 USER nextjs
 
