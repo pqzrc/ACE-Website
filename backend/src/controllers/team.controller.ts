@@ -207,8 +207,8 @@ export class TeamController {
 
       // Vérifier si l'équipe est maintenant complète
       const memberCount = await team.getMemberCount();
-      if (memberCount >= 3 && memberCount <= 5) {
-        team.isComplete = memberCount >= 3;
+      if (memberCount === 5) {
+        team.isComplete = true;
         await team.save();
 
         if (team.isComplete) {
