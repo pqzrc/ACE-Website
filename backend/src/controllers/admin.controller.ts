@@ -713,10 +713,8 @@ export class AdminController {
         { where: { userId: user.id } }
       );
 
-      // Mettre à jour le statut de l'équipe si elle devient complète
-      if (memberCount >= 3) {
-        await team.update({ isComplete: true });
-      }
+      // Mettre à jour le statut de l'équipe si elle devient complète (exactement 5 membres)
+      await team.update({ isComplete: memberCount === 5 });
 
       // Envoyer l'email de notification
       await emailService.sendAdminAddPlayerEmail(user.email, user.firstName, team.name);

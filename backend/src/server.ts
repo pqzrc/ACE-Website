@@ -8,6 +8,7 @@ import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
 import { logger } from './utils/logger';
 import { createAdminUser } from './seeders/admin-seed';
+import { Team } from './models/Team';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -96,6 +97,30 @@ app.use((req, res) => {
   });
 });
 
+// Recalculate team isComplete status (team needs exactly 5 members)
+const recalculateTeamStatuses = async () => {
+  try {
+    const teams = await Team.findAll();
+    let updated = 0;
+
+    for (const team of teams) {
+      const memberCount = await team.getMemberCount();
+      const shouldBeComplete = memberCount === 5;
+      
+      if (team.isComplete !== shouldBeComplete) {
+        await team.update({ isComplete: shouldBeComplete });
+        updated++;
+      }
+    }
+
+    if (updated > 0) {
+      logger.info(`✅ Recalculated team statuses: ${updated} teams updated`);
+    }
+  } catch (error) {
+    logger.error('Failed to recalculate team statuses:', error);
+  }
+};
+
 // Start server
 const startServer = async () => {
   try {
@@ -110,6 +135,9 @@ const startServer = async () => {
 
     // Create admin user if not exists
     await createAdminUser();
+
+    // Recalculate team statuses on startup
+    await recalculateTeamStatuses();
 
     // Start listening
     app.listen(config.port, () => {
