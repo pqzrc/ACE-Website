@@ -353,7 +353,7 @@ export class TeamController {
 
         // Mettre à jour le statut de l'équipe
         const memberCount = await team.getMemberCount();
-        team.isComplete = memberCount >= 3 && memberCount <= 5;
+        team.isComplete = memberCount === 5;
         await team.save();
 
         logger.info(`Utilisateur ${user.email} a quitté l'équipe ${team.name}`);
@@ -667,18 +667,16 @@ export class TeamController {
         { where: { userId } }
       );
 
-      // Check if team is now complete
+      // Check if team is now complete (exactly 5 members)
       const memberCount = await availableTeam.getMemberCount();
-      if (memberCount >= 3 && memberCount <= 5) {
-        availableTeam.isComplete = memberCount >= 3;
-        await availableTeam.save();
+      availableTeam.isComplete = memberCount === 5;
+      await availableTeam.save();
 
-        if (availableTeam.isComplete) {
-          await Registration.update(
-            { status: RegistrationStatus.TEAM_COMPLETE },
-            { where: { teamId: availableTeam.id } }
-          );
-        }
+      if (availableTeam.isComplete) {
+        await Registration.update(
+          { status: RegistrationStatus.TEAM_COMPLETE },
+          { where: { teamId: availableTeam.id } }
+        );
       }
 
       // Send welcome email
