@@ -82,6 +82,20 @@ class CTFdService {
     }
   }
 
+  // Supprimer un utilisateur dans CTFd
+  async deleteUser(ctfdUserId: number): Promise<boolean> {
+    if (!this.isEnabled) return false;
+
+    try {
+      await this.client.delete(`/api/v1/users/${ctfdUserId}`);
+      logger.info(`CTFd user ${ctfdUserId} deleted`);
+      return true;
+    } catch (error: any) {
+      logger.error('Failed to delete CTFd user:', error.response?.data || error.message);
+      return false;
+    }
+  }
+
   // Récupérer le scoreboard
   async getScoreboard(): Promise<CTFdScore[]> {
     if (!this.isEnabled) return [];

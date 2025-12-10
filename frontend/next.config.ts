@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  env: {
-    NEXT_PUBLIC_EVENT_START_TIME: process.env.EVENT_START_TIME,
-    NEXT_PUBLIC_EVENT_END_TIME: process.env.EVENT_END_TIME,
-  },
+  // Event config is now fetched dynamically from backend API
+  // No need for NEXT_PUBLIC_EVENT_* env vars
   images: {
     remotePatterns: [
       {

@@ -6,7 +6,6 @@ import {
   Key,
   PlusCircle,
   UserPlus,
-  MapPin,
   Copy,
   Check,
   Trash2,
@@ -24,10 +23,9 @@ interface TeamSectionProps {
   userId: string;
   onLeaveTeam: () => void;
   leavingTeam: boolean;
-  roomNames?: Record<string, string>;
 }
 
-export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, roomNames = {} }: TeamSectionProps) {
+export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam }: TeamSectionProps) {
   const [copied, setCopied] = useState(false);
   const [showTimeSlotSelector, setShowTimeSlotSelector] = useState(false);
 
@@ -137,15 +135,6 @@ export default function TeamSection({ team, userId, onLeaveTeam, leavingTeam, ro
           </div>
         </div>
 
-        {team.roomNumber && (
-          <div className="px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg flex items-center gap-2 shrink-0">
-            <MapPin className="w-5 h-5 text-purple-400" />
-            <div>
-              <p className="text-xs text-purple-300 uppercase font-bold">Salle</p>
-              <p className="text-white font-mono text-lg">{roomNames[team.roomNumber!.toString()] || `Salle ${team.roomNumber}`}</p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Invite Code */}

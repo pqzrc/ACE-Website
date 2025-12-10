@@ -48,6 +48,7 @@ export const validateEnv = (): void => {
     'DATABASE_URL',
     'REDIS_URL',
     'JWT_SECRET',
+    'CTFD_API_TOKEN',
     'FRONTEND_URL',
     'FRONTEND_PUBLIC_URL',
     'ADMIN_EMAIL',

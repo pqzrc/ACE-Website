@@ -670,13 +670,13 @@ export class TeamController {
       // Check if team is now complete (exactly 5 members)
       const memberCount = await availableTeam.getMemberCount();
       availableTeam.isComplete = memberCount === 5;
-      await availableTeam.save();
+        await availableTeam.save();
 
-      if (availableTeam.isComplete) {
-        await Registration.update(
-          { status: RegistrationStatus.TEAM_COMPLETE },
-          { where: { teamId: availableTeam.id } }
-        );
+        if (availableTeam.isComplete) {
+          await Registration.update(
+            { status: RegistrationStatus.TEAM_COMPLETE },
+            { where: { teamId: availableTeam.id } }
+          );
       }
 
       // Send welcome email

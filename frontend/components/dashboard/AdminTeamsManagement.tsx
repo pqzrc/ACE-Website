@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Trash2, UserPlus, Search, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import { Trash2, UserPlus, Search, Shield, AlertCircle, CheckCircle, Calendar } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminUser } from '@/hooks/useAdminData';
 
 interface Team {
     id: string;
     name: string;
     inviteCode: string;
-    roomNumber: number | null;
     memberCount: number;
     isComplete: boolean;
     captain: {
@@ -24,14 +24,21 @@ interface Team {
         lastName: string;
         email: string;
     }>;
+    timeSlotId?: string | null;
+    timeSlot?: {
+        id: string;
+        displayName: string;
+        roomName: string;
+    } | null;
 }
 
 interface AdminTeamsManagementProps {
     teams: Team[];
+    users: AdminUser[]; // Liste complète des utilisateurs (on filtrera ceux sans équipe)
     onRefresh: () => void;
 }
 
-export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsManagementProps) {
+export default function AdminTeamsManagement({ teams, users, onRefresh }: AdminTeamsManagementProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -39,11 +46,15 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
     // Modal states
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
     const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+    const [showAssignSlotModal, setShowAssignSlotModal] = useState(false);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
-    const [newMemberEmail, setNewMemberEmail] = useState('');
+    const [newMemberId, setNewMemberId] = useState('');
     const [newTeamName, setNewTeamName] = useState('');
     const [newTeamCaptainEmail, setNewTeamCaptainEmail] = useState('');
     const [createWithoutCaptain, setCreateWithoutCaptain] = useState(false);
+    const [selectedTimeSlotForAssign, setSelectedTimeSlotForAssign] = useState<string | null>(null);
+    const [timeSlots, setTimeSlots] = useState<{ id: string; displayName: string }[]>([]);
+    const [selectedSlot, setSelectedSlot] = useState<string>('all');
 
     const handleDeleteTeam = async (teamId: string) => {
         if (!confirm('Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.')) return;
@@ -52,8 +63,9 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
             await api.delete(`/admin/teams/${teamId}`);
             setSuccess('Équipe supprimée avec succès.');
             onRefresh();
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Erreur lors de la suppression de l\'équipe.');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Erreur lors de la suppression de l\'équipe.');
         }
     };
 
@@ -77,35 +89,89 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
             setNewTeamCaptainEmail('');
             setCreateWithoutCaptain(false);
             onRefresh();
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Erreur lors de la création de l\'équipe.');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Erreur lors de la création de l\'équipe.');
         }
     };
 
+    // Utilisateurs sans équipe pour le sélecteur
+    const availableUsers = users.filter((u) => !u.team);
+
+    // Récupérer les créneaux horaires pour filtrer les équipes
+    useEffect(() => {
+        const fetchTimeSlots = async () => {
+            try {
+                const res = await api.get('/timeslots/admin');
+                if (res.data.success) {
+                    const slots = (res.data.data.timeSlots || []).map((s: { id: string; displayName: string }) => ({
+                        id: s.id,
+                        displayName: s.displayName,
+                    }));
+                    setTimeSlots(slots);
+                }
+            } catch (err) {
+                console.error('Error fetching time slots', err);
+            }
+        };
+        fetchTimeSlots();
+    }, []);
+
     const handleAddMember = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedTeamId || !newMemberEmail) return;
+        if (!selectedTeamId || !newMemberId) return;
 
         try {
             await api.post('/admin/teams/add-member', {
                 teamId: selectedTeamId,
-                userEmail: newMemberEmail
+                userId: newMemberId
             });
             setSuccess('Membre ajouté avec succès.');
             setShowAddMemberModal(false);
-            setNewMemberEmail('');
+            setNewMemberId('');
             setSelectedTeamId(null);
             onRefresh();
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Erreur lors de l\'ajout du membre.');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Erreur lors de l\'ajout du membre.');
         }
     };
 
-    const filteredTeams = teams.filter(team =>
-        team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (team.captain && team.captain.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        team.inviteCode.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleAssignTimeSlot = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedTeamId) return;
+
+        try {
+            await api.post('/admin/teams/assign-timeslot', {
+                teamId: selectedTeamId,
+                timeSlotId: selectedTimeSlotForAssign
+            });
+            setSuccess(selectedTimeSlotForAssign ? 'Créneau assigné avec succès.' : 'Créneau retiré avec succès.');
+            setShowAssignSlotModal(false);
+            setSelectedTeamId(null);
+            setSelectedTimeSlotForAssign(null);
+            onRefresh();
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Erreur lors de l\'assignation du créneau.');
+        }
+    };
+
+    const filteredTeams = teams.filter(team => {
+        const matchesSearch =
+            team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (team.captain && team.captain.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            team.inviteCode.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesSlot =
+            selectedSlot === 'all'
+                ? true
+                : selectedSlot === 'no-slot'
+                    ? !team.timeSlotId
+                    : team.timeSlotId === selectedSlot;
+
+        return matchesSearch && matchesSlot;
+    });
 
     return (
         <div className="space-y-6">
@@ -114,14 +180,7 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                     <Shield className="w-6 h-6 text-purple-400" />
                     Gestion des Équipes
                 </h2>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setShowCreateTeamModal(true)}
-                        className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                        <UserPlus className="w-4 h-4" />
-                        Créer une équipe
-                    </button>
+                <div className="flex items-center gap-3 flex-wrap">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
@@ -132,6 +191,24 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                             className="bg-slate-900/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
                         />
                     </div>
+                    <select
+                        value={selectedSlot}
+                        onChange={(e) => setSelectedSlot(e.target.value)}
+                        className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                    >
+                        <option value="all">Tous les créneaux</option>
+                        <option value="no-slot">Sans créneau</option>
+                        {timeSlots.map((slot) => (
+                            <option key={slot.id} value={slot.id}>{slot.displayName}</option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={() => setShowCreateTeamModal(true)}
+                        className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                        <UserPlus className="w-4 h-4" />
+                        Créer une équipe
+                    </button>
                 </div>
             </div>
 
@@ -169,10 +246,21 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                                 </h3>
                                 <div className="text-sm text-slate-400 mt-1">
                                     Code: <span className="font-mono text-purple-400">{team.inviteCode}</span> •
-                                    Salle: {team.roomNumber || 'Non assignée'}
+                                    Salle: {team.timeSlot?.roomName || 'Non assignée'}
                                 </div>
                             </div>
                             <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        setSelectedTeamId(team.id);
+                                        setSelectedTimeSlotForAssign(team.timeSlotId || null);
+                                        setShowAssignSlotModal(true);
+                                    }}
+                                    className="p-2 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+                                    title="Assigner un créneau"
+                                >
+                                    <Calendar className="w-5 h-5" />
+                                </button>
                                 <button
                                     onClick={() => {
                                         setSelectedTeamId(team.id);
@@ -234,7 +322,7 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                         <h3 className="text-xl font-bold text-white mb-4">Créer une équipe</h3>
                         <form onSubmit={handleCreateTeam}>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-slate-300 mb-2">Nom de l'équipe</label>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">Nom de l&apos;équipe</label>
                                 <input
                                     type="text"
                                     value={newTeamName}
@@ -277,14 +365,14 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                                             required={!createWithoutCaptain}
                                         />
                                         <p className="text-xs text-slate-500 mt-2">
-                                            L'utilisateur avec cet email deviendra le capitaine de l'équipe. Il ne doit pas déjà faire partie d'une équipe.
+                                            L&apos;utilisateur avec cet email deviendra le capitaine de l&apos;équipe. Il ne doit pas déjà faire partie d&apos;une équipe.
                                         </p>
                                     </>
                                 )}
                                 
                                 {createWithoutCaptain && (
                                     <p className="text-xs text-slate-500 mt-2">
-                                        L'équipe sera créée sans capitaine. Vous pourrez ajouter des membres plus tard.
+                                        L&apos;équipe sera créée sans capitaine. Vous pourrez ajouter des membres plus tard.
                                     </p>
                                 )}
                             </div>
@@ -320,25 +408,35 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                         <h3 className="text-xl font-bold text-white mb-4">Ajouter un membre</h3>
                         <form onSubmit={handleAddMember}>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-slate-300 mb-2">Email de l'utilisateur</label>
-                                <input
-                                    type="email"
-                                    value={newMemberEmail}
-                                    onChange={(e) => setNewMemberEmail(e.target.value)}
+                                <label className="block text-sm font-medium text-slate-300 mb-2">Sélectionner un utilisateur sans équipe</label>
+                                <select
+                                    value={newMemberId}
+                                    onChange={(e) => setNewMemberId(e.target.value)}
                                     className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500"
-                                    placeholder="email@example.com"
                                     required
-                                />
+                                >
+                                    <option value="">Choisir un utilisateur</option>
+                                    {availableUsers.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.firstName} {user.lastName} ({user.email})
+                                        </option>
+                                    ))}
+                                </select>
                                 <p className="text-xs text-slate-500 mt-2">
-                                    Entrez l'email de l'utilisateur à ajouter. L'utilisateur ne doit pas avoir d'équipe.
+                                    Seuls les utilisateurs sans équipe sont listés.
                                 </p>
+                                {availableUsers.length === 0 && (
+                                    <p className="text-xs text-amber-400 mt-2">
+                                        Aucun utilisateur disponible (tous ont déjà une équipe).
+                                    </p>
+                                )}
                             </div>
                             <div className="flex justify-end gap-3">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setShowAddMemberModal(false);
-                                        setNewMemberEmail('');
+                                        setNewMemberId('');
                                         setSelectedTeamId(null);
                                     }}
                                     className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
@@ -348,8 +446,57 @@ export default function AdminTeamsManagement({ teams, onRefresh }: AdminTeamsMan
                                 <button
                                     type="submit"
                                     className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition-colors"
+                                    disabled={availableUsers.length === 0}
                                 >
                                     Ajouter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Assign Time Slot Modal */}
+            {showAssignSlotModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md">
+                        <h3 className="text-xl font-bold text-white mb-4">Assigner un créneau horaire</h3>
+                        <form onSubmit={handleAssignTimeSlot}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-slate-300 mb-2">Créneau horaire</label>
+                                <select
+                                    value={selectedTimeSlotForAssign || ''}
+                                    onChange={(e) => setSelectedTimeSlotForAssign(e.target.value || null)}
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500"
+                                >
+                                    <option value="">Retirer le créneau</option>
+                                    {timeSlots.map((slot) => (
+                                        <option key={slot.id} value={slot.id}>
+                                            {slot.displayName}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-slate-500 mt-2">
+                                    Sélectionnez un créneau pour l&apos;équipe ou laissez vide pour retirer le créneau actuel.
+                                </p>
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowAssignSlotModal(false);
+                                        setSelectedTeamId(null);
+                                        setSelectedTimeSlotForAssign(null);
+                                    }}
+                                    className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors"
+                                >
+                                    Confirmer
                                 </button>
                             </div>
                         </form>

@@ -59,11 +59,18 @@ const createTeamSchema = z.object({
   timeSlotId: z.string().uuid().optional(),
 });
 
+const assignTimeSlotSchema = z.object({
+  teamId: z.string().uuid(),
+  timeSlotId: z.string().uuid().nullable(),
+});
+
 // Gestion des utilisateurs et équipes
 router.put('/users/:userId', adminController.updateUser);
+router.delete('/users/:userId', adminController.deleteUser);
 router.post('/teams/create', validate(createTeamSchema), adminController.createTeamWithCaptain);
 router.patch('/teams/:teamId', adminController.updateTeam);
 router.post('/teams/add-member', validate(addMemberSchema), adminController.addMemberToTeam);
+router.post('/teams/assign-timeslot', validate(assignTimeSlotSchema), adminController.assignTeamTimeSlot);
 router.delete('/teams/:teamId', adminController.deleteTeam);
 
 // CTFd integration

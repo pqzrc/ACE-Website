@@ -43,7 +43,7 @@ const skipWhitelisted = (req: Request): boolean => {
  */
 export const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 100, // 100 requests per IP per window (very high for shared WiFi)
+  max: 30, // 30 requests per email per window (balanced for shared WiFi)
 
   // Key generator: use email if available, fallback to IP
   keyGenerator: (req: Request): string => {
@@ -75,7 +75,7 @@ export const authLimiter = rateLimit({
  */
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 login attempts per email per window
+  max: 5, // 5 login attempts per email per window (stricter for brute force protection)
 
   keyGenerator: (req: Request): string => {
     const email = req.body?.email;
@@ -97,7 +97,7 @@ export const loginLimiter = rateLimit({
  */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // 1000 requests per IP per window (for shared campus WiFi)
+  max: 300, // 300 requests per IP per window (balanced for shared WiFi)
   message: {
     success: false,
     message: 'Trop de requêtes. Réessayez plus tard.',

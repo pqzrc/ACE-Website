@@ -56,7 +56,12 @@ export class TimeSlotController {
 
             const timeSlotsWithCount = await Promise.all(
                 timeSlots.map(async (slot) => {
-                    const teamCount = await slot.getTeamCount();
+                    const teams = await Team.findAll({
+                        where: { timeSlotId: slot.id },
+                        attributes: ['id', 'name', 'isComplete'],
+                        order: [['name', 'ASC']],
+                    });
+                    const teamCount = teams.length;
                     return {
                         id: slot.id,
                         roomName: slot.roomName,
@@ -67,6 +72,11 @@ export class TimeSlotController {
                         teamCount,
                         isFull: teamCount >= slot.maxTeams,
                         displayName: slot.getDisplayName(),
+                        teams: teams.map((t) => ({
+                            id: t.id,
+                            name: t.name,
+                            isComplete: t.isComplete,
+                        })),
                     };
                 })
             );
@@ -155,6 +165,65 @@ export class TimeSlotController {
             res.status(500).json({
                 success: false,
                 message: 'Erreur lors de la mise à jour du créneau horaire.',
+            });
+        }
+    }
+
+    // Assign a team to a time slot (admin only)
+    async assignTeamToTimeSlot(req: AuthRequest, res: Response): Promise<void> {
+        try {
+            if (!req.user?.isAdmin) {
+                res.status(403).json({ success: false, message: 'Accès refusé.' });
+                return;
+            }
+
+            const { teamId, timeSlotId } = req.body;
+
+            const team = await Team.findByPk(teamId);
+            if (!team) {
+                res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+                return;
+            }
+
+            // If timeSlotId is null, we're removing the team from its current slot
+            if (timeSlotId === null) {
+                team.timeSlotId = null;
+                await team.save();
+                logger.info(`Team ${team.name} removed from time slot by admin ${req.user.email}`);
+                res.json({
+                    success: true,
+                    message: 'Équipe retirée du créneau horaire.',
+                });
+                return;
+            }
+
+            const timeSlot = await TimeSlot.findByPk(timeSlotId);
+            if (!timeSlot) {
+                res.status(404).json({ success: false, message: 'Créneau horaire non trouvé.' });
+                return;
+            }
+
+            // Check if time slot is full
+            const currentTeamCount = await Team.count({ where: { timeSlotId } });
+            if (currentTeamCount >= timeSlot.maxTeams && team.timeSlotId !== timeSlotId) {
+                res.status(400).json({ success: false, message: 'Ce créneau horaire est complet.' });
+                return;
+            }
+
+            team.timeSlotId = timeSlotId;
+            await team.save();
+
+            logger.info(`Team ${team.name} assigned to ${timeSlot.getDisplayName()} by admin ${req.user.email}`);
+
+            res.json({
+                success: true,
+                message: `Équipe assignée au créneau ${timeSlot.getDisplayName()}.`,
+            });
+        } catch (error) {
+            logger.error('Assign team to time slot error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erreur lors de l\'assignation de l\'équipe.',
             });
         }
     }

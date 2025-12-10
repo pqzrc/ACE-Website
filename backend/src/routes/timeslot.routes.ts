@@ -29,6 +29,7 @@ router.use(protect); // All routes below require authentication
 
 router.get('/admin', timeSlotController.getAllTimeSlots);
 router.post('/', validate(createTimeSlotSchema), timeSlotController.createTimeSlot);
+router.post('/assign-team', timeSlotController.assignTeamToTimeSlot);
 router.put('/:id', validate(updateTimeSlotSchema), timeSlotController.updateTimeSlot);
 router.delete('/:id', timeSlotController.deleteTimeSlot);
 

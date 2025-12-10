@@ -8,6 +8,7 @@ import { TimeSlot } from '../models/TimeSlot';
 import { logger } from '../utils/logger';
 import emailService from '../services/email.service';
 import { CTFdWebhookService } from '../services/ctfdWebhook.service';
+import ctfdService from '../services/ctfd.service';
 import { getAdminAddPlayerEmailHtml } from '../utils/new-email-templates';
 
 export class AdminController {
@@ -469,6 +470,11 @@ export class AdminController {
             as: 'captain',
             attributes: ['id', 'firstName', 'lastName', 'email'],
           },
+          {
+            model: TimeSlot,
+            as: 'timeSlot',
+            attributes: ['id', 'roomName', 'startTime', 'endTime'],
+          },
         ],
         order: [['createdAt', 'DESC']],
       });
@@ -542,6 +548,78 @@ export class AdminController {
     } catch (error) {
       logger.error('Update user error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour.' });
+    }
+  }
+
+  // Supprimer un utilisateur (admin uniquement)
+  async deleteUser(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { userId } = req.params;
+
+      const user = await User.findByPk(userId, {
+        include: [{ model: Team, as: 'team' }],
+      });
+
+      if (!user) {
+        res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+        return;
+      }
+
+      // Sauvegarder les infos pour les logs
+      const userEmail = user.email;
+      const ctfdUserId = user.ctfdUserId;
+      const teamId = user.teamId;
+
+      // Si l'utilisateur est capitaine d'une équipe, supprimer l'équipe entière
+      if (teamId) {
+        const team = await Team.findByPk(teamId);
+        if (team && team.captainId === user.id) {
+          // Retirer tous les membres de l'équipe
+          await User.update({ teamId: null }, { where: { teamId } });
+          await Registration.update(
+            { teamId: null, status: RegistrationStatus.VERIFIED },
+            { where: { teamId } }
+          );
+
+          // Notifier CTFd et supprimer l'équipe
+          const deletedTeamId = team.id;
+          const deletedTeamName = team.name;
+          const deletedCtfdTeamId = team.ctfdTeamId;
+
+          await team.destroy();
+
+          CTFdWebhookService.notifyTeamDeleted(deletedTeamId, deletedCtfdTeamId, deletedTeamName).catch(err =>
+            logger.error('Webhook error:', err)
+          );
+
+          logger.info(`Team ${deletedTeamName} deleted because captain ${userEmail} was deleted`);
+        } else {
+          // Simplement retirer l'utilisateur de l'équipe
+          user.teamId = null;
+          await user.save();
+        }
+      }
+
+      // Supprimer l'inscription associée
+      await Registration.destroy({ where: { userId } });
+
+      // Supprimer l'utilisateur dans CTFd si présent
+      if (ctfdUserId) {
+        await ctfdService.deleteUser(ctfdUserId);
+      }
+
+      // Supprimer l'utilisateur localement
+      await user.destroy();
+
+      logger.info(`User ${userEmail} (${userId}) deleted by admin`);
+
+      res.json({
+        success: true,
+        message: 'Utilisateur supprimé avec succès.',
+      });
+    } catch (error) {
+      logger.error('Delete user error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la suppression de l\'utilisateur.' });
     }
   }
 
@@ -757,6 +835,61 @@ export class AdminController {
     } catch (error) {
       logger.error('Update team error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour de l\'équipe.' });
+    }
+  }
+
+  // Assigner/retirer un créneau horaire à une équipe (admin uniquement)
+  async assignTeamTimeSlot(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { teamId, timeSlotId } = req.body;
+
+      const team = await Team.findByPk(teamId);
+      if (!team) {
+        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+        return;
+      }
+
+      // Validate time slot if provided (null is allowed to unset)
+      if (timeSlotId !== null && timeSlotId !== undefined) {
+        const timeSlot = await TimeSlot.findByPk(timeSlotId);
+        if (!timeSlot) {
+          res.status(404).json({ success: false, message: 'Créneau horaire non trouvé.' });
+          return;
+        }
+
+        if (!timeSlot.isActive) {
+          res.status(400).json({ success: false, message: 'Ce créneau horaire n\'est pas disponible.' });
+          return;
+        }
+
+        // Check if time slot is full
+        const isFull = await timeSlot.isFull();
+        if (isFull && team.timeSlotId !== timeSlotId) {
+          res.status(400).json({
+            success: false,
+            message: `Le créneau ${timeSlot.getDisplayName()} est complet (${timeSlot.maxTeams} équipes maximum).`
+          });
+          return;
+        }
+      }
+
+      // Update team time slot
+      team.timeSlotId = timeSlotId || null;
+      await team.save();
+
+      logger.info(`Admin assigned time slot ${timeSlotId} to team ${team.name}`);
+
+      res.json({
+        success: true,
+        message: timeSlotId ? 'Créneau horaire assigné avec succès.' : 'Créneau horaire retiré.',
+        data: { team },
+      });
+    } catch (error) {
+      logger.error('Assign team time slot error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'assignation du créneau horaire.',
+      });
     }
   }
 }

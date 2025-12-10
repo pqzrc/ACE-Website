@@ -21,6 +21,14 @@ export interface AdminTeam {
   roomNumber: number | null;
   currentScore: number;
   rank: number | null;
+  timeSlotId?: string | null;
+  timeSlot?: {
+    id: string;
+    roomName: string;
+    displayName: string;
+    startTime: string;
+    endTime: string;
+  } | null;
   captain: {
     id: string;
     firstName: string;

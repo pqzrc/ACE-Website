@@ -2,15 +2,38 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Shield, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Search, Shield, CheckCircle, XCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { AdminUser } from '@/hooks/useAdminData';
 
 interface AdminUsersManagementProps {
     users: AdminUser[];
+    onDeleteUser?: (userId: string) => Promise<void>;
 }
 
-export default function AdminUsersManagement({ users }: AdminUsersManagementProps) {
+export default function AdminUsersManagement({ users, onDeleteUser }: AdminUsersManagementProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+    const handleDeleteClick = (userId: string) => {
+        setConfirmDeleteId(userId);
+    };
+
+    const handleConfirmDelete = async (userId: string) => {
+        if (!onDeleteUser) return;
+
+        setDeletingUserId(userId);
+        try {
+            await onDeleteUser(userId);
+        } finally {
+            setDeletingUserId(null);
+            setConfirmDeleteId(null);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmDeleteId(null);
+    };
 
     const filteredUsers = users.filter(user =>
         user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -52,6 +75,7 @@ export default function AdminUsersManagement({ users }: AdminUsersManagementProp
                                 <th className="px-6 py-4">Équipe</th>
                                 <th className="px-6 py-4">Vérifié</th>
                                 <th className="px-6 py-4">Inscrit le</th>
+                                {onDeleteUser && <th className="px-6 py-4">Actions</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800">
@@ -92,6 +116,36 @@ export default function AdminUsersManagement({ users }: AdminUsersManagementProp
                                     <td className="px-6 py-4">
                                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                                     </td>
+                                    {onDeleteUser && (
+                                        <td className="px-6 py-4">
+                                            {confirmDeleteId === user.id ? (
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleConfirmDelete(user.id)}
+                                                        disabled={deletingUserId === user.id}
+                                                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                                    >
+                                                        {deletingUserId === user.id ? 'Suppression...' : 'Confirmer'}
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelDelete}
+                                                        disabled={deletingUserId === user.id}
+                                                        className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                                    >
+                                                        Annuler
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleDeleteClick(user.id)}
+                                                    className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    title="Supprimer l'utilisateur"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </td>
+                                    )}
                                 </motion.tr>
                             ))}
                         </tbody>

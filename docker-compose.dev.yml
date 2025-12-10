@@ -60,7 +60,7 @@ services:
     environment:
       - POSTGRES_DB=acedb
       - POSTGRES_USER=aceuser
-      - POSTGRES_PASSWORD=acepass
+      - POSTGRES_PASSWORD=pgdevp45592c4
     ports:
       - "5433:5432"
     volumes:

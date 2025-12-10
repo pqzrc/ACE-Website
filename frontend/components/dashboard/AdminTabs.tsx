@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 
-type TabId = 'team' | 'stats' | 'users' | 'teams' | 'rooms' | 'timeslots';
+type TabId = 'team' | 'stats' | 'users' | 'teams' | 'timeslots';
 
 interface AdminTabsProps {
   activeTab: TabId;
@@ -14,8 +14,7 @@ export default function AdminTabs({ activeTab, onTabChange, showTeamTab = true }
     { id: 'stats' as const, label: 'Statistiques' },
     { id: 'users' as const, label: 'Utilisateurs' },
     { id: 'teams' as const, label: 'Toutes les Équipes' },
-    { id: 'rooms' as const, label: 'Gestion Salles' },
-    { id: 'timeslots' as const, label: 'Créneaux Horaires' },
+    { id: 'timeslots' as const, label: 'Créneaux & Salles' },
   ];
 
   const tabs = showTeamTab ? allTabs : allTabs.filter(tab => tab.id !== 'team');
