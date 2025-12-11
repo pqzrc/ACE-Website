@@ -117,7 +117,6 @@ export default function ClassementPage() {
 
       const now = Date.now();
       const start = new Date(cfg.eventStart).getTime();
-      const end = new Date(cfg.eventEnd).getTime();
       const release = new Date(cfg.resultsRelease).getTime();
 
       if (now < start) {
@@ -261,7 +260,7 @@ export default function ClassementPage() {
             <p className="text-gray-300 text-lg">
               {!configLoaded && "Chargement..."}
               {configLoaded && eventStatus === 'before' && "L'événement n'a pas encore commencé"}
-              {configLoaded && eventStatus === 'during' && "L'événement est en cours"}
+              {configLoaded && eventStatus === 'during' && "Épreuve en cours - Classement verrouillé"}
               {configLoaded && eventStatus === 'after' && !canShowResults && "L'épreuve est terminée, le classement sera bientôt révélé"}
               {configLoaded && eventStatus === 'after' && canShowResults && "Découvrez les équipes en tête du classement"}
             </p>
@@ -302,16 +301,16 @@ export default function ClassementPage() {
                   <Lock className="w-8 h-8 text-neon-rose" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-4">
-                  Le classement sera publié à la fin de l&apos;événement
+                  Classement verrouillé
                 </h2>
                 <p className="text-gray-400 mb-8">
-                  Publication du classement dans
+                  Le classement sera dévoilé dans
                 </p>
               </div>
               <CountdownDisplay time={timeRemaining} />
               <div className="glass-panel p-6 text-center">
                 <p className="text-sm text-gray-400">
-                  Concentrez-vous sur les énigmes ! Le classement final sera révélé à la fin de l&apos;événement.
+                  Concentrez-vous sur les énigmes ! Le classement final sera révélé après la remise des prix.
                 </p>
               </div>
             </div>

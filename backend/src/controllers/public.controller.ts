@@ -7,9 +7,9 @@ import { logger } from '../utils/logger';
 
 // Helper pour calculer le statut de l'événement (standalone function)
 function getEventInfo() {
-  const EVENT_START = process.env.EVENT_START_TIME || '2025-12-11T13:00:00Z';
-  const EVENT_END = process.env.EVENT_END_TIME || '2025-12-11T17:00:00Z';
-  const RESULTS_RELEASE = process.env.RESULTS_RELEASE_TIME || EVENT_END;
+  const EVENT_START = process.env.EVENT_START_TIME || '2025-12-11T09:00:00Z';
+  const EVENT_END = process.env.EVENT_END_TIME || '2025-12-11T18:00:00Z';
+  const RESULTS_RELEASE = process.env.RESULTS_RELEASE_TIME || '2025-12-11T21:50:00Z';
 
   const now = Date.now();
   const startTime = new Date(EVENT_START).getTime();

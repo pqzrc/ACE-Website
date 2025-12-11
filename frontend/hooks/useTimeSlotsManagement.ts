@@ -39,7 +39,7 @@ const DEFAULT_FORM: TimeSlotFormData = {
   roomName: '',
   startTime: '',
   endTime: '',
-  maxTeams: 6,
+  maxTeams: 5,
 };
 
 export function useTimeSlotsManagement() {
