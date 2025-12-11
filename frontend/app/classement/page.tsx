@@ -303,13 +303,11 @@ export default function ClassementPage() {
                 <h2 className="text-2xl font-bold text-white mb-4">
                   Classement verrouillé
                 </h2>
-                <p className="text-gray-400 mb-8">
+                <p className="text-gray-400 mb-6">
                   Le classement sera dévoilé dans
                 </p>
-              </div>
-              <CountdownDisplay time={timeRemaining} />
-              <div className="glass-panel p-6 text-center">
-                <p className="text-sm text-gray-400">
+                <CountdownDisplay time={timeRemaining} />
+                <p className="text-sm text-gray-400 mt-8">
                   Concentrez-vous sur les énigmes ! Le classement final sera révélé après la remise des prix.
                 </p>
               </div>
