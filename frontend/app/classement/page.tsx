@@ -123,17 +123,18 @@ export default function ClassementPage() {
       if (now < start) {
         setEventStatus('before');
         setTimeRemaining(calculateTimeRemaining(start - now));
-      } else if (now >= start && now < end) {
+      } else if (now >= start && now < release) {
+        // Pendant l'événement : compte à rebours jusqu'à la publication du classement
         setEventStatus('during');
-        setTimeRemaining(calculateTimeRemaining(end - now));
+        setTimeRemaining(calculateTimeRemaining(release - now));
       } else {
         setEventStatus('after');
-        // Si l'épreuve est finie mais les résultats ne sont pas encore disponibles, countdown jusqu'à la publication
+        // Après l'événement, si pas encore publiés, countdown jusqu'à publication
         if (!cfg.resultsAvailable && now < release) {
           setTimeRemaining(calculateTimeRemaining(release - now));
         } else {
-        setTimeRemaining(null);
-      }
+          setTimeRemaining(null);
+        }
       }
     };
 
@@ -301,10 +302,10 @@ export default function ClassementPage() {
                   <Lock className="w-8 h-8 text-neon-rose" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-4">
-                  Le classement sera disponible après l&apos;épreuve
+                  Le classement sera publié à la fin de l&apos;événement
                 </h2>
                 <p className="text-gray-400 mb-8">
-                  L&apos;événement se termine dans
+                  Publication du classement dans
                 </p>
               </div>
               <CountdownDisplay time={timeRemaining} />
