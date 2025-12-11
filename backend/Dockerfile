@@ -28,6 +28,9 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 
+# Copy email templates
+COPY --from=builder /app/email-templates ./email-templates
+
 # Expose port
 EXPOSE 5000
 

@@ -57,3 +57,37 @@ export const getPasswordResetEmailHtml = (
         resetLink,
     });
 };
+
+export const getVerificationEmailHtml = (
+    firstName: string,
+    verificationLink: string
+): string => {
+    return loadTemplate('verification-email.html', {
+        firstName,
+        verificationLink,
+    });
+};
+
+export const getWelcomeEmailHtml = (
+    firstName: string,
+    teamName: string,
+    dashboardLink: string
+): string => {
+    return loadTemplate('welcome-email.html', {
+        firstName,
+        teamName,
+        dashboardLink,
+    });
+};
+
+export const getTeamJoinEmailHtml = (
+    firstName: string,
+    teamName: string,
+    teamLink: string
+): string => {
+    return loadTemplate('team-join-email.html', {
+        firstName,
+        teamName,
+        teamLink,
+    });
+};

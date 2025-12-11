@@ -5,12 +5,10 @@ import { logger } from '../utils/logger';
 import {
   getVerificationEmailHtml,
   getWelcomeEmailHtml,
-  getTeamJoinEmailHtml
-} from '../utils/email-templates';
-import {
+  getTeamJoinEmailHtml,
   getTeamCreatedEmailHtml,
   getPasswordResetEmailHtml,
-  getAdminAddPlayerEmailHtml
+  getAdminAddPlayerEmailHtml,
 } from '../utils/new-email-templates';
 
 class EmailService {

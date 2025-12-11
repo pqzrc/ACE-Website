@@ -132,8 +132,8 @@ export default function ClassementPage() {
         if (!cfg.resultsAvailable && now < release) {
           setTimeRemaining(calculateTimeRemaining(release - now));
         } else {
-          setTimeRemaining(null);
-        }
+        setTimeRemaining(null);
+      }
       }
     };
 
@@ -141,7 +141,7 @@ export default function ClassementPage() {
     updateCountdown();
     // Then update every second
     const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
   }, [configLoaded]);
 
   const calculateTimeRemaining = (diff: number): TimeRemaining => {

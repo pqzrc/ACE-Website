@@ -1,235 +1,59 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import { Clock, MapPin, Plus, Edit2, Trash2, Save, X, AlertCircle, CheckCircle, Users, ChevronDown, ChevronUp, UserPlus, UserMinus } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, Plus, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { useTimeSlotsManagement, TimeSlotFormData } from '@/hooks/useTimeSlotsManagement';
+import { TimeSlotCard, TimeSlotForm } from './timeslots';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 
-interface TeamInfo {
-  id: string;
-  name: string;
-  isComplete: boolean;
-}
+export default function AdminTimeSlotsManagement() {
+  const {
+    timeSlots,
+    teamsWithoutSlot,
+    loading,
+    error,
+    success,
+    expandedSlots,
+    setError,
+    setSuccess,
+    createTimeSlot,
+    updateTimeSlot,
+    deleteTimeSlot,
+    assignTeam,
+    removeTeam,
+    toggleSlotExpanded,
+    DEFAULT_FORM,
+  } = useTimeSlotsManagement();
 
-interface AvailableTeam {
-  id: string;
-  name: string;
-  isComplete: boolean;
-  memberCount: number;
-  timeSlotId: string | null;
-}
-
-interface TimeSlot {
-  id: string;
-  roomName: string;
-  startTime: string;
-  endTime: string;
-  maxTeams: number;
-  isActive: boolean;
-  teamCount: number;
-  displayName: string;
-  teams?: TeamInfo[];
-}
-
-interface AdminTimeSlotsManagementProps {
-  // No props needed for now
-}
-
-export default function AdminTimeSlotsManagement({}: AdminTimeSlotsManagementProps) {
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingSlot, setEditingSlot] = useState<string | null>(null);
+  const [newSlot, setNewSlot] = useState<TimeSlotFormData>(DEFAULT_FORM);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; slotId: string; slotName: string }>({
     isOpen: false,
     slotId: '',
     slotName: '',
   });
-  const [expandedSlots, setExpandedSlots] = useState<Set<string>>(new Set());
-  const [allTeams, setAllTeams] = useState<AvailableTeam[]>([]);
 
-  // Form states
-  const [newSlot, setNewSlot] = useState({
-    roomName: '',
-    startTime: '',
-    endTime: '',
-    maxTeams: 6,
-  });
-
-  const [editSlot, setEditSlot] = useState({
-    roomName: '',
-    startTime: '',
-    endTime: '',
-    maxTeams: 6,
-    isActive: true,
-  });
-
-  useEffect(() => {
-    fetchTimeSlots();
-    fetchAllTeams();
-  }, []);
-
-  const fetchAllTeams = async () => {
-    try {
-      const response = await api.get('/admin/teams');
-      if (response.data.success) {
-        setAllTeams(response.data.data.teams || []);
-      }
-    } catch (err) {
-      console.error('Error fetching teams:', err);
-    }
-  };
-
-  const fetchTimeSlots = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/timeslots/admin');
-      if (response.data.success) {
-        setTimeSlots(response.data.data.timeSlots || []);
-      }
-    } catch (err) {
-      console.error('Error fetching time slots:', err);
-      setError('Erreur lors du chargement des créneaux');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateTimeSlot = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await api.post('/timeslots', newSlot);
-      if (response.data.success) {
-        await fetchTimeSlots();
-        setShowCreateModal(false);
-        setNewSlot({ roomName: '', startTime: '', endTime: '', maxTeams: 6 });
-        setError('');
-        setSuccess('Créneau horaire créé avec succès !');
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(''), 3000);
-      }
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Erreur lors de la création du créneau');
-    }
-  };
-
-  const handleUpdateTimeSlot = async (slotId: string) => {
-    try {
-      const response = await api.put(`/timeslots/${slotId}`, editSlot);
-      if (response.data.success) {
-        await fetchTimeSlots();
-        setEditingSlot(null);
-        setError('');
-        setSuccess('Créneau horaire mis à jour avec succès !');
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(''), 3000);
-      }
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Erreur lors de la mise à jour du créneau');
-    }
-  };
-
-  const handleDeleteTimeSlot = async (slotId: string) => {
-    try {
-      const response = await api.delete(`/timeslots/${slotId}`);
-      if (response.data.success) {
-        await fetchTimeSlots();
-        setError('');
-        setSuccess('Créneau horaire supprimé avec succès !');
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(''), 3000);
-      }
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Erreur lors de la suppression du créneau');
+    const success = await createTimeSlot(newSlot);
+    if (success) {
+      setShowCreateModal(false);
+      setNewSlot(DEFAULT_FORM);
     }
   };
 
   const openDeleteConfirmation = (slotId: string, slotName: string) => {
-    setConfirmDelete({
-      isOpen: true,
-      slotId,
-      slotName,
-    });
+    setConfirmDelete({ isOpen: true, slotId, slotName });
   };
 
   const closeDeleteConfirmation = () => {
-    setConfirmDelete({
-      isOpen: false,
-      slotId: '',
-      slotName: '',
-    });
+    setConfirmDelete({ isOpen: false, slotId: '', slotName: '' });
   };
 
-  const confirmDeleteAction = () => {
-    handleDeleteTimeSlot(confirmDelete.slotId);
+  const confirmDeleteAction = async () => {
+    await deleteTimeSlot(confirmDelete.slotId);
     closeDeleteConfirmation();
   };
-
-  const startEditing = (slot: TimeSlot) => {
-    setEditingSlot(slot.id);
-    setEditSlot({
-      roomName: slot.roomName,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      maxTeams: slot.maxTeams,
-      isActive: slot.isActive,
-    });
-  };
-
-  const cancelEditing = () => {
-    setEditingSlot(null);
-    setEditSlot({ roomName: '', startTime: '', endTime: '', maxTeams: 6, isActive: true });
-  };
-
-  const toggleSlotExpanded = (slotId: string) => {
-    setExpandedSlots((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(slotId)) {
-        newSet.delete(slotId);
-      } else {
-        newSet.add(slotId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleAssignTeam = async (teamId: string, timeSlotId: string) => {
-    try {
-      const response = await api.post('/timeslots/assign-team', { teamId, timeSlotId });
-      if (response.data.success) {
-        await fetchTimeSlots();
-        await fetchAllTeams();
-        setSuccess('Équipe assignée au créneau avec succès !');
-        setTimeout(() => setSuccess(''), 3000);
-      }
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Erreur lors de l\'assignation');
-    }
-  };
-
-  const handleRemoveTeam = async (teamId: string) => {
-    try {
-      const response = await api.post('/timeslots/assign-team', { teamId, timeSlotId: null });
-      if (response.data.success) {
-        await fetchTimeSlots();
-        await fetchAllTeams();
-        setSuccess('Équipe retirée du créneau avec succès !');
-        setTimeout(() => setSuccess(''), 3000);
-      }
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Erreur lors du retrait');
-    }
-  };
-
-  // Get teams without a time slot
-  const teamsWithoutSlot = allTeams.filter((t) => !t.timeSlotId);
 
   if (loading) {
     return (
@@ -262,10 +86,7 @@ export default function AdminTimeSlotsManagement({}: AdminTimeSlotsManagementPro
         <div className="bg-green-900/50 border border-green-500 rounded-lg p-4 flex items-center gap-3">
           <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
           <span className="text-green-200">{success}</span>
-          <button
-            onClick={() => setSuccess('')}
-            className="ml-auto text-green-400 hover:text-green-300"
-          >
+          <button onClick={() => setSuccess('')} className="ml-auto text-green-400 hover:text-green-300">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -276,10 +97,7 @@ export default function AdminTimeSlotsManagement({}: AdminTimeSlotsManagementPro
         <div className="bg-red-900/50 border border-red-500 rounded-lg p-4 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
           <span className="text-red-200">{error}</span>
-          <button
-            onClick={() => setError('')}
-            className="ml-auto text-red-400 hover:text-red-300"
-          >
+          <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-300">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -295,238 +113,17 @@ export default function AdminTimeSlotsManagement({}: AdminTimeSlotsManagementPro
           </div>
         ) : (
           timeSlots.map((slot) => (
-            <div
+            <TimeSlotCard
               key={slot.id}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-6"
-            >
-              {editingSlot === slot.id ? (
-                // Edit Mode
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleUpdateTimeSlot(slot.id);
-                  }}
-                  className="space-y-4"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Nom de la salle
-                      </label>
-                      <input
-                        type="text"
-                        value={editSlot.roomName}
-                        onChange={(e) => setEditSlot({ ...editSlot, roomName: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neon-rose"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Heure de début
-                      </label>
-                      <input
-                        type="time"
-                        value={editSlot.startTime}
-                        onChange={(e) => setEditSlot({ ...editSlot, startTime: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neon-rose"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Heure de fin
-                      </label>
-                      <input
-                        type="time"
-                        value={editSlot.endTime}
-                        onChange={(e) => setEditSlot({ ...editSlot, endTime: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neon-rose"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Max équipes
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="20"
-                        value={editSlot.maxTeams}
-                        onChange={(e) => setEditSlot({ ...editSlot, maxTeams: parseInt(e.target.value) })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neon-rose"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 text-slate-300">
-                      <input
-                        type="checkbox"
-                        checked={editSlot.isActive}
-                        onChange={(e) => setEditSlot({ ...editSlot, isActive: e.target.checked })}
-                        className="rounded border-slate-600 text-neon-rose focus:ring-neon-rose"
-                      />
-                      Créneau actif
-                    </label>
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={cancelEditing}
-                      className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
-                    >
-                      Annuler
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                    >
-                      <Save className="w-4 h-4" />
-                      Sauvegarder
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                // View Mode
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-neon-rose/20 p-2 rounded-lg">
-                          <MapPin className="w-5 h-5 text-neon-rose" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-white">
-                            Salle {slot.roomName}
-                          </h3>
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <Clock className="w-4 h-4" />
-                            <span>{slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => toggleSlotExpanded(slot.id)}
-                        className="flex items-center gap-2 text-center hover:bg-slate-800 rounded-lg px-3 py-2 transition-colors"
-                      >
-                        <div>
-                          <div className="text-2xl font-bold text-white">
-                            {slot.teamCount}/{slot.maxTeams}
-                          </div>
-                          <div className="text-sm text-slate-400 flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            équipes
-                          </div>
-                        </div>
-                        {expandedSlots.has(slot.id) ? (
-                          <ChevronUp className="w-4 h-4 text-slate-400" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        )}
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            slot.isActive ? 'bg-green-400' : 'bg-red-400'
-                          }`}
-                        />
-                        <span className={`text-sm ${
-                          slot.isActive ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {slot.isActive ? 'Actif' : 'Inactif'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => startEditing(slot)}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => openDeleteConfirmation(slot.id, slot.displayName)}
-                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Teams List */}
-                  {expandedSlots.has(slot.id) && (
-                    <div className="border-t border-slate-800 pt-4 mt-4 space-y-4">
-                      {/* Current teams in slot */}
-                      {slot.teams && slot.teams.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {slot.teams.map((team) => (
-                            <div
-                              key={team.id}
-                              className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2"
-                            >
-                              <Users className="w-4 h-4 text-slate-400" />
-                              <span className="text-white text-sm">{team.name}</span>
-                              {team.isComplete ? (
-                                <span className="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded">
-                                  Complète
-                                </span>
-                              ) : (
-                                <span className="text-xs bg-yellow-900/50 text-yellow-400 px-2 py-0.5 rounded">
-                                  Incomplète
-                                </span>
-                              )}
-                              <button
-                                onClick={() => handleRemoveTeam(team.id)}
-                                className="ml-auto p-1 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors"
-                                title="Retirer du créneau"
-                              >
-                                <UserMinus className="w-4 h-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-slate-500 text-sm text-center py-2">
-                          Aucune équipe inscrite à ce créneau
-                        </p>
-                      )}
-
-                      {/* Add team selector */}
-                      {slot.teamCount < slot.maxTeams && teamsWithoutSlot.length > 0 && (
-                        <div className="flex items-center gap-2">
-                          <UserPlus className="w-4 h-4 text-slate-400" />
-                          <select
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                handleAssignTeam(e.target.value, slot.id);
-                                e.target.value = '';
-                              }
-                            }}
-                            className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-rose"
-                          >
-                            <option value="">Ajouter une équipe...</option>
-                            {teamsWithoutSlot.map((team) => (
-                              <option key={team.id} value={team.id}>
-                                {team.name} ({team.memberCount} membres) {team.isComplete ? '✓' : ''}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                      {slot.teamCount >= slot.maxTeams && (
-                        <p className="text-orange-400 text-sm text-center">
-                          Créneau complet
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+              slot={slot}
+              isExpanded={expandedSlots.has(slot.id)}
+              teamsWithoutSlot={teamsWithoutSlot}
+              onToggleExpand={() => toggleSlotExpanded(slot.id)}
+              onUpdate={(data) => updateTimeSlot(slot.id, data)}
+              onDelete={() => openDeleteConfirmation(slot.id, slot.displayName)}
+              onAssignTeam={assignTeam}
+              onRemoveTeam={removeTeam}
+            />
           ))
         )}
       </div>
@@ -536,79 +133,16 @@ export default function AdminTimeSlotsManagement({}: AdminTimeSlotsManagementPro
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md">
             <h3 className="text-xl font-bold text-white mb-4">Créer un nouveau créneau</h3>
-            <form onSubmit={handleCreateTimeSlot} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Nom de la salle
-                </label>
-                <input
-                  type="text"
-                  value={newSlot.roomName}
-                  onChange={(e) => setNewSlot({ ...newSlot, roomName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-neon-rose"
-                  placeholder="H0, H1, A1, etc."
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Heure de début
-                  </label>
-                  <input
-                    type="time"
-                    value={newSlot.startTime}
-                    onChange={(e) => setNewSlot({ ...newSlot, startTime: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-neon-rose"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Heure de fin
-                  </label>
-                  <input
-                    type="time"
-                    value={newSlot.endTime}
-                    onChange={(e) => setNewSlot({ ...newSlot, endTime: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-neon-rose"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Nombre maximum d'équipes
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={newSlot.maxTeams}
-                  onChange={(e) => setNewSlot({ ...newSlot, maxTeams: parseInt(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-neon-rose"
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setNewSlot({ roomName: '', startTime: '', endTime: '', maxTeams: 6 });
-                  }}
-                  className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="bg-neon-rose hover:bg-neon-rose/80 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  Créer
-                </button>
-              </div>
-            </form>
+            <TimeSlotForm
+              data={newSlot}
+              onChange={setNewSlot}
+              onSubmit={handleCreate}
+              onCancel={() => {
+                setShowCreateModal(false);
+                setNewSlot(DEFAULT_FORM);
+              }}
+              submitLabel="Créer"
+            />
           </div>
         </div>
       )}
