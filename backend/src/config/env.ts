@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Only load .env file in development
+// In production, variables are injected by Docker via env_file
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 export const config = {
   // Server
@@ -31,6 +35,7 @@ export const config = {
 
   // Frontend
   frontendUrl: process.env.FRONTEND_URL,
+  frontendPublicUrl: process.env.FRONTEND_PUBLIC_URL,
 
   // Admin
   adminEmail: process.env.ADMIN_EMAIL,
@@ -43,7 +48,9 @@ export const validateEnv = (): void => {
     'DATABASE_URL',
     'REDIS_URL',
     'JWT_SECRET',
+    'CTFD_API_TOKEN',
     'FRONTEND_URL',
+    'FRONTEND_PUBLIC_URL',
     'ADMIN_EMAIL',
     'ADMIN_PASSWORD'
   ];

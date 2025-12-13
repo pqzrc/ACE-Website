@@ -55,13 +55,7 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  school!: string | null;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  grade!: string | null;
+  phoneNumber!: string | null;
 
   @Column({
     type: DataType.STRING,
@@ -80,7 +74,7 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  affiliation!: string | null;
+  composante!: string | null;
 
   @ForeignKey(() => Team)
   @Column({
@@ -109,6 +103,18 @@ export class User extends Model {
     allowNull: true,
   })
   verificationTokenExpiry!: Date | null;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  resetPasswordToken!: string | null;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  resetPasswordExpires!: Date | null;
 
   @Column({
     type: DataType.BOOLEAN,

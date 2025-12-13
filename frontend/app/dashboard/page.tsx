@@ -6,33 +6,31 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { Clock, Users, Flag } from 'lucide-react';
 import { useAdminData } from '@/hooks/useAdminData';
-import { useAdminActions } from '@/hooks/useAdminActions';
 import { useTeamData } from '@/hooks/useTeamData';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import ProfileModal from '@/components/dashboard/ProfileModal';
 import UserProfile from '@/components/dashboard/UserProfile';
 import TeamSection from '@/components/dashboard/TeamSection';
 import AdminTabs from '@/components/dashboard/AdminTabs';
 import AdminStats from '@/components/dashboard/AdminStats';
-import AdminTeamsList from '@/components/dashboard/AdminTeamsList';
-import AdminRoomsManagement from '@/components/dashboard/AdminRoomsManagement';
+import AdminTeamsManagement from '@/components/dashboard/AdminTeamsManagement';
+import AdminUsersManagement from '@/components/dashboard/AdminUsersManagement';
+import AdminTimeSlotsManagement from '@/components/dashboard/AdminTimeSlotsManagement';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import EmailVerificationBanner from '@/components/dashboard/EmailVerificationBanner';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout, updateUser } = useAuth();
-  const { team, loading: teamLoading, setTeam } = useTeamData();
-  const { stats, teams: allTeams, roomNames, loading: adminLoading, updateTeam, setRoomNames } = useAdminData(user?.isAdmin ?? false);
-  const { handleExportCSV, handleAssignRoom, handleUpdateRoomName, handleAddRoom, handleDeleteRoom } = useAdminActions(allTeams, updateTeam);
-  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'teams' | 'rooms'>('team');
+  const { team, roomNames: teamRoomNames, loading: teamLoading, setTeam } = useTeamData();
+  const { stats, teams: allTeams, users: allUsers, roomNames: adminRoomNames, loading: adminLoading, refresh } = useAdminData(user?.isAdmin ?? false);
+
+  // Merge roomNames from both sources (admin takes precedence)
+  const roomNames = user?.isAdmin ? adminRoomNames : teamRoomNames;
+  const [activeTab, setActiveTab] = useState<'team' | 'stats' | 'users' | 'teams' | 'timeslots'>('team');
   const [leavingTeam, setLeavingTeam] = useState(false);
   const [redirectingToCTFd, setRedirectingToCTFd] = useState(false);
-
-  // Modal State
-  const [deleteRoomModal, setDeleteRoomModal] = useState<{ isOpen: boolean; roomNumber: number | null }>({
-    isOpen: false,
-    roomNumber: null
-  });
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const loading = teamLoading || (user?.isAdmin && adminLoading);
 
@@ -41,54 +39,6 @@ export default function DashboardPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
-
-  const handleAssignRoomWithAlert = async (teamId: string, roomNumber: number) => {
-    try {
-      await handleAssignRoom(teamId, roomNumber);
-    } catch {
-      alert('Erreur lors de l\'assignation');
-    }
-  };
-
-  const handleUpdateRoomNameWithAlert = async (roomNumber: number, name: string) => {
-    try {
-      await handleUpdateRoomName(roomNumber, name);
-      setRoomNames(prev => ({ ...prev, [roomNumber]: name }));
-    } catch {
-      alert('Erreur lors de la mise à jour du nom');
-    }
-  };
-
-  const handleAddRoomWithAlert = async () => {
-    try {
-      const newRoom = await handleAddRoom();
-      if (newRoom) {
-        setRoomNames(prev => ({ ...prev, [newRoom.id]: newRoom.name }));
-      }
-    } catch {
-      alert('Erreur lors de l\'ajout de la salle');
-    }
-  };
-
-  const handleDeleteRoomClick = (roomNumber: number) => {
-    setDeleteRoomModal({ isOpen: true, roomNumber });
-  };
-
-  const confirmDeleteRoom = async () => {
-    const roomNumber = deleteRoomModal.roomNumber;
-    if (!roomNumber) return;
-
-    try {
-      await handleDeleteRoom(roomNumber);
-      setRoomNames(prev => {
-        const newRooms = { ...prev };
-        delete newRooms[roomNumber];
-        return newRooms;
-      });
-    } catch {
-      alert('Erreur lors de la suppression');
-    }
-  };
 
   const handleLeaveTeam = async () => {
     if (!team) return;
@@ -120,6 +70,19 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const response = await api.delete(`/admin/users/${userId}`);
+      if (response.data.success) {
+        refresh(); // Rafraîchir la liste des utilisateurs et équipes
+      }
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      alert(err.response?.data?.message || 'Erreur lors de la suppression de l\'utilisateur');
+      throw error;
+    }
+  };
+
   const handleRedirectToCTFd = async () => {
     setRedirectingToCTFd(true);
     try {
@@ -136,9 +99,10 @@ export default function DashboardPage() {
       }
 
       // Créer un formulaire invisible pour envoyer le token à CTFd
+      const ctfdUrl = process.env.NEXT_PUBLIC_CTFD_URL || 'http://localhost:8000';
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = 'http://localhost:8000/sso/authenticate';
+      form.action = `${ctfdUrl}/sso/authenticate`;
       form.target = '_blank'; // Ouvrir dans un nouvel onglet
       form.style.display = 'none';
 
@@ -183,7 +147,12 @@ export default function DashboardPage() {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sky-aqua/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-neon-rose/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <DashboardHeader user={user} onLogout={logout} teamScore={team?.currentScore} />
+      <DashboardHeader
+        user={user}
+        onLogout={logout}
+        teamScore={team?.currentScore}
+        onProfileClick={() => setProfileModalOpen(true)}
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-8">
@@ -211,44 +180,37 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Email Verification Banner */}
+        {!user.emailVerified && (
+          <EmailVerificationBanner email={user.email} />
+        )}
+
         {/* Admin Tabs */}
         {user.isAdmin && (
           <div className="mb-6">
-            <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            <AdminTabs activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as 'team' | 'stats' | 'users' | 'teams' | 'timeslots')} />
           </div>
         )}
 
         {/* Stats Tab */}
         {activeTab === 'stats' && user.isAdmin && stats && (
-          <AdminStats stats={stats} onExportCSV={handleExportCSV} />
+          <AdminStats stats={stats} />
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && user.isAdmin && (
+          <AdminUsersManagement users={allUsers} onDeleteUser={handleDeleteUser} />
         )}
 
         {/* All Teams Tab */}
         {activeTab === 'teams' && user.isAdmin && (
-          <AdminTeamsList teams={allTeams} roomNames={roomNames} />
+          <AdminTeamsManagement teams={allTeams} users={allUsers} onRefresh={refresh} />
         )}
 
-        {/* Rooms Tab */}
-        {activeTab === 'rooms' && user.isAdmin && (
-          <AdminRoomsManagement
-            teams={allTeams}
-            roomNames={roomNames}
-            onAssignRoom={handleAssignRoomWithAlert}
-            onUpdateRoomName={handleUpdateRoomNameWithAlert}
-            onAddRoom={handleAddRoomWithAlert}
-            onDeleteRoom={handleDeleteRoomClick}
-          />
+        {/* Time Slots Tab */}
+        {activeTab === 'timeslots' && user.isAdmin && (
+          <AdminTimeSlotsManagement />
         )}
-
-        <ConfirmationModal
-          isOpen={deleteRoomModal.isOpen}
-          onClose={() => setDeleteRoomModal({ isOpen: false, roomNumber: null })}
-          onConfirm={confirmDeleteRoom}
-          title="Supprimer la salle ?"
-          message={`Êtes-vous sûr de vouloir supprimer la salle ${deleteRoomModal.roomNumber} ? Toutes les équipes assignées à cette salle seront désassignées. Cette action est irréversible.`}
-          confirmText="Supprimer"
-          isDanger={true}
-        />
 
         {/* Team Tab (default) */}
         {activeTab === 'team' && (
@@ -276,6 +238,17 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentPhoneNumber={user.phoneNumber || undefined}
+        onUpdate={(phoneNumber) => {
+          updateUser({ ...user, phoneNumber });
+          setProfileModalOpen(false);
+        }}
+      />
     </div>
   );
 }

@@ -1,15 +1,9 @@
 import { Response } from 'express';
-import { Team } from '../models/Team';
-import { User } from '../models/User';
-import { Registration, RegistrationStatus } from '../models/Registration';
 import { AuthRequest } from '../types';
-import { generateCode } from '../utils/crypto';
 import { logger } from '../utils/logger';
-import emailService from '../services/email.service';
-import { CTFdWebhookService } from '../services/ctfdWebhook.service';
+import teamService from '../services/team.service';
 
 export class TeamController {
-  // Créer une nouvelle équipe
   async createTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -17,84 +11,32 @@ export class TeamController {
         return;
       }
 
-      const { name } = req.body;
-      const userId = req.user.id;
+      const { name, timeSlotId } = req.body;
+      const result = await teamService.createTeam(req.user.id, name, timeSlotId);
 
-      const user = await User.findByPk(userId);
-      if (!user) {
-        res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
         return;
       }
-
-      if (!user.emailVerified) {
-        res.status(403).json({ success: false, message: 'Email non vérifié.' });
-        return;
-      }
-
-      if (user.teamId) {
-        res.status(400).json({ success: false, message: 'Vous faites déjà partie d\'une équipe.' });
-        return;
-      }
-
-      // Vérifier que le nom d'équipe est unique
-      const existingTeam = await Team.findOne({ where: { name } });
-      if (existingTeam) {
-        res.status(400).json({ success: false, message: 'Ce nom d\'équipe existe déjà.' });
-        return;
-      }
-
-      // Générer un code d'invitation unique
-      let inviteCode: string;
-      let codeExists = true;
-
-      while (codeExists) {
-        inviteCode = generateCode(6);
-        const teamWithCode = await Team.findOne({ where: { inviteCode } });
-        codeExists = !!teamWithCode;
-      }
-
-      const team = await Team.create({
-        name,
-        inviteCode: inviteCode!,
-        captainId: userId,
-        isComplete: false,
-      });
-
-      // Ajouter l'utilisateur à l'équipe
-      user.teamId = team.id;
-      await user.save();
-
-      // Mettre à jour l'inscription
-      await Registration.update(
-        { teamId: team.id, status: RegistrationStatus.TEAM_INCOMPLETE },
-        { where: { userId } }
-      );
-
-      logger.info(`Équipe créée: ${name} par ${user.email}`);
-
-      CTFdWebhookService.notifyTeamCreated(team.id).catch(err =>
-        logger.error('Webhook error:', err)
-      );
 
       res.status(201).json({
         success: true,
         message: 'Équipe créée avec succès !',
         data: {
           team: {
-            id: team.id,
-            name: team.name,
-            inviteCode: team.inviteCode,
-            captainId: team.captainId,
+            id: result.team!.id,
+            name: result.team!.name,
+            inviteCode: result.team!.inviteCode,
+            captainId: result.team!.captainId,
           },
         },
       });
     } catch (error) {
       logger.error('Create team error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de la création de l\'équipe.' });
+      res.status(500).json({ success: false, message: "Erreur lors de la création de l'équipe." });
     }
   }
 
-  // Rejoindre une équipe avec un code d'invitation
   async joinTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -103,105 +45,29 @@ export class TeamController {
       }
 
       const { inviteCode } = req.body;
-      const userId = req.user.id;
+      const result = await teamService.joinTeamByCode(req.user.id, inviteCode);
 
-      const user = await User.findByPk(userId);
-      if (!user) {
-        res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+      if (!result.success || !('team' in result) || !result.team) {
+        const errorMsg = 'error' in result ? result.error : 'Erreur inconnue';
+        res.status(400).json({ success: false, message: errorMsg });
         return;
       }
-
-      if (!user.emailVerified) {
-        res.status(403).json({ success: false, message: 'Email non vérifié.' });
-        return;
-      }
-
-      if (user.teamId) {
-        res.status(400).json({ success: false, message: 'Vous faites déjà partie d\'une équipe.' });
-        return;
-      }
-
-      const team = await Team.findOne({ where: { inviteCode } });
-      if (!team) {
-        res.status(404).json({ success: false, message: 'Code d\'invitation invalide.' });
-        return;
-      }
-
-      // Vérifier si l'équipe est pleine
-      const isFull = await team.isFull();
-      if (isFull) {
-        res.status(400).json({ success: false, message: 'Cette équipe est complète (5 membres max).' });
-        return;
-      }
-
-      // Ajouter l'utilisateur à l'équipe
-      user.teamId = team.id;
-      await user.save();
-
-      // Mettre à jour l'inscription
-      await Registration.update(
-        { teamId: team.id, status: RegistrationStatus.TEAM_INCOMPLETE },
-        { where: { userId } }
-      );
-
-      // Vérifier si l'équipe est maintenant complète
-      const memberCount = await team.getMemberCount();
-      if (memberCount >= 3 && memberCount <= 5) {
-        team.isComplete = memberCount >= 3;
-        await team.save();
-
-        if (team.isComplete) {
-          await Registration.update(
-            { status: RegistrationStatus.TEAM_COMPLETE },
-            { where: { teamId: team.id } }
-          );
-        }
-      }
-
-      // Envoyer email de bienvenue
-      await emailService.sendWelcomeEmail(user.email, user.firstName, team.name);
-
-      logger.info(`Utilisateur ${user.email} a rejoint l'équipe ${team.name}`);
-
-      CTFdWebhookService.notifyMemberAdded(team.id, user.id).catch(err =>
-        logger.error('Webhook error:', err)
-      );
 
       res.json({
         success: true,
-        message: 'Vous avez rejoint l\'équipe avec succès !',
-        data: {
-          team: {
-            id: team.id,
-            name: team.name,
-          },
-        },
+        message: "Vous avez rejoint l'équipe avec succès !",
+        data: { team: { id: result.team.id, name: result.team.name } },
       });
     } catch (error) {
       logger.error('Join team error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de la jonction à l\'équipe.' });
+      res.status(500).json({ success: false, message: "Erreur lors de la jonction à l'équipe." });
     }
   }
 
-  // Obtenir les détails d'une équipe
   async getTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-
-      const team = await Team.findByPk(id, {
-        include: [
-          {
-            model: User,
-            as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade'],
-          },
-          {
-            model: User,
-            as: 'captain',
-            attributes: ['id', 'firstName', 'lastName', 'email'],
-          },
-        ],
-      });
+      const team = await teamService.getTeamById(id);
 
       if (!team) {
         res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
@@ -229,11 +95,10 @@ export class TeamController {
       });
     } catch (error) {
       logger.error('Get team error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de la récupération de l\'équipe.' });
+      res.status(500).json({ success: false, message: "Erreur lors de la récupération de l'équipe." });
     }
   }
 
-  // Quitter une équipe
   async leaveTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -241,70 +106,23 @@ export class TeamController {
         return;
       }
 
-      const userId = req.user.id;
-      const user = await User.findByPk(userId);
+      const result = await teamService.leaveTeam(req.user.id);
 
-      if (!user || !user.teamId) {
-        res.status(400).json({ success: false, message: 'Vous ne faites pas partie d\'une équipe.' });
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
         return;
       }
 
-      const team = await Team.findByPk(user.teamId);
-      if (!team) {
-        logger.error(`Team ${user.teamId} not found during leave`);
-        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
-        return;
-      }
-
-      // Si c'est le capitaine, on supprime l'équipe
-      if (team.captainId === userId) {
-        await User.update({ teamId: null }, { where: { teamId: team.id } });
-        await Registration.update(
-          { teamId: null, status: RegistrationStatus.VERIFIED },
-          { where: { teamId: team.id } }
-        );
-        const deletedTeamId = team.id;
-        const deletedTeamName = team.name;
-        const deletedCtfdTeamId = team.ctfdTeamId;
-        await team.destroy();
-
-        logger.info(`Équipe ${deletedTeamName} supprimée par le capitaine`);
-
-        CTFdWebhookService.notifyTeamDeleted(deletedTeamId, deletedCtfdTeamId, deletedTeamName).catch(err =>
-          logger.error('Webhook error:', err)
-        );
-
-        res.json({ success: true, message: 'Équipe supprimée.' });
-      } else {
-        // Sinon on retire juste l'utilisateur
-        user.teamId = null;
-        await user.save();
-
-        await Registration.update(
-          { teamId: null, status: RegistrationStatus.VERIFIED },
-          { where: { userId } }
-        );
-
-        // Mettre à jour le statut de l'équipe
-        const memberCount = await team.getMemberCount();
-        team.isComplete = memberCount >= 3 && memberCount <= 5;
-        await team.save();
-
-        logger.info(`Utilisateur ${user.email} a quitté l'équipe ${team.name}`);
-
-        CTFdWebhookService.notifyMemberRemoved(team.id, user.id).catch(err =>
-          logger.error('Webhook error:', err)
-        );
-
-        res.json({ success: true, message: 'Vous avez quitté l\'équipe.' });
-      }
+      res.json({
+        success: true,
+        message: result.teamDeleted ? 'Équipe supprimée.' : "Vous avez quitté l'équipe.",
+      });
     } catch (error) {
       logger.error('Leave team error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors du départ de l\'équipe.' });
+      res.status(500).json({ success: false, message: "Erreur lors du départ de l'équipe." });
     }
   }
 
-  // Obtenir l'équipe de l'utilisateur connecté
   async getMyTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
@@ -312,30 +130,10 @@ export class TeamController {
         return;
       }
 
-      const user = await User.findByPk(req.user.id);
-      if (!user || !user.teamId) {
-        res.status(404).json({ success: false, message: 'Vous ne faites pas partie d\'une équipe.' });
-        return;
-      }
-
-      const team = await Team.findByPk(user.teamId, {
-        attributes: ['id', 'name', 'inviteCode', 'captainId', 'isComplete', 'roomNumber', 'sessionStartTime', 'currentScore', 'rank'],
-        include: [
-          {
-            model: User,
-            as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade', 'specialty'],
-          },
-          {
-            model: User,
-            as: 'captain',
-            attributes: ['id', 'firstName', 'lastName', 'email'],
-          },
-        ],
-      });
+      const team = await teamService.getTeamByUserId(req.user.id);
 
       if (!team) {
-        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+        res.status(404).json({ success: false, message: "Vous ne faites pas partie d'une équipe." });
         return;
       }
 
@@ -365,7 +163,79 @@ export class TeamController {
       res.status(500).json({ success: false, message: 'Erreur lors de la récupération de votre équipe.' });
     }
   }
+
+  async getAvailableTeams(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const slots = await teamService.getAvailableTeams();
+      res.json({ success: true, data: { slots } });
+    } catch (error) {
+      logger.error('Get available teams error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des équipes disponibles.' });
+    }
+  }
+
+  async joinAvailableTeam(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: 'Non authentifié.' });
+        return;
+      }
+
+      const { timeSlotId } = req.body;
+      const result = await teamService.joinAvailableTeamInSlot(req.user.id, timeSlotId);
+
+      if (!result.success || !('team' in result) || !result.team) {
+        const errorMsg = 'error' in result ? result.error : 'Erreur inconnue';
+        res.status(400).json({ success: false, message: errorMsg });
+        return;
+      }
+
+      const { team, timeSlot } = result;
+
+      res.json({
+        success: true,
+        message: 'Vous avez rejoint une équipe avec succès !',
+        data: {
+          team: {
+            id: team.id,
+            name: team.name,
+            timeSlot: timeSlot
+              ? { displayName: timeSlot.getDisplayName() }
+              : { displayName: 'Équipes sans créneau assigné' },
+          },
+        },
+      });
+    } catch (error) {
+      logger.error('Join available team error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la jonction à une équipe disponible.' });
+    }
+  }
+
+  async updateTeamTimeSlot(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: 'Non authentifié.' });
+        return;
+      }
+
+      const { timeSlotId } = req.body;
+      const result = await teamService.updateTimeSlot(req.user.id, timeSlotId);
+
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: timeSlotId ? 'Créneau horaire mis à jour avec succès.' : 'Créneau horaire retiré.',
+        data: { team: result.team },
+      });
+    } catch (error) {
+      logger.error('Update team time slot error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour du créneau horaire.' });
+    }
+  }
 }
 
 export default new TeamController();
-

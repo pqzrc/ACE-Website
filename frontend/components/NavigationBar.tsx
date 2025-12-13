@@ -32,8 +32,7 @@ export default function NavigationBar({
     { to: '/classement', label: 'Classement', isActive: pathname === '/classement' },
     { to: '/a-propos', label: 'À propos', isActive: pathname === '/a-propos' },
     ...(user ? [
-      { to: '/dashboard', label: 'Tableau de bord', isActive: pathname === '/dashboard' },
-      ...(user.isAdmin ? [{ to: '/admin', label: 'Admin', isActive: pathname === '/admin' }] : [])
+      { to: '/dashboard', label: 'Tableau de bord', isActive: pathname === '/dashboard' }
     ] : [])
   ];
 
@@ -51,7 +50,7 @@ export default function NavigationBar({
   const isHomePage = pathname === '/';
 
   return (
-    <header className={`${isHomePage ? 'absolute' : 'sticky'} top-0 left-0 right-0 z-50 ${isHomePage ? 'pt-6 md:pt-8' : 'py-6 md:py-8 bg-deep-navy/80 backdrop-blur-xl border-b border-white/10'}`}>
+    <header className={`${isHomePage ? 'absolute' : 'sticky'} top-0 left-0 right-0 z-50 ${isHomePage ? 'pt-6 md:pt-8' : 'py-6 md:py-8  '}`}>
       <div className="container px-4 mx-auto sm:px-6 lg:px-8">
         {/* Conteneur arrondi avec blur */}
         <div className={`${isHomePage ? 'rounded-3xl' : 'rounded-2xl'} px-6 py-4 md:px-8 md:py-5 backdrop-blur-xl bg-white/5 border border-white/20 shadow-glass`}>

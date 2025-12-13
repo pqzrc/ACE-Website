@@ -39,6 +39,7 @@ export default function FormField({
       <div className={`space-y-2 ${className}`}>
         <label className="text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">
           {label}
+          {required && <span className="text-neon-rose ml-1">*</span>}
         </label>
         <div className="relative group">
           {Icon && (
@@ -63,6 +64,7 @@ export default function FormField({
     <div className={`space-y-2 ${className}`}>
       <label className="text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">
         {label}
+        {required && <span className="text-neon-rose ml-1">*</span>}
       </label>
       <div className="relative group">
         {Icon && (

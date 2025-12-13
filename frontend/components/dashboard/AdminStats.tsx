@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Building2, Download } from 'lucide-react';
+import ExportCSVModal from './ExportCSVModal';
 
 interface Stats {
   overview: {
@@ -8,21 +10,22 @@ interface Stats {
     completeTeams: number;
     incompleteTeams: number;
   };
-  schoolDistribution: Array<{ school: string; count: number }>;
+  composanteDistribution: Array<{ composante: string; count: number }>;
 }
 
 interface AdminStatsProps {
   stats: Stats;
-  onExportCSV: () => void;
 }
 
-export default function AdminStats({ stats, onExportCSV }: AdminStatsProps) {
+export default function AdminStats({ stats }: AdminStatsProps) {
+  const [showExportModal, setShowExportModal] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="font-display text-2xl font-bold text-white">Statistiques Globales</h2>
         <button
-          onClick={onExportCSV}
+          onClick={() => setShowExportModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-neon-rose hover:bg-neon-rose/90 text-white font-medium rounded-xl transition-all"
         >
           <Download className="w-4 h-4" />
@@ -52,17 +55,23 @@ export default function AdminStats({ stats, onExportCSV }: AdminStatsProps) {
       <div className="glass-panel p-6 rounded-2xl border border-white/10">
         <h3 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-sky-aqua" />
-          Répartition par établissement
+          Répartition par composante
         </h3>
         <div className="space-y-2">
-          {stats.schoolDistribution.map((item) => (
-            <div key={item.school} className="flex justify-between items-center p-3 bg-surface rounded-lg">
-              <span className="text-gray-300">{item.school}</span>
+          {stats.composanteDistribution.map((item) => (
+            <div key={item.composante} className="flex justify-between items-center p-3 bg-surface rounded-lg">
+              <span className="text-gray-300">{item.composante}</span>
               <span className="font-bold text-white">{item.count}</span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Export CSV Modal */}
+      <ExportCSVModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+      />
     </div>
   );
 }

@@ -1,198 +1,83 @@
 import { Response } from 'express';
-import { Op } from 'sequelize';
 import { AuthRequest } from '../types';
-import { User } from '../models/User';
-import { Team } from '../models/Team';
-import { Registration, RegistrationStatus } from '../models/Registration';
 import { logger } from '../utils/logger';
+import {
+  adminStatsService,
+  adminExportService,
+  adminRoomService,
+  adminUserService,
+  adminTeamService,
+} from '../services/admin';
 
 export class AdminController {
-  // Statistiques globales
+  // Stats
   async getStats(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const totalRegistrations = await User.count();
-      const verifiedUsers = await User.count({ where: { emailVerified: true } });
-      const totalTeams = await Team.count();
-      const completeTeams = await Team.count({ where: { isComplete: true } });
-
-      // Répartition par établissement
-      const schoolDistribution = await User.findAll({
-        attributes: ['school', [User.sequelize!.fn('COUNT', 'id'), 'count']],
-        group: ['school'],
-        raw: true,
-      });
-
-      // Statut des inscriptions
-      const registrationStatus = await Registration.findAll({
-        attributes: ['status', [Registration.sequelize!.fn('COUNT', 'id'), 'count']],
-        group: ['status'],
-        raw: true,
-      });
-
-      // Répartition par salle
-      const roomDistribution = await Team.findAll({
-        attributes: ['roomNumber', [Team.sequelize!.fn('COUNT', 'id'), 'teamCount']],
-        where: { roomNumber: { [Op.not]: null } },
-        group: ['roomNumber'],
-        raw: true,
-      });
-
-      res.json({
-        success: true,
-        data: {
-          overview: {
-            totalRegistrations,
-            verifiedUsers,
-            totalTeams,
-            completeTeams,
-            incompleteTeams: totalTeams - completeTeams,
-          },
-          schoolDistribution,
-          registrationStatus,
-          roomDistribution,
-        },
-      });
+      const data = await adminStatsService.getStats();
+      res.json({ success: true, data });
     } catch (error) {
       logger.error('Get stats error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la récupération des statistiques.' });
     }
   }
 
-  // Liste de toutes les inscriptions
   async getRegistrations(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { status, school, hasTeam } = req.query;
-
-      const where: any = {};
-      if (status) where.status = status;
-
-      const registrations = await Registration.findAll({
-        where,
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'emailVerified'],
-            where: school ? { school } : undefined,
-          },
-          {
-            model: Team,
-            as: 'team',
-            required: hasTeam === 'true',
-          },
-        ],
-        order: [['createdAt', 'DESC']],
-      });
-
-      res.json({
-        success: true,
-        data: { registrations, count: registrations.length },
-      });
+      const { status, composante, hasTeam } = req.query as Record<string, string>;
+      const registrations = await adminStatsService.getRegistrations({ status, composante, hasTeam });
+      res.json({ success: true, data: { registrations, count: registrations.length } });
     } catch (error) {
       logger.error('Get registrations error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la récupération des inscriptions.' });
     }
   }
 
-  // Export CSV
+  async getScores(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const teams = await adminStatsService.getScores();
+      res.json({ success: true, data: { teams } });
+    } catch (error) {
+      logger.error('Get scores error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des scores.' });
+    }
+  }
+
+  // Export
   async exportCSV(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const registrations = await Registration.findAll({
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'emailVerified'],
-          },
-          {
-            model: Team,
-            as: 'team',
-            attributes: ['name', 'roomNumber'],
-          },
-        ],
-      });
-
-      // Générer CSV
-      const csvHeader = 'Prénom,Nom,Email,Lycée,Classe,Spécialité,Email Vérifié,Équipe,Salle,Statut\n';
-      const csvRows = registrations.map((reg: any) => {
-        const user = reg.user;
-        const team = reg.team;
-        return [
-          user.firstName,
-          user.lastName,
-          user.email,
-          user.school,
-          user.grade,
-          user.specialty,
-          user.emailVerified ? 'Oui' : 'Non',
-          team?.name || 'Aucune',
-          team?.roomNumber || '',
-          reg.status,
-        ].join(',');
-      }).join('\n');
-
-      const csv = csvHeader + csvRows;
-
+      const csv = await adminExportService.exportSimpleCSV();
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename=inscriptions-ace.csv');
       res.send(csv);
     } catch (error) {
       logger.error('Export CSV error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de l\'export CSV.' });
+      res.status(500).json({ success: false, message: "Erreur lors de l'export CSV." });
     }
   }
 
-  // Assigner des équipes aux salles
-  async assignRooms(req: AuthRequest, res: Response): Promise<void> {
+  async exportCustomCSV(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { assignments } = req.body; // [{ teamId, roomNumber }]
-
-      for (const assignment of assignments) {
-        await Team.update(
-          { roomNumber: assignment.roomNumber === 0 ? null : assignment.roomNumber },
-          { where: { id: assignment.teamId } }
-        );
-      }
-
-      logger.info(`Rooms assigned: ${assignments.length} teams`);
-
-      res.json({
-        success: true,
-        message: 'Salles assignées avec succès.',
-      });
-    } catch (error) {
-      logger.error('Assign rooms error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de l\'assignation des salles.' });
-    }
-  }
-
-  // Gestion des noms de salles
-  async getRoomNames(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const roomsFile = path.join(__dirname, '../../data/rooms.json');
-
-      if (!fs.existsSync(roomsFile)) {
-        // Créer le dossier data s'il n'existe pas
-        const dataDir = path.dirname(roomsFile);
-        if (!fs.existsSync(dataDir)) {
-          fs.mkdirSync(dataDir, { recursive: true });
-        }
-        // Initialiser avec 4 salles par défaut pour la rétrocompatibilité
-        const defaultRooms = {
-          "1": "Salle 1",
-          "2": "Salle 2",
-          "3": "Salle 3",
-          "4": "Salle 4"
-        };
-        fs.writeFileSync(roomsFile, JSON.stringify(defaultRooms, null, 2));
-        res.json({ success: true, data: defaultRooms });
+      const { fields } = req.body;
+      if (!fields || !Array.isArray(fields) || fields.length === 0) {
+        res.status(400).json({ success: false, message: 'Champs requis non fournis.' });
         return;
       }
 
-      const data = fs.readFileSync(roomsFile, 'utf8');
-      res.json({ success: true, data: JSON.parse(data) });
+      const csv = await adminExportService.exportCustomCSV(fields);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="inscriptions-ace-custom.csv"');
+      res.send(csv);
+    } catch (error) {
+      logger.error('Export custom CSV error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de l'export CSV personnalisé." });
+    }
+  }
+
+  // Rooms
+  async getRoomNames(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const data = await adminRoomService.getRoomNames();
+      res.json({ success: true, data });
     } catch (error) {
       logger.error('Get room names error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la récupération des noms de salles.' });
@@ -202,30 +87,11 @@ export class AdminController {
   async updateRoomName(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { roomNumber, name } = req.body;
-
       if (!roomNumber || !name) {
         res.status(400).json({ success: false, message: 'Numéro de salle et nom requis.' });
         return;
       }
-
-      const fs = require('fs');
-      const path = require('path');
-      const roomsFile = path.join(__dirname, '../../data/rooms.json');
-
-      // Créer le dossier data s'il n'existe pas
-      const dataDir = path.dirname(roomsFile);
-      if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
-      }
-
-      let rooms = {};
-      if (fs.existsSync(roomsFile)) {
-        rooms = JSON.parse(fs.readFileSync(roomsFile, 'utf8'));
-      }
-
-      rooms[roomNumber] = name;
-      fs.writeFileSync(roomsFile, JSON.stringify(rooms, null, 2));
-
+      await adminRoomService.updateRoomName(roomNumber, name);
       res.json({ success: true, message: 'Nom de salle mis à jour.' });
     } catch (error) {
       logger.error('Update room name error:', error);
@@ -235,60 +101,22 @@ export class AdminController {
 
   async addRoom(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const fs = require('fs');
-      const path = require('path');
-      const roomsFile = path.join(__dirname, '../../data/rooms.json');
-
-      let rooms: Record<string, string> = {};
-      if (fs.existsSync(roomsFile)) {
-        rooms = JSON.parse(fs.readFileSync(roomsFile, 'utf8'));
-      }
-
-      // Trouver le prochain ID disponible
-      const existingIds = Object.keys(rooms).map(Number);
-      const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
-
-      rooms[nextId.toString()] = `Salle ${nextId}`;
-      fs.writeFileSync(roomsFile, JSON.stringify(rooms, null, 2));
-
-      res.json({ success: true, message: 'Salle ajoutée.', data: { id: nextId, name: rooms[nextId.toString()] } });
+      const data = await adminRoomService.addRoom();
+      res.json({ success: true, message: 'Salle ajoutée.', data });
     } catch (error) {
       logger.error('Add room error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de l\'ajout de la salle.' });
+      res.status(500).json({ success: false, message: "Erreur lors de l'ajout de la salle." });
     }
   }
 
   async deleteRoom(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { roomNumber } = req.params;
-      const roomNum = parseInt(roomNumber);
-
-      const fs = require('fs');
-      const path = require('path');
-      const roomsFile = path.join(__dirname, '../../data/rooms.json');
-
-      if (!fs.existsSync(roomsFile)) {
-        res.status(404).json({ success: false, message: 'Aucune salle trouvée.' });
-        return;
-      }
-
-      let rooms = JSON.parse(fs.readFileSync(roomsFile, 'utf8'));
-
-      if (!rooms[roomNumber]) {
+      const deleted = await adminRoomService.deleteRoom(roomNumber);
+      if (!deleted) {
         res.status(404).json({ success: false, message: 'Salle non trouvée.' });
         return;
       }
-
-      // Supprimer la salle du fichier
-      delete rooms[roomNumber];
-      fs.writeFileSync(roomsFile, JSON.stringify(rooms, null, 2));
-
-      // Désassigner les équipes de cette salle
-      await Team.update(
-        { roomNumber: null },
-        { where: { roomNumber: roomNum } }
-      );
-
       res.json({ success: true, message: 'Salle supprimée et équipes désassignées.' });
     } catch (error) {
       logger.error('Delete room error:', error);
@@ -296,144 +124,145 @@ export class AdminController {
     }
   }
 
-  // Démarrer une session (OBSOLÈTE)
-  async startSession(req: AuthRequest, res: Response): Promise<void> {
-    res.json({ success: true, message: 'Fonctionnalité désactivée.' });
-  }
-
-  // Arrêter une session (OBSOLÈTE)
-  async stopSession(req: AuthRequest, res: Response): Promise<void> {
-    res.json({ success: true, message: 'Fonctionnalité désactivée.' });
-  }
-
-  // Liste de toutes les équipes
-  async getAllTeams(req: AuthRequest, res: Response): Promise<void> {
+  async assignRooms(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { complete, roomNumber } = req.query;
-
-      const where: any = {};
-      if (complete !== undefined) where.isComplete = complete === 'true';
-      if (roomNumber) where.roomNumber = parseInt(roomNumber as string);
-
-      const teams = await Team.findAll({
-        where,
-        include: [
-          {
-            model: User,
-            as: 'members',
-            attributes: ['id', 'firstName', 'lastName', 'email', 'school'],
-          },
-          {
-            model: User,
-            as: 'captain',
-            attributes: ['id', 'firstName', 'lastName', 'email'],
-          },
-        ],
-        order: [['createdAt', 'DESC']],
-      });
-
-      // Ajouter le nombre de membres à chaque équipe
-      const teamsWithCount = await Promise.all(
-        teams.map(async (team) => ({
-          ...team.toJSON(),
-          memberCount: await team.getMemberCount(),
-        }))
-      );
-
-      res.json({
-        success: true,
-        data: { teams: teamsWithCount, count: teams.length },
-      });
+      const { assignments } = req.body;
+      await adminRoomService.assignRooms(assignments);
+      logger.info(`Rooms assigned: ${assignments.length} teams`);
+      res.json({ success: true, message: 'Salles assignées avec succès.' });
     } catch (error) {
-      logger.error('Get all teams error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des équipes.' });
+      logger.error('Assign rooms error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de l'assignation des salles." });
     }
   }
 
-  // Obtenir les scores de toutes les équipes
-  async getScores(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      const teams = await Team.findAll({
-        attributes: ['id', 'name', 'currentScore', 'rank', 'roomNumber'],
-        order: [['currentScore', 'DESC']],
-      });
-
-      res.json({
-        success: true,
-        data: { teams },
-      });
-    } catch (error) {
-      logger.error('Get scores error:', error);
-      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des scores.' });
-    }
-  }
-
-  // Mettre à jour un utilisateur (admin uniquement)
+  // Users
   async updateUser(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
-      const updates = req.body;
-
-      const user = await User.findByPk(userId);
+      const user = await adminUserService.updateUser(userId, req.body);
       if (!user) {
         res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
         return;
       }
-
-      // Sécurité : Filtrer les champs autorisés (Mass Assignment Protection)
-      const allowedFields = ['firstName', 'lastName', 'email', 'school', 'grade', 'specialty', 'isAdmin', 'emailVerified'];
-      const filteredUpdates = Object.keys(updates)
-        .filter(key => allowedFields.includes(key))
-        .reduce((obj: any, key) => {
-          obj[key] = updates[key];
-          return obj;
-        }, {});
-
-      await user.update(filteredUpdates);
-
-      logger.info(`User ${userId} updated by admin`);
-
-      res.json({
-        success: true,
-        message: 'Utilisateur mis à jour.',
-        data: { user },
-      });
+      res.json({ success: true, message: 'Utilisateur mis à jour.', data: { user } });
     } catch (error) {
       logger.error('Update user error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour.' });
     }
   }
 
-  // Supprimer une équipe (admin uniquement)
+  async deleteUser(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { userId } = req.params;
+      const result = await adminUserService.deleteUser(userId);
+      if (!result.success) {
+        res.status(404).json({ success: false, message: result.error });
+        return;
+      }
+      res.json({ success: true, message: 'Utilisateur supprimé avec succès.' });
+    } catch (error) {
+      logger.error('Delete user error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de la suppression de l'utilisateur." });
+    }
+  }
+
+  // Teams
+  async getAllTeams(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { complete, roomNumber } = req.query as Record<string, string>;
+      const teams = await adminTeamService.getAllTeams({ complete, roomNumber });
+      res.json({ success: true, data: { teams, count: teams.length } });
+    } catch (error) {
+      logger.error('Get all teams error:', error);
+      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des équipes.' });
+    }
+  }
+
   async deleteTeam(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { teamId } = req.params;
-
-      const team = await Team.findByPk(teamId);
-      if (!team) {
-        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+      const result = await adminTeamService.deleteTeam(teamId);
+      if (!result.success) {
+        res.status(404).json({ success: false, message: result.error });
         return;
       }
-
-      // Retirer tous les membres de l'équipe
-      await User.update({ teamId: null }, { where: { teamId } });
-      await Registration.update(
-        { teamId: null, status: RegistrationStatus.VERIFIED },
-        { where: { teamId } }
-      );
-
-      await team.destroy();
-
-      logger.info(`Team ${teamId} deleted by admin`);
-
-      res.json({
-        success: true,
-        message: 'Équipe supprimée.',
-      });
+      res.json({ success: true, message: 'Équipe supprimée.' });
     } catch (error) {
       logger.error('Delete team error:', error);
       res.status(500).json({ success: false, message: 'Erreur lors de la suppression.' });
     }
+  }
+
+  async createTeamWithCaptain(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const result = await adminTeamService.createTeamWithCaptain(req.body);
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
+        return;
+      }
+      res.json({ success: true, message: 'Équipe créée avec succès.', data: { team: result.team, captain: result.captain } });
+    } catch (error) {
+      logger.error('Create team with captain error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de la création de l'équipe." });
+    }
+  }
+
+  async addMemberToTeam(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const result = await adminTeamService.addMemberToTeam(req.body);
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
+        return;
+      }
+      res.json({ success: true, message: "Membre ajouté à l'équipe avec succès.", data: { user: result.user, team: result.team } });
+    } catch (error) {
+      logger.error('Add member to team error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de l'ajout du membre." });
+    }
+  }
+
+  async updateTeam(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { teamId } = req.params;
+      const team = await adminTeamService.updateTeam(teamId, req.body);
+      if (!team) {
+        res.status(404).json({ success: false, message: 'Équipe non trouvée.' });
+        return;
+      }
+      res.json({ success: true, message: 'Équipe mise à jour avec succès.', data: team });
+    } catch (error) {
+      logger.error('Update team error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de la mise à jour de l'équipe." });
+    }
+  }
+
+  async assignTeamTimeSlot(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { teamId, timeSlotId } = req.body;
+      const result = await adminTeamService.assignTimeSlot(teamId, timeSlotId);
+      if (!result.success) {
+        res.status(400).json({ success: false, message: result.error });
+        return;
+      }
+      res.json({
+        success: true,
+        message: timeSlotId ? 'Créneau horaire assigné avec succès.' : 'Créneau horaire retiré.',
+        data: { team: result.team },
+      });
+    } catch (error) {
+      logger.error('Assign team time slot error:', error);
+      res.status(500).json({ success: false, message: "Erreur lors de l'assignation du créneau horaire." });
+    }
+  }
+
+  // Obsolète
+  async startSession(_req: AuthRequest, res: Response): Promise<void> {
+    res.json({ success: true, message: 'Fonctionnalité désactivée.' });
+  }
+
+  async stopSession(_req: AuthRequest, res: Response): Promise<void> {
+    res.json({ success: true, message: 'Fonctionnalité désactivée.' });
   }
 }
 

@@ -18,7 +18,7 @@ export const validate = (schema: ZodSchema) => {
 
         res.status(400).json({
           success: false,
-          message: 'Validation error',
+          message: 'Les informations fournies sont invalides. Veuillez vérifier vos données.',
           errors,
         });
         return;

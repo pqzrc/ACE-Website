@@ -82,6 +82,20 @@ class CTFdService {
     }
   }
 
+  // Supprimer un utilisateur dans CTFd
+  async deleteUser(ctfdUserId: number): Promise<boolean> {
+    if (!this.isEnabled) return false;
+
+    try {
+      await this.client.delete(`/api/v1/users/${ctfdUserId}`);
+      logger.info(`CTFd user ${ctfdUserId} deleted`);
+      return true;
+    } catch (error: any) {
+      logger.error('Failed to delete CTFd user:', error.response?.data || error.message);
+      return false;
+    }
+  }
+
   // Récupérer le scoreboard
   async getScoreboard(): Promise<CTFdScore[]> {
     if (!this.isEnabled) return [];
@@ -160,6 +174,110 @@ class CTFdService {
       logger.info('Scores synchronized from CTFd');
     } catch (error) {
       logger.error('Failed to sync scores:', error);
+    }
+  }
+
+  /**
+   * Synchroniser toutes les équipes vers CTFd
+   */
+  async syncTeams(): Promise<any> {
+    if (!this.isEnabled) {
+      throw new Error('CTFd integration is not enabled');
+    }
+
+    try {
+      const { Team } = require('../models/Team');
+      const { User } = require('../models/User');
+
+      const teams = await Team.findAll();
+
+      const results = {
+        success: 0,
+        failed: 0,
+        teams: [] as any[],
+      };
+
+      for (const team of teams) {
+        try {
+          // Charger le capitaine
+          const captain = await User.findByPk(team.captainId);
+
+          // Créer ou mettre à jour le capitaine dans CTFd
+          let captainId = captain?.ctfdUserId;
+          if (!captainId && captain) {
+            const ctfdUser = await this.createUser(
+              captain.username,
+              captain.email,
+              'ChangeMe123!'
+            );
+            if (ctfdUser) {
+              captainId = ctfdUser.id;
+              await captain.update({ ctfdUserId: captainId });
+            }
+          }
+
+          // Créer l'équipe si elle n'existe pas
+          let teamId = team.ctfdTeamId;
+          if (!teamId && captainId) {
+            const ctfdTeam = await this.createTeam(
+              team.name,
+              'TeamPassword123!',
+              captainId
+            );
+            if (ctfdTeam) {
+              teamId = ctfdTeam.id;
+              await team.update({ ctfdTeamId: teamId });
+            }
+          }
+
+          // Charger et ajouter les membres
+          if (teamId) {
+            const members = await User.findAll({
+              where: { teamId: team.id },
+            });
+
+            for (const user of members) {
+              // Skip captain (already added)
+              if (user.id === team.captainId) continue;
+
+              if (!user.ctfdUserId) {
+                const ctfdUser = await this.createUser(
+                  user.username,
+                  user.email,
+                  'ChangeMe123!'
+                );
+                if (ctfdUser) {
+                  await user.update({ ctfdUserId: ctfdUser.id });
+                  await this.addUserToTeam(ctfdUser.id, teamId);
+                }
+              } else {
+                await this.addUserToTeam(user.ctfdUserId, teamId);
+              }
+            }
+          }
+
+          results.success++;
+          results.teams.push({
+            name: team.name,
+            ctfdTeamId: teamId,
+            status: 'synced',
+          });
+        } catch (error: any) {
+          results.failed++;
+          results.teams.push({
+            name: team.name,
+            status: 'failed',
+            error: error.message,
+          });
+          logger.error(`Failed to sync team ${team.name}:`, error);
+        }
+      }
+
+      logger.info(`Teams sync completed: ${results.success} success, ${results.failed} failed`);
+      return results;
+    } catch (error) {
+      logger.error('Failed to sync teams:', error);
+      throw error;
     }
   }
 

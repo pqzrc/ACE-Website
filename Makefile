@@ -1,164 +1,287 @@
-.PHONY: help setup start stop restart logs logs-backend logs-frontend logs-all status build rebuild clean fresh shell-backend shell-frontend shell-db test test-captcha test-all db-reset db-migrate db-seed
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell db-backup db-list-users db-list-teams db-stats deploy pull push
 
-# Variables
+# ACE Website - Makefile (Production)
+# Usage: make <commande>
+
 DOCKER_COMPOSE = docker compose
 
 help: ## Afficher l'aide
-	@echo "Commandes disponibles pour ACE Website:"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo "ACE Website - Commandes disponibles (Production)"
+	@echo "================================================"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
 
-setup: ## Creer le fichier .env depuis .env.example
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo "Fichier .env cree"; \
-		echo "Editez .env avec vos valeurs (JWT_SECRET, passwords, etc.)"; \
-	else \
-		echo ".env existe deja"; \
-	fi
+# --- Commandes de base ---
 
-start: ## Demarrer tous les services
-	@echo "Demarrage du site ACE..."
+start: ## Démarrer tous les services (production)
+	@echo "Démarrage du site ACE (production)..."
 	$(DOCKER_COMPOSE) up -d
 	@echo ""
-	@echo "Site ACE demarre"
+	@echo "Services démarrés:"
 	@echo "  Frontend:  http://localhost:3000"
 	@echo "  Backend:   http://localhost:5000"
-	@echo "  MailHog:   http://localhost:8025"
-	@echo "  Postgres:  localhost:5433"
+	@echo "  Nginx:     http://localhost:8080"
+	@echo ""
+	@echo "Voir les logs: make logs"
 
-stop: ## Arreter tous les services
+stop: ## Arrêter tous les services
 	$(DOCKER_COMPOSE) down
-	@echo "Services arretes"
+	@echo "Services arrêtés"
 
-restart: ## Redemarrer tous les services
+restart: ## Redémarrer tous les services
 	$(DOCKER_COMPOSE) restart
-	@echo "Services redemarres"
+	@echo "Services redémarrés"
 
-logs: logs-backend ## Afficher les logs du backend (alias)
+restart-backend: ## Redémarrer le backend uniquement
+	$(DOCKER_COMPOSE) restart backend
+	@echo "Backend redémarré"
 
-logs-backend: ## Afficher les logs du backend
+restart-frontend: ## Redémarrer le frontend uniquement
+	$(DOCKER_COMPOSE) restart frontend
+	@echo "Frontend redémarré"
+
+# --- Build & Rebuild ---
+
+rebuild: ## Rebuild complet et redémarrage
+	@echo "Reconstruction et redémarrage..."
+	$(DOCKER_COMPOSE) up -d --build
+	@echo "Rebuild terminé"
+
+rebuild-backend: ## Rebuild le backend uniquement
+	$(DOCKER_COMPOSE) up -d --build backend
+	@echo "Backend reconstruit"
+
+rebuild-frontend: ## Rebuild le frontend uniquement
+	$(DOCKER_COMPOSE) up -d --build frontend
+	@echo "Frontend reconstruit"
+
+# --- Logs ---
+
+logs: logs-backend ## Logs du backend (par défaut)
+
+logs-backend: ## Logs du backend en temps réel
 	$(DOCKER_COMPOSE) logs -f --tail=100 backend
 
-logs-frontend: ## Afficher les logs du frontend
+logs-frontend: ## Logs du frontend en temps réel
 	$(DOCKER_COMPOSE) logs -f --tail=100 frontend
 
-logs-all: ## Afficher tous les logs
+logs-db: ## Logs de la base de données
+	$(DOCKER_COMPOSE) logs -f --tail=100 postgres
+
+logs-all: ## Tous les logs en temps réel
 	$(DOCKER_COMPOSE) logs -f --tail=50
 
-status: ## Afficher l'etat des services
-	@echo "Etat des services:"
-	@$(DOCKER_COMPOSE) ps
+logs-errors: ## Afficher seulement les erreurs
+	$(DOCKER_COMPOSE) logs --tail=500 | grep -i error
 
-build: ## Reconstruire les images
-	@echo "Reconstruction des images..."
-	$(DOCKER_COMPOSE) build
-	@echo "Images reconstruites"
+# --- Base de données ---
 
-rebuild: ## Reconstruire et redemarrer les services
-	@echo "Reconstruction et redemarrage..."
-	$(DOCKER_COMPOSE) up -d --build
-	@echo "Services reconstruits et redemarres"
-
-rebuild-backend: ## Reconstruire uniquement le backend
-	@echo "Reconstruction du backend..."
-	$(DOCKER_COMPOSE) up -d --build backend
-	@echo "Backend reconstruit et redemarre"
-
-rebuild-frontend: ## Reconstruire uniquement le frontend
-	@echo "Reconstruction du frontend..."
-	$(DOCKER_COMPOSE) up -d --build frontend
-	@echo "Frontend reconstruit et redemarre"
-
-shell-backend: ## Ouvrir un shell dans le conteneur backend
-	$(DOCKER_COMPOSE) exec backend /bin/sh
-
-shell-frontend: ## Ouvrir un shell dans le conteneur frontend
-	$(DOCKER_COMPOSE) exec frontend /bin/sh
-
-shell-db: ## Ouvrir psql dans le conteneur postgres
+db-shell: ## Ouvrir un shell PostgreSQL
 	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb
 
-test: ## Tester l'acces aux services
-	@echo "Test des services..."
-	@curl -s http://localhost:5000/health > /dev/null && echo "✅ Backend accessible" || echo "❌ Backend inaccessible"
-	@curl -s http://localhost:3000 > /dev/null && echo "✅ Frontend accessible" || echo "❌ Frontend inaccessible"
-	@curl -s http://localhost:8025 > /dev/null && echo "✅ MailHog accessible" || echo "❌ MailHog inaccessible"
-
-test-captcha: ## Tester la securite hCaptcha (protection anti-spam)
-	@echo "Lancement des tests de securite hCaptcha..."
-	@echo "Assurez-vous que le backend est demarre (make start)"
-	@echo ""
-	cd backend && npx tsx tests/captcha-security.test.ts
-
-test-all: test test-captcha ## Lancer tous les tests (services + CAPTCHA)
-
-db-reset: ## Reinitialiser la base de donnees (perte de donnees)
-	@echo "ATTENTION: Reinitialisation de la base de donnees !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
+db-reset: ## Réinitialiser la base (PERTE DE DONNÉES)
+	@echo "ATTENTION: Réinitialisation de la base de données"
+	@echo "Cette action va SUPPRIMER toutes les données."
+	@read -p "Confirmer (yes/no): " confirm; \
 	if [ "$$confirm" = "yes" ]; then \
-		echo "Arret du backend..."; \
+		echo "Arrêt du backend..."; \
 		$(DOCKER_COMPOSE) stop backend; \
 		echo "Suppression de la base..."; \
 		$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d postgres -c "DROP DATABASE IF EXISTS acedb;"; \
 		$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d postgres -c "CREATE DATABASE acedb;"; \
-		echo "Redemarrage du backend..."; \
+		echo "Redémarrage du backend..."; \
 		$(DOCKER_COMPOSE) start backend; \
-		echo "Base de donnees reinitialisee"; \
+		sleep 5; \
+		echo "Base réinitialisée - Admin créé automatiquement"; \
 	else \
-		echo "Annule"; \
+		echo "Annulé"; \
 	fi
 
-db-migrate: ## Executer les migrations de la base de donnees
-	$(DOCKER_COMPOSE) exec backend npm run db:migrate
+db-backup: ## Backup de la base de données
+	@echo "Création d'un backup..."
+	@mkdir -p ./backups
+	@TIMESTAMP=$$(date +%Y%m%d_%H%M%S); \
+	$(DOCKER_COMPOSE) exec -T postgres pg_dump -U aceuser acedb > ./backups/acedb_$$TIMESTAMP.sql; \
+	echo "Backup créé: ./backups/acedb_$$TIMESTAMP.sql"
 
-db-seed: ## Executer les seeders (donnees initiales)
-	$(DOCKER_COMPOSE) exec backend npm run db:seed
+db-restore: ## Restaurer un backup (spécifier FILE=backup.sql)
+	@if [ -z "$(FILE)" ]; then \
+		echo "Erreur: spécifiez FILE=backup.sql"; \
+		echo "Exemple: make db-restore FILE=./backups/acedb_20250101_120000.sql"; \
+		exit 1; \
+	fi
+	@echo "ATTENTION: Restauration du backup $(FILE)"
+	@read -p "Confirmer (yes/no): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		echo "Arrêt du backend..."; \
+		$(DOCKER_COMPOSE) stop backend; \
+		echo "Suppression de la base..."; \
+		$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d postgres -c "DROP DATABASE IF EXISTS acedb;"; \
+		$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d postgres -c "CREATE DATABASE acedb;"; \
+		echo "Restauration du backup..."; \
+		cat $(FILE) | $(DOCKER_COMPOSE) exec -T postgres psql -U aceuser -d acedb; \
+		echo "Redémarrage du backend..."; \
+		$(DOCKER_COMPOSE) start backend; \
+		echo "Backup restauré"; \
+	else \
+		echo "Annulé"; \
+	fi
 
-clean: ## Supprimer tous les conteneurs et volumes (perte de donnees)
-	@echo "ATTENTION: Suppression de toutes les donnees !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
+db-list-tables: ## Lister les tables
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "\dt"
+
+db-count-users: ## Compter les utilisateurs
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_users FROM users;"
+
+db-count-teams: ## Compter les équipes
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_teams FROM teams;"
+
+db-list-users: ## Lister tous les utilisateurs (id, email, username, nom)
+	@echo "Liste complète des utilisateurs:"
+	@echo "================================"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT id, email, username, \"firstName\", \"lastName\", \"emailVerified\", \"isAdmin\", \"createdAt\" FROM users ORDER BY \"createdAt\" DESC;"
+
+db-list-teams: ## Lister toutes les équipes avec membres
+	@echo "Liste des équipes:"
+	@echo "=================="
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT t.id, t.name, t.\"currentScore\", t.rank, COUNT(u.id) as membres FROM teams t LEFT JOIN users u ON u.\"teamId\" = t.id GROUP BY t.id ORDER BY t.\"currentScore\" DESC;"
+
+db-search-user: ## Rechercher un utilisateur (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-search-user EMAIL=test@example.com"; \
+		exit 1; \
+	fi
+	@echo "Recherche de l'utilisateur: $(EMAIL)"
+	@echo "===================================="
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT * FROM users WHERE email ILIKE '%$(EMAIL)%';"
+
+db-stats: ## Statistiques complètes de la base
+	@echo "Statistiques de la base de données"
+	@echo "==================================="
+	@echo ""
+	@echo "Utilisateurs:"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total, COUNT(CASE WHEN \"emailVerified\" = true THEN 1 END) as verified, COUNT(CASE WHEN \"isAdmin\" = true THEN 1 END) as admins, COUNT(CASE WHEN \"teamId\" IS NOT NULL THEN 1 END) as in_teams FROM users;" -t
+	@echo ""
+	@echo "Équipes:"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_teams, AVG(member_count) as avg_members FROM (SELECT COUNT(u.id) as member_count FROM teams t LEFT JOIN users u ON u.\"teamId\" = t.id GROUP BY t.id) as team_stats;" -t
+
+db-make-admin: ## Rendre un utilisateur admin (EMAIL=email@example.com)
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "Erreur: spécifiez EMAIL=email@example.com"; \
+		echo "Exemple: make db-make-admin EMAIL=admin@example.com"; \
+		exit 1; \
+	fi
+	@echo "Promotion de $(EMAIL) en admin"
+	$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "UPDATE users SET \"isAdmin\" = true WHERE email = '$(EMAIL)';"
+	@echo "Utilisateur promu admin"
+
+# --- Nettoyage ---
+
+clean: ## Supprimer conteneurs et volumes (PERTE DE DONNÉES)
+	@echo "ATTENTION: Suppression de TOUTES les données"
+	@read -p "Confirmer (yes/no): " confirm; \
 	if [ "$$confirm" = "yes" ]; then \
 		$(DOCKER_COMPOSE) down -v --remove-orphans; \
 		docker volume rm -f ace-website_postgres_data ace-website_redis_data 2>/dev/null || true; \
-		echo "Nettoyage termine"; \
+		echo "Nettoyage terminé"; \
 	else \
-		echo "Annule"; \
+		echo "Annulé"; \
 	fi
 
-fresh: ## Nettoyage complet + rebuild + redemarrage
-	@echo "ATTENTION: Fresh start - Suppression totale des donnees !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
+fresh: ## Fresh start complet (PERTE TOTALE)
+	@echo "ATTENTION: Fresh start - Suppression TOTALE des données"
+	@read -p "Confirmer (yes/no): " confirm; \
 	if [ "$$confirm" = "yes" ]; then \
-		echo "Arret des conteneurs..."; \
+		echo "Arrêt des conteneurs..."; \
 		$(DOCKER_COMPOSE) down -v --remove-orphans 2>/dev/null || true; \
 		echo "Suppression des volumes..."; \
 		docker volume rm -f ace-website_postgres_data ace-website_redis_data 2>/dev/null || true; \
-		echo "Verification..."; \
 		sleep 2; \
-		echo "Reconstruction des images..."; \
+		echo "Reconstruction sans cache..."; \
 		$(DOCKER_COMPOSE) build --no-cache; \
-		echo "Demarrage..."; \
+		echo "Démarrage..."; \
 		$(DOCKER_COMPOSE) up -d; \
 		echo ""; \
-		echo "Fresh start termine !"; \
+		echo "Fresh start terminé"; \
 		echo "  Frontend: http://localhost:3000"; \
 		echo "  Backend:  http://localhost:5000"; \
-		echo "  Logs:     make logs"; \
+		echo "  Nginx:    http://localhost:8080"; \
 		echo ""; \
-		echo "Attendez 30 secondes pour l'initialisation complete"; \
+		echo "Attendez 30 secondes pour l'initialisation"; \
 	else \
-		echo "Annule"; \
+		echo "Annulé"; \
 	fi
 
-install-backend: ## Installer les dependances backend
-	$(DOCKER_COMPOSE) exec backend npm install
+# --- Debug & Info ---
 
-install-frontend: ## Installer les dependances frontend
-	$(DOCKER_COMPOSE) exec frontend npm install
+status: ## État des services
+	@echo "État des services:"
+	@$(DOCKER_COMPOSE) ps
 
-lint-backend: ## Linter le code backend
-	$(DOCKER_COMPOSE) exec backend npm run lint
+test: ## Tester l'accès aux services
+	@echo "Test des services..."
+	@curl -s http://localhost:5000/health > /dev/null && echo "  Backend: OK" || echo "  Backend: FAIL"
+	@curl -s http://localhost:3000 > /dev/null && echo "  Frontend: OK" || echo "  Frontend: FAIL"
+	@curl -s http://localhost:8080 > /dev/null && echo "  Nginx: OK" || echo "  Nginx: FAIL"
 
-lint-frontend: ## Linter le code frontend
-	$(DOCKER_COMPOSE) exec frontend npm run lint
+shell-backend: ## Shell dans le conteneur backend
+	$(DOCKER_COMPOSE) exec backend /bin/sh
+
+shell-frontend: ## Shell dans le conteneur frontend
+	$(DOCKER_COMPOSE) exec frontend /bin/sh
+
+# --- Déploiement & Git ---
+
+pull: ## Pull les derniers changements et rebuild
+	@echo "Pull des changements depuis Git..."
+	git pull origin deploy-2
+	@echo "Rebuild des services..."
+	$(DOCKER_COMPOSE) up -d --build
+	@echo "Mise à jour terminée"
+
+push: ## Push les changements vers Git
+	git push origin deploy-2
+	@echo "Push terminé"
+
+deploy: pull ## Déployer la dernière version (alias de pull)
+
+# --- Commandes CTFd ---
+
+ctfd-logs: ## Voir les logs CTFd
+	@cd ../ACE-ctf-platform && docker compose logs -f --tail=100 ctfd
+
+ctfd-restart: ## Redémarrer CTFd
+	@cd ../ACE-ctf-platform && docker compose restart ctfd
+	@echo "CTFd redémarré"
+
+ctfd-status: ## État de CTFd
+	@cd ../ACE-ctf-platform && docker compose ps
+
+# --- Stats & Monitoring ---
+
+stats: ## Statistiques d'utilisation des conteneurs
+	docker stats --no-stream
+
+leaderboard: ## Afficher le classement actuel
+	@echo "Classement actuel (Top 10):"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT name, \"currentScore\", rank FROM teams ORDER BY \"currentScore\" DESC LIMIT 10;"
+
+health-check: ## Vérifier la santé du système
+	@echo "Health check complet"
+	@echo "==================="
+	@echo ""
+	@echo "Services Docker:"
+	@$(DOCKER_COMPOSE) ps
+	@echo ""
+	@echo "Tests de connexion:"
+	@curl -s http://localhost:5000/health > /dev/null && echo "  Backend: OK" || echo "  Backend: FAIL"
+	@curl -s http://localhost:3000 > /dev/null && echo "  Frontend: OK" || echo "  Frontend: FAIL"
+	@echo ""
+	@echo "Base de données:"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_users FROM users;" -t | xargs -I {} echo "  Utilisateurs: {}"
+	@$(DOCKER_COMPOSE) exec postgres psql -U aceuser -d acedb -c "SELECT COUNT(*) as total_teams FROM teams;" -t | xargs -I {} echo "  Équipes: {}"
+
+.DEFAULT_GOAL := help

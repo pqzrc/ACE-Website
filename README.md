@@ -1,124 +1,211 @@
-# ACE Escape Game 2025 - Site d'Inscription
+# ACE 2025 - Site d'Inscription
 
-Site web pour gérer les inscriptions et le suivi de l'ACE 2025.
+Plateforme web d'inscription pour l'événement ACE (Antilles Cyber Escape) 2025 - Un escape game cybersécurité organisé pour l'Université des Antilles.
 
-## Fonctionnalités
+## 🎯 Fonctionnalités
 
-### Participants
-- Inscription avec validation email
-- Profil enrichi (Username, Affiliation)
-- Création d'équipes (3-5 personnes)
-- Code d'invitation pour rejoindre une équipe
-- Dashboard avec informations d'équipe, score et classement
+- **Inscription utilisateur** avec vérification email
+- **Gestion d'équipes** (création, rejoindre, gestion des membres)
+- **Interface administrateur** complète
+- **Export CSV personnalisable** des données
+- **Gestion des créneaux horaires** et salles
+- **Synchronisation avec CTFd** pour le scoring
+- **Notifications personnalisées** et interface moderne
 
-### Administrateurs
-- Statistiques en temps réel
-- Gestion des 4+ salles simultanées
-- Attribution des équipes aux salles
-- Démarrage/arrêt des sessions par salle
-- Export CSV des inscriptions
-- Synchronisation avec CTFd
-
-## Stack Technique
-
-**Frontend**
-- Next.js 16.0.3 (App Router)
-- TypeScript
-- Tailwind CSS
-
-**Backend**
-- Node.js + Express
-- TypeScript
-- PostgreSQL avec Sequelize ORM
-- Redis pour le cache
-- JWT pour l'authentification
-
-**Infrastructure**
-- Docker Compose
-- Nginx (reverse proxy)
-
-## Démarrage Rapide
+## 🚀 Démarrage Rapide
 
 ### Prérequis
+
 - Docker et Docker Compose
-- Node.js 20+ (optionnel pour dev local)
+- Git
 
 ### Installation
 
+1. **Cloner le projet**
+   ```bash
+   git clone <repository-url>
+   cd ACE-Website
+   ```
+
+2. **Configurer l'environnement**
+   ```bash
+   cp .env.example .env
+   # Éditer .env avec vos paramètres
+   ```
+
+3. **Démarrer les services**
+   ```bash
+   make start
+   ```
+
+4. **Accéder à l'application**
+   - Frontend : http://localhost:3000
+   - Backend API : http://localhost:5000
+   - Nginx : http://localhost:8080
+
+## 📋 Commandes Principales
+
 ```bash
-# Cloner le repository
-git clone <repository-url>
-cd ACE-website
-
-# Configurer les variables d'environnement
-cp .env.example .env
-# Éditez .env avec vos valeurs
-
-# Démarrer avec Docker
-npm run dev
-
-# Appliquer les migrations de base de données (si nécessaire)
-docker compose exec backend npx sequelize-cli db:migrate
+make help          # Afficher toutes les commandes
+make start         # Démarrer tous les services
+make stop          # Arrêter tous les services
+make logs          # Voir les logs
+make status        # État des services
+make db-shell      # Accès base de données
+make health-check  # Vérifier la santé du système
 ```
 
-### Accès
-
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-
-### Compte Admin
-
-Défini dans `.env`:
-- Email: `ADMIN_EMAIL`
-- Password: `ADMIN_PASSWORD`
-
-## Structure du Projet
+## 🏗️ Architecture
 
 ```
-ACE-website/
-├── backend/           # API Express + PostgreSQL
-│   ├── src/
-│   │   ├── config/    # Configuration (DB, Redis, env)
-│   │   ├── models/    # Modèles Sequelize
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── services/  # Email, CTFd, Auth
-│   │   └── middleware/
-│   └── Dockerfile
-├── frontend/          # Next.js Application
-│   ├── app/           # Pages (App Router)
-│   ├── components/    # Composants réutilisables
-│   ├── lib/           # Utilities et types
-│   └── Dockerfile
-├── nginx/             # Configuration Nginx
-└── docker-compose.yml
+ACE-Website/
+├── frontend/          # Application Next.js
+├── backend/           # API Node.js/Express
+├── nginx/            # Configuration reverse proxy
+├── email-templates/  # Templates d'emails
+└── deployment/       # Scripts de déploiement
 ```
 
-## API Endpoints
+## 🔧 Configuration
 
-### Authentification
+### Variables d'environnement (.env)
+
+```bash
+# Base de données
+DATABASE_URL=postgresql://aceuser:acepass@postgres:5432/acedb
+
+# JWT & Sécurité
+JWT_SECRET=your-secret-key
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-password
+
+# URLs
+FRONTEND_URL=http://localhost:3000
+CTFD_URL=http://localhost:8000
+
+# Admin par défaut
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=Admin123!
+```
+
+## 👥 Gestion des Utilisateurs
+
+### Créer un Admin
+
+```bash
+make db-make-admin EMAIL=admin@example.com
+```
+
+### Statistiques
+
+```bash
+make db-stats          # Statistiques complètes
+make leaderboard       # Classement des équipes
+```
+
+## 📊 Base de Données
+
+### Backup & Restore
+
+```bash
+make db-backup                           # Créer un backup
+make db-restore FILE=backup.sql          # Restaurer un backup
+make db-reset                           # Réinitialiser (⚠️ perte de données)
+```
+
+### Requêtes Utiles
+
+```bash
+make db-list-users     # Lister tous les utilisateurs
+make db-list-teams     # Lister toutes les équipes
+make db-count-users    # Compter les utilisateurs
+```
+
+## 🔗 Intégration CTFd
+
+Ce site s'intègre avec la plateforme CTFd pour synchroniser :
+- Les équipes et leurs membres
+- Les scores en temps réel
+- L'authentification unique
+
+Voir le projet `ACE-ctf-platform` pour la configuration CTFd.
+
+## 🚀 Déploiement
+
+### Production
+
+1. **Préparer l'environnement**
+   ```bash
+   # Configurer .env pour la production
+   # Vérifier docker-compose.yml
+   ```
+
+2. **Déployer**
+   ```bash
+   make deploy        # Pull + rebuild
+   # ou
+   make pull         # Pull des changements Git
+   make rebuild      # Reconstruction complète
+   ```
+
+3. **Monitoring**
+   ```bash
+   make health-check  # Vérifier la santé
+   make stats        # Statistiques conteneurs
+   ```
+
+## 🛠️ Développement
+
+### Structure du Code
+
+- **Frontend** : Next.js 14, TypeScript, Tailwind CSS
+- **Backend** : Node.js, Express, TypeScript, Sequelize
+- **Base de données** : PostgreSQL
+- **Cache** : Redis
+- **Email** : Nodemailer avec templates HTML
+
+### API Endpoints
+
 - `POST /api/auth/register` - Inscription
 - `POST /api/auth/login` - Connexion
-- `POST /api/auth/verify-email` - Vérification email
-- `GET /api/auth/profile` - Profil utilisateur
+- `GET /api/teams/my-team` - Équipe de l'utilisateur
+- `POST /api/admin/export/csv` - Export CSV personnalisé
+- `GET /api/timeslots` - Créneaux horaires disponibles
 
-### Équipes
-- `POST /api/teams/create` - Créer équipe
-- `POST /api/teams/join` - Rejoindre équipe
-- `GET /api/teams/my-team` - Mon équipe
+## 📝 Troubleshooting
 
-### Admin
-- `GET /api/admin/stats` - Statistiques
-- `GET /api/admin/teams` - Liste équipes
-- `GET /api/admin/export/csv` - Export CSV
-- `POST /api/admin/rooms/assign` - Assigner salles
-- `POST /api/admin/sessions/start` - Démarrer session
+### Problèmes Courants
 
-## Documentation
+**Services ne démarrent pas**
+```bash
+make status        # Vérifier l'état
+make logs         # Voir les erreurs
+make fresh        # Redémarrage complet
+```
 
-- [QUICKSTART.md](./QUICKSTART.md) - Guide de démarrage rapide
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Guide de déploiement
+**Base de données inaccessible**
+```bash
+make db-shell     # Tester la connexion
+# Vérifier DATABASE_URL dans .env
+```
 
-## Auteur
+**Emails non envoyés**
+```bash
+# Vérifier la configuration SMTP dans .env
+make logs-backend  # Voir les logs d'email
+```
 
-Rénald DESIRE - Vizyon Dijital
+## 📄 Licence
+
+Projet développé pour Vizyon Dijital - ACE 2025
+
+## 👨‍💻 Auteur
+
+**Rénald DESIRE** - Développeur principal
+
+---
+
+Pour plus d'informations, consultez le [Guide de Démarrage Rapide](QUICKSTART.md) ou les [Scripts de Déploiement](deployment/DEPLOY.md).

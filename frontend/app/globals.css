@@ -72,6 +72,15 @@
   .text-glow-blue {
     text-shadow: 0 0 10px rgba(9, 199, 223, 0.5);
   }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Custom Scrollbar */
@@ -89,4 +98,31 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-neon-rose/50;
+}
+
+/* Custom Select Dropdown Styling */
+select {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #050511;
+  color: #ffffff;
+  padding: 8px 12px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #0f0e4a;
+  background: linear-gradient(90deg, #0f0e4a 0%, #1a187d 100%);
+  color: #09c7df;
+}
+
+select optgroup {
+  background-color: #050511;
+  color: #9ca3af;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 4px 0;
 }
