@@ -132,8 +132,8 @@ export default function ClassementPage() {
         if (!cfg.resultsAvailable && now < release) {
           setTimeRemaining(calculateTimeRemaining(release - now));
         } else {
-          setTimeRemaining(null);
-        }
+        setTimeRemaining(null);
+      }
       }
     };
 
@@ -306,7 +306,7 @@ export default function ClassementPage() {
                 <p className="text-gray-400 mb-6">
                   Le classement sera dévoilé dans
                 </p>
-                <CountdownDisplay time={timeRemaining} />
+              <CountdownDisplay time={timeRemaining} />
                 <p className="text-sm text-gray-400 mt-8">
                   Concentrez-vous sur les énigmes ! Le classement final sera révélé après la remise des prix.
                 </p>
