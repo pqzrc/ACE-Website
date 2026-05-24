@@ -3,6 +3,7 @@ import { User } from '../../models/User';
 import { Registration, RegistrationStatus } from '../../models/Registration';
 import { generateToken } from '../../utils/crypto';
 import { logger } from '../../utils/logger';
+import { config } from '../../config/env';
 import emailService from '../email.service';
 
 interface RegisterInput {
@@ -57,9 +58,9 @@ class AuthRegistrationService {
       return { success: false, error: 'Ce numéro de téléphone est déjà utilisé.' };
     }
 
-    // Generate verification token
-    const verificationToken = generateToken();
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    // Generate verification token unless local event mode auto-verifies users.
+    const verificationToken = config.autoVerifyEmail ? null : generateToken();
+    const verificationTokenExpiry = config.autoVerifyEmail ? null : new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
     const user = await User.create({
@@ -73,20 +74,23 @@ class AuthRegistrationService {
       specialty,
       verificationToken,
       verificationTokenExpiry,
-      emailVerified: false,
+      emailVerified: config.autoVerifyEmail,
       isAdmin: false,
     });
 
     // Create registration record
     await Registration.create({
       userId: user.id,
-      status: RegistrationStatus.PENDING,
+      status: config.autoVerifyEmail ? RegistrationStatus.VERIFIED : RegistrationStatus.PENDING,
+      verifiedAt: config.autoVerifyEmail ? new Date() : undefined,
     });
 
-    // Send verification email in background
-    emailService.sendVerificationEmail(email, verificationToken, firstName).catch(() => {
-      logger.warn(`Failed to send verification email to ${email}. User can still verify manually.`);
-    });
+    if (!config.disableEmails && verificationToken) {
+      // Send verification email in background
+      emailService.sendVerificationEmail(email, verificationToken, firstName).catch(() => {
+        logger.warn(`Failed to send verification email to ${email}. User can still verify manually.`);
+      });
+    }
 
     logger.info(`New user registered: ${email}`);
     return { success: true, user };
@@ -115,10 +119,12 @@ class AuthRegistrationService {
       { where: { userId: user.id } }
     );
 
-    // Send account confirmed email in background
-    emailService.sendAccountConfirmedEmail(user.email, user.firstName).catch(() => {
-      logger.warn(`Failed to send account confirmed email to ${user.email}.`);
-    });
+    if (!config.disableEmails) {
+      // Send account confirmed email in background
+      emailService.sendAccountConfirmedEmail(user.email, user.firstName).catch(() => {
+        logger.warn(`Failed to send account confirmed email to ${user.email}.`);
+      });
+    }
 
     logger.info(`Email verified for user: ${user.email}`);
     return { success: true };
@@ -142,7 +148,10 @@ class AuthRegistrationService {
     user.verificationTokenExpiry = verificationTokenExpiry;
     await user.save();
 
-    // Send email
+    if (config.disableEmails) {
+      return { success: false, error: 'Les emails sont désactivés pour cet événement.' };
+    }
+
     await emailService.sendVerificationEmail(email, verificationToken, user.firstName);
 
     return { success: true };
@@ -150,4 +159,3 @@ class AuthRegistrationService {
 }
 
 export default new AuthRegistrationService();
-

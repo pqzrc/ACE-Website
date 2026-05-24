@@ -32,6 +32,8 @@ export const config = {
   smtpUser: process.env.SMTP_USER,
   smtpPass: process.env.SMTP_PASS,
   smtpFrom: process.env.SMTP_FROM,
+  disableEmails: process.env.DISABLE_EMAILS === 'true',
+  autoVerifyEmail: process.env.AUTO_VERIFY_EMAIL === 'true',
 
   // Frontend
   frontendUrl: process.env.FRONTEND_URL,
@@ -65,4 +67,3 @@ export const validateEnv = (): void => {
     throw new Error('❌ FATAL: You must change JWT_SECRET in production!');
   }
 };
-

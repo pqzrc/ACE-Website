@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { verifyCaptcha, isCaptchaRequired } from '../services/captcha.service';
 import ctfdService from '../services/ctfd.service';
 import { authTokenService, authRegistrationService, authPasswordService, authProfileService } from '../services/auth';
+import { config } from '../config/env';
 import { logger } from '../utils/logger';
 import { AuthRequest } from '../types';
 
@@ -34,7 +35,9 @@ export class AuthController {
 
       res.status(201).json({
         success: true,
-        message: 'Inscription réussie ! Vérifiez votre email pour activer votre compte.',
+        message: config.autoVerifyEmail
+          ? 'Inscription réussie ! Vous pouvez maintenant créer ou rejoindre une équipe.'
+          : 'Inscription réussie ! Vérifiez votre email pour activer votre compte.',
         data: { userId: result.user.id, email: result.user.email },
       });
     } catch (error) {
